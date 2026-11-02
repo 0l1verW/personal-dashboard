@@ -10,7 +10,8 @@
   function badge(t,ok){ var b=document.getElementById('__piSync'); if(!b){ if(!document.body) return; b=document.createElement('div'); b.id='__piSync';
       b.style.cssText='position:fixed;left:8px;bottom:'+(innerWidth<=640?'calc(76px + env(safe-area-inset-bottom,0px))':'8px')+';z-index:99999;font:11px/1.4 system-ui,sans-serif;padding:3px 8px;border-radius:99px;pointer-events:none;opacity:.85';
       document.body.appendChild(b); }
-    b.textContent=t; b.style.background=ok?'#1f7a4d':'#b3261e'; b.style.color='#fff'; }
+    b.textContent=t; b.style.background=ok?'#1f7a4d':'#b3261e'; b.style.color='#fff'; b.style.transition='opacity .4s'; b.style.opacity='.9';
+    clearTimeout(badge._t); if(ok) badge._t=setTimeout(function(){ b.style.opacity='0'; },3500); }   // Erfolg kurz zeigen, Fehler bleiben stehen
   function push(k,raw){
     var x=new XMLHttpRequest(); x.open('PUT',API+k,true); x.setRequestHeader('Content-Type','application/json');
     x.onload=function(){ if(x.status===200||x.status===409){ last[k]=Math.max(last[k]||0,ts(raw)); badge('Pi ✓ '+new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}),true);} else badge('Pi ✗ nicht gespeichert',false); };

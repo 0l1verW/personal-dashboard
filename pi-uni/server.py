@@ -20,14 +20,15 @@ def saved_at(obj):
 
 INDEX = """<!doctype html><html lang="de"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#5B4BE0"><title>Uni-Apps</title>{{ICON}}
+<meta name="theme-color" content="#5B4BE0"><title>Uni-Apps</title>{{ICON}}<link rel="stylesheet" href="/fonts/fonts.css">
 <script>try{var t=localStorage.getItem('launcher_theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
 <style>
 :root{--bg:#EEF1F8;--card:#fff;--ink:#141B2C;--muted:#5C6680;--border:#E1E6F0;--accent:#5B4BE0;--accent2:#7C6BF0;color-scheme:light}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0D1016;--card:#161B25;--ink:#EAEEF6;--muted:#98A3B8;--border:#28303F;--accent:#8B7CF5;--accent2:#A396F7;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#0D1016;--card:#161B25;--ink:#EAEEF6;--muted:#98A3B8;--border:#28303F;--accent:#8B7CF5;--accent2:#A396F7;color-scheme:dark}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.4 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+h1{font-family:"Space Grotesk",Inter,system-ui,sans-serif}
 main{max-width:520px;margin:0 auto;padding:max(32px,env(safe-area-inset-top)) 16px 32px}
 header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
 h1{font-size:30px;margin:0;letter-spacing:-.5px}
@@ -36,13 +37,19 @@ ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10p
 a{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;background:var(--card);border:1px solid var(--border);color:var(--ink);text-decoration:none;font-weight:600;transition:border-color .15s,transform .15s}
 a:hover{border-color:var(--accent);transform:translateY(-1px)}
 .ic{width:44px;height:44px;border-radius:11px;flex:none;display:block}
-.nm{flex:1}.ar{color:var(--muted)}
+.nm{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}.meta{font-weight:500;font-size:13px;color:var(--muted)}.meta:empty{display:none}.meta b{color:var(--ink);font-weight:600}.ar{color:var(--muted)}
 p{color:var(--muted);font-size:13px;margin-top:18px}
 </style></head><body><main>
 <header><h1>Uni-Apps</h1><button class="tb" id="tb" title="Hell / Dunkel" aria-label="Farbschema wechseln"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button></header>
 <ul>{{ITEMS}}</ul>
 <p>Daten werden über den Raspberry Pi zwischen deinen Geräten abgeglichen.</p>
 </main><script>
+function rel(ms){ var h=Math.round(ms/36e5); if(ms<0) return 'überfällig'; if(h<1) return 'in '+Math.max(1,Math.round(ms/6e4))+' Min.'; if(h<48) return 'in '+h+' Std.'; return 'in '+Math.round(h/24)+' Tagen'; }
+function meta(k,html){ document.querySelectorAll('.meta[data-k="'+k+'"]').forEach(function(e){ e.innerHTML=html; }); }
+fetch('/api/sum_planer').then(function(r){ return r.ok?r.json():null; }).then(function(d){ if(!d) return; var now=Date.now(), n=(d.next||[]).filter(function(x){ return x.due>now; })[0];
+  meta('planer', n?'Nächste Abgabe: <b>'+n.t+'</b> · '+rel(n.due-now)+(n.f?' · fertig':''):'Keine offenen Abgaben'); }).catch(function(){});
+fetch('/api/sum_noten').then(function(r){ return r.ok?r.json():null; }).then(function(d){ if(!d) return;
+  meta('noten', 'Schnitt <b>'+(d.gpa||'–')+'</b> · '+d.ects+' / 180 ECTS'); }).catch(function(){});
 document.getElementById('tb').onclick=function(){
   var r=document.documentElement, cur=r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'), nx=cur==='dark'?'light':'dark';
   r.setAttribute('data-theme',nx);
@@ -103,7 +110,8 @@ class H(SimpleHTTPRequestHandler):
             html = open(f, encoding='utf-8').read()
             low = os.path.basename(f).lower()
             ic, title = ('planer', 'Planer') if 'semester' in low or 'planer' in low else ('noten', 'Noten') if 'noten' in low or 'cockpit' in low else ('uni', os.path.basename(f)[:-5])
-            tag = icon_tags(ic, title) + '<script>' + SYNC + '</script>'
+            html = re.sub(r'<link[^>]+fonts\.(?:googleapis|gstatic)\.com[^>]*>\s*', '', html)   # Google Fonts raus …
+            tag = icon_tags(ic, title) + '<link rel="stylesheet" href="/fonts/fonts.css">' + '<script>' + SYNC + '</script>'   # … lokale Schriften rein
             m = re.search(r'<head[^>]*>', html, re.I)
             html = html[:m.end()] + tag + html[m.end():] if m else tag + html
             return self.send(200, html.encode('utf-8'), 'text/html; charset=utf-8')
@@ -111,7 +119,7 @@ class H(SimpleHTTPRequestHandler):
 
     def index(self):
         items = ''.join(
-            f'<li><a href="/{n}"><img class="ic" src="/icons/{icon_of(n)}-180.png" alt=""><span class="nm">{n[:-5]}</span><span class="ar">→</span></a></li>'
+            f'<li><a href="/{n}"><img class="ic" src="/icons/{icon_of(n)}-180.png" alt=""><span class="nm">{n[:-5]}<small class="meta" data-k="{icon_of(n)}"></small></span><span class="ar">→</span></a></li>'
             for n in sorted(os.listdir(WWW), key=str.lower) if n.endswith('.html'))
         page = INDEX.replace('{{ITEMS}}', items).replace('{{ICON}}', icon_tags('uni', 'Uni'))
         self.send(200, page.encode('utf-8'), 'text/html; charset=utf-8')

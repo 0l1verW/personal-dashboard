@@ -1,0 +1,2429 @@
+<!DOCTYPE html>
+<html lang="de"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BSc Informatik · Notencockpit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=Inter:wght@400;450;500;600&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF1F8; --surface:#FFFFFF; --surface-2:#F6F8FC; --surface-3:#EDF1F8;
+  --border:#E1E6F0; --border-strong:#CFD6E4;
+  --ink:#141B2C; --muted:#5C6680; --faint:#646D84; --good-ink:#0D7038; --mid-ink:#8F5400; --bad-ink:#A8241A; --info:#2C7BD6; --info-ink:#1F5FB0; --on-good:#fff;
+  --accent:#5B4BE0; --accent-2:#7C6BF0; --accent-soft:rgba(91,75,224,.10); --accent-line:rgba(91,75,224,.25);
+  --good:#16A85A; --ok:#3F9D5B; --mid:#D99318; --warn:#E0772A; --bad:#DD4636;
+  --shadow:0 1px 2px rgba(20,27,44,.04),0 8px 24px rgba(20,27,44,.06);
+  --shadow-lg:0 4px 12px rgba(20,27,44,.08),0 24px 48px rgba(20,27,44,.10);
+  --r:16px; --r-sm:10px; --r-lg:22px;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --disp:'Space Grotesk',system-ui,sans-serif;
+  --body:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  color-scheme:light;
+}
+[data-theme="dark"]{
+  --bg:#0D1016; --surface:#161B25; --surface-2:#1B212D; --surface-3:#222A38;
+  --border:#28303F; --border-strong:#384256;
+  --ink:#EAEEF6; --muted:#98A3B8; --faint:#8A95AA; --good-ink:#5AD597; --mid-ink:#F2B65C; --bad-ink:#FF8577; --info:#4C9BEF; --info-ink:#79B6F7; --on-good:#0D1016;
+  --accent:#8B7CF5; --accent-2:#A396F7; --accent-soft:rgba(139,124,245,.15); --accent-line:rgba(139,124,245,.32);
+  --good:#2FC473; --ok:#4FB46C; --mid:#E5A23A; --warn:#EE8A44; --bad:#F0604F;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  --shadow-lg:0 4px 12px rgba(0,0,0,.4),0 24px 48px rgba(0,0,0,.5);
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--body);background:var(--bg);color:var(--ink);line-height:1.5;
+  -webkit-font-smoothing:antialiased;min-height:100vh;font-feature-settings:"cv02","cv03","cv04","ss01"}
+.app{max-width:1280px;margin:0 auto;padding:22px 22px 80px}
+@media(max-width:640px){.app{padding:14px 16px 60px}}
+button{font:inherit}
+
+/* Header */
+.topbar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.brand{display:flex;align-items:center;gap:13px;margin-right:auto;min-width:0}
+.glyph{width:46px;height:46px;border-radius:13px;flex:0 0 auto;background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  display:grid;place-items:center;color:#fff;font-family:var(--disp);font-weight:700;font-size:19px;box-shadow:0 6px 16px var(--accent-line);position:relative;overflow:hidden}
+.glyph::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(125deg,transparent 0 6px,rgba(255,255,255,.08) 6px 7px)}
+.brand h1{font-family:var(--disp);font-size:18px;font-weight:600;letter-spacing:-.2px;line-height:1.1}
+.brand .sub{font-size:12.5px;color:var(--muted);font-weight:450;margin-top:1px}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.btn{font-family:var(--body);font-size:13px;font-weight:500;color:var(--ink);background:var(--surface);border:1px solid var(--border-strong);
+  border-radius:10px;padding:9px 13px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:.16s ease;white-space:nowrap}
+.btn:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn svg{width:15px;height:15px;stroke-width:1.9;flex:none}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.primary:hover{background:var(--accent-2);color:#fff}
+.btn.icon{padding:9px;width:38px;justify-content:center}
+.btn.sm{padding:6px 10px;font-size:12px}
+.btn.icon.alert{position:relative}
+.btn.icon.alert::after{content:"";position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--warn);box-shadow:0 0 0 2px var(--surface)}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:5px;margin-bottom:22px;
+  width:fit-content;max-width:100%;overflow-x:auto;box-shadow:var(--shadow);scrollbar-width:none}
+.tab{font-size:13.5px;font-weight:500;color:var(--muted);border:none;background:transparent;padding:9px 16px;border-radius:9px;cursor:pointer;
+  transition:.16s;white-space:nowrap;display:flex;align-items:center;gap:7px}
+.tab:hover{color:var(--ink)}
+.tab.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.tab .cnt{font-family:var(--mono);font-size:11px;background:var(--surface-3);padding:1px 6px;border-radius:6px;color:var(--muted)}
+.tab.active .cnt{background:var(--accent);color:#fff}
+.tab .cnt.warn{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--mid-ink)}
+
+/* Cards */
+.grid{display:grid;gap:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);padding:20px;min-width:0}
+.card h2{font-family:var(--disp);font-size:14px;font-weight:600;letter-spacing:.2px;display:flex;align-items:center;gap:8px;margin-bottom:3px}
+.card h2 svg{flex:none}
+.card .cap{font-size:12px;color:var(--muted);margin-bottom:16px}
+.eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--faint);font-weight:500}
+.two{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}
+@media(max-width:900px){.two{grid-template-columns:1fr}}
+
+/* Hero */
+.hero{display:grid;grid-template-columns:1.15fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:860px){.hero{grid-template-columns:1fr}}
+.hero-main{background:radial-gradient(120% 140% at 100% 0%,var(--accent-soft),transparent 55%),var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-lg);box-shadow:var(--shadow);padding:24px;display:flex;gap:26px;align-items:center;flex-wrap:wrap}
+.gauge-wrap{flex:0 0 auto;text-align:center;position:relative;margin:0 auto}
+.gauge{width:188px;height:124px;display:block}
+.gauge-box{position:relative}
+.gauge-read{position:absolute;left:0;right:0;bottom:6px;text-align:center}
+.gauge-read .big{font-family:var(--mono);font-weight:700;font-size:40px;letter-spacing:-1px;line-height:1;cursor:help}
+.gauge-read .lbl{font-size:11px;color:var(--muted);margin-top:2px;font-weight:500}
+.gauge-read .big.p3{font-size:33px} .gauge-read .big.p4{font-size:29px}
+.prec{margin-top:10px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:2px}
+.seg button{font-family:var(--mono);font-size:11.5px;color:var(--muted);background:none;border:0;border-radius:6px;padding:4px 8px;cursor:pointer;min-width:26px}
+.seg button:hover{color:var(--ink)}
+.seg button.on{background:var(--surface);color:var(--accent);font-weight:700;box-shadow:0 1px 2px rgba(20,27,44,.12)}
+.seg.txt button{font-family:var(--body)}
+.gauge-class{margin-top:4px;font-size:12.5px;font-weight:600;font-family:var(--disp)}
+.hero-facts{flex:1 1 220px;min-width:200px;display:flex;flex-direction:column;gap:13px}
+.fact-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px dashed var(--border)}
+.fact-row:last-child{border-bottom:none;padding-bottom:0}
+.fact-row .k{font-size:12.5px;color:var(--muted)}
+.fact-row .k small{display:block;font-size:11px;color:var(--faint)}
+.fact-row .v{font-family:var(--mono);font-weight:600;font-size:17px;text-align:right;white-space:nowrap}
+.fact-row .v small{font-size:12px;color:var(--faint);font-weight:400}
+
+.ring-card{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:6px}
+.ring-wrap{position:relative;width:172px;height:172px}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-center .pct{font-family:var(--mono);font-weight:700;font-size:30px;line-height:1}
+.ring-center .cr{font-size:11.5px;color:var(--muted);margin-top:3px}
+.ring-legend{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:4px}
+.lg{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted)}
+.lg i{width:9px;height:9px;border-radius:3px;display:inline-block;flex:none}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden;min-width:0}
+.stat .ic{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
+.stat .ic svg{width:16px;height:16px;stroke-width:2}
+.stat .n{font-family:var(--mono);font-weight:700;font-size:27px;letter-spacing:-.5px;margin-top:6px}
+.stat .l{font-size:12px;color:var(--muted);margin-top:2px}
+.stat .d{font-size:11.5px;margin-top:6px;font-weight:500;color:var(--muted)}
+
+/* Abschluss-Check */
+.req{display:flex;flex-direction:column;gap:13px}
+.req-row .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
+.req-row .nm{font-size:13px;font-weight:500;display:flex;align-items:center;gap:7px;min-width:0}
+.req-row .nm .code{font-family:var(--mono);font-size:10.5px;color:var(--faint);font-weight:400}
+.req-row .vv{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap}
+.req-row .sub{font-size:11px;color:var(--faint);margin-top:4px}
+.req-row .sub.warn{color:var(--mid-ink)}
+.ck{width:16px;height:16px;border-radius:50%;display:inline-grid;place-items:center;flex:none;font-size:10px;font-weight:700;color:#fff;background:var(--surface-3)}
+.ck.ok{background:var(--good)}
+.bar{height:9px;border-radius:6px;background:var(--surface-3);overflow:hidden;position:relative;display:flex}
+.bar > i{display:block;height:100%;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.bar > i:first-child{border-radius:6px 0 0 6px}
+.bar > i.run{background:repeating-linear-gradient(135deg,var(--mid) 0 5px,color-mix(in srgb,var(--mid) 70%,transparent) 5px 10px)}
+
+/* Hinweise */
+.hints{display:flex;flex-direction:column;gap:8px}
+.hint{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;line-height:1.45;padding:10px 12px;border-radius:10px;
+  background:var(--surface-2);border:1px solid var(--border)}
+.hint .hi{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;flex:none;font-weight:700;font-size:11px;color:#fff;margin-top:1px}
+.hint.bad .hi{background:var(--bad)} .hint.warn .hi{background:var(--warn)} .hint.info .hi{background:var(--accent)} .hint.ok .hi{background:var(--good)}
+.hint b{font-weight:600}
+.hint .go{margin-left:auto;font-size:11.5px;color:var(--accent);background:none;border:0;cursor:pointer;white-space:nowrap;font-weight:600;padding:0 2px}
+.hint .go:hover{text-decoration:underline}
+.exams{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.exam{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);cursor:pointer}
+.exam:hover{border-color:var(--accent-line)}
+.exam .dd{font-family:var(--mono);font-weight:700;font-size:18px;min-width:46px;text-align:center;line-height:1}
+.exam .dd small{display:block;font-size:9.5px;font-weight:500;color:var(--muted);font-family:var(--body);margin-top:2px}
+.exam .en{flex:1;min-width:0;font-size:13px;font-weight:500}
+.exam .en small{display:block;font-size:11px;color:var(--muted);font-weight:400}
+.notes-list{display:flex;flex-direction:column;gap:8px}
+.notes-list .nt{font-size:12.5px;padding:10px 12px;border-radius:10px;border:1px dashed var(--border-strong);background:var(--surface-2);cursor:pointer;white-space:pre-wrap}
+.notes-list .nt b{display:block;font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:2px;white-space:normal}
+
+/* Tabelle */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.search{flex:1 1 200px;position:relative;min-width:160px}
+.search input{width:100%;font-family:var(--body);font-size:13.5px;color:var(--ink);background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:10px 12px 10px 34px}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--faint);stroke-width:2}
+.search input:focus{outline:none;border-color:var(--accent);background:var(--surface)}
+.chip-row{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:12px;font-weight:500;color:var(--muted);background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:7px 11px;cursor:pointer;transition:.15s}
+.chip:hover{border-color:var(--border-strong);color:var(--ink)}
+.chip.on{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent);font-weight:600}
+.sel{font-family:var(--body);font-size:12.5px;color:var(--ink);background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:8px 10px;cursor:pointer}
+.sel:focus{outline:none;border-color:var(--accent)}
+.tbl-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+#modTable{min-width:900px}
+thead th{font-family:var(--disp);font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);text-align:left;padding:12px 12px;
+  background:var(--surface-2);border-bottom:1px solid var(--border);user-select:none;white-space:nowrap}
+thead th[data-sort]{cursor:pointer}
+thead th[data-sort]:hover{color:var(--ink)}
+thead th .ar{opacity:.4;font-size:9px;margin-left:3px}
+thead th.sorted .ar{opacity:1;color:var(--accent)}
+tbody tr{border-bottom:1px solid var(--border);transition:background .12s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--surface-2)}
+td{padding:10px 12px;vertical-align:middle}
+.m-name{font-weight:500;line-height:1.3;cursor:pointer}
+.m-name:hover{color:var(--accent)}
+.m-code{font-family:var(--mono);font-size:11px;color:var(--faint);margin-top:2px}
+.m-code .pf{font-family:var(--body);color:var(--muted)}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:7px;white-space:nowrap}
+.sem-pill{font-family:var(--mono);font-weight:600;font-size:12px;min-width:30px;height:30px;padding:0 6px;display:inline-grid;place-items:center;border-radius:9px;background:var(--surface-3);color:var(--ink)}
+.cr{font-family:var(--mono);font-weight:500}
+.wt{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.grade-in{font-family:var(--mono);font-weight:700;font-size:14px;width:62px;text-align:center;border:1px solid var(--border-strong);border-radius:9px;padding:6px 4px;background:var(--surface);color:var(--ink)}
+.grade-in:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.grade-in[readonly]{background:var(--surface-2);cursor:pointer}
+.status{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;white-space:nowrap}
+.status i{width:8px;height:8px;border-radius:50%;flex:none}
+.flag{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:5px;font-size:10px;font-weight:700;color:#fff;background:var(--warn);margin-left:6px;vertical-align:1px;cursor:help}
+.flag.bad{background:var(--bad)}
+.row-act{display:flex;gap:4px;opacity:0;transition:.15s}
+tr:hover .row-act,tr:focus-within .row-act{opacity:1}
+@media(hover:none){.row-act{opacity:1}}
+.mini{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--surface);display:grid;place-items:center;cursor:pointer;color:var(--muted);transition:.15s;flex:none}
+.mini:hover{border-color:var(--accent);color:var(--accent)}
+.mini svg{width:15px;height:15px;stroke-width:2}
+.mini.del:hover{border-color:var(--bad);color:var(--bad)}
+tfoot td{padding:13px 12px;font-weight:600;border-top:2px solid var(--border-strong);background:var(--surface-2)}
+
+/* Verlaufsplan */
+.road{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.sem-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.sem-head{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--surface-2)}
+.sem-head .ti{display:flex;align-items:center;gap:10px}
+.sem-no{font-family:var(--disp);font-weight:700;font-size:14px;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:var(--accent);color:#fff;flex:none}
+.sem-head .meta{font-size:11.5px;color:var(--muted)}
+.sem-gpa{font-family:var(--mono);font-weight:700;font-size:15px;padding:4px 10px;border-radius:8px}
+.sem-body{padding:10px 14px}
+.sm{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed var(--border);cursor:pointer}
+.sm:last-child{border-bottom:none}
+.sm .dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+.sm .nm{flex:1;font-size:12.5px;line-height:1.25;min-width:0}
+.sm .cr{font-size:11px;color:var(--faint)}
+.sm .gr{font-family:var(--mono);font-weight:700;font-size:13px;min-width:34px;text-align:right}
+.sem-foot{padding:11px 16px;display:flex;justify-content:space-between;font-size:12px;color:var(--muted);border-top:1px solid var(--border);background:var(--surface-2)}
+.sem-foot b{font-family:var(--mono);color:var(--ink)}
+.vp-scroll{overflow-x:auto;padding-bottom:4px;margin-top:8px}
+.vplan{display:grid;grid-template-columns:repeat(6,minmax(124px,1fr));gap:8px;min-width:780px}
+.vp-col{display:flex;flex-direction:column;gap:6px;border-radius:12px;padding:3px;transition:background .15s,outline-color .15s;outline:2px dashed transparent;outline-offset:-1px}
+.vp-col.drop,.vp-extra.drop{background:var(--accent-soft);outline-color:var(--accent-line)}
+.vp-h{font-family:var(--disp);font-size:12px;font-weight:600;color:var(--muted);text-align:center;padding:6px 4px;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;line-height:1.25}
+.vp-h small{display:block;font-family:var(--mono);font-size:10px;font-weight:500;color:var(--faint)}
+.vp-h.now{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.vp-h.now small{color:var(--accent)}
+.vp-blk{border-radius:10px;padding:9px 10px;color:#fff;cursor:pointer;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;
+  transition:transform .12s,box-shadow .12s;border:1px solid rgba(255,255,255,.12)}
+.vp-blk:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);z-index:2}
+.vp-blk.dragging{opacity:.45}
+.vp-blk .bn{font-size:12px;font-weight:600;line-height:1.2;padding-right:14px}
+.vp-blk .bb{display:flex;align-items:flex-end;justify-content:space-between;gap:6px;margin-top:8px}
+.vp-blk .blp{font-family:var(--mono);font-size:10.5px;opacity:.85;font-weight:500}
+.vp-blk .bg{font-family:var(--mono);font-weight:700;font-size:17px;line-height:1;background:rgba(255,255,255,.22);padding:3px 7px;border-radius:7px}
+.vp-blk .bg.e{background:rgba(255,255,255,.14);font-size:11px;font-weight:500;padding:3px 6px}
+.vp-blk.faded{color:var(--ink)}
+.vp-blk.faded .blp{color:var(--muted);opacity:1}
+.vp-blk.faded .bg.e{background:var(--surface-3);color:var(--muted)}
+.vp-blk .wf{position:absolute;top:6px;right:6px;width:16px;height:16px;border-radius:50%;background:#fff;color:var(--warn);display:grid;place-items:center;font-size:10px;font-weight:800;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.vp-blk .wf.bad{color:var(--bad)}
+.vp-tot{font-family:var(--mono);font-size:12px;font-weight:600;text-align:center;padding:7px;border:1px solid var(--border);border-radius:9px;background:var(--surface-2);margin-top:auto}
+.vp-tot small{display:block;font-size:9.5px;color:var(--faint);font-weight:400;margin-top:1px;font-family:var(--body)}
+.vp-tot.hi{border-color:color-mix(in srgb,var(--warn) 50%,var(--border));color:var(--mid-ink)}
+.vp-extra{margin-top:10px;border-radius:12px;padding:3px;outline:2px dashed transparent;outline-offset:-1px}
+.vp-extra .vp-blk{flex-direction:row;align-items:center;justify-content:flex-start;gap:12px;padding:11px 14px}
+.vp-extra .vp-blk .bb{margin:0 0 0 auto}
+.vp-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;padding-top:13px;border-top:1px solid var(--border)}
+.vp-legend .lg i{width:11px;height:11px;border-radius:3px}
+
+/* Analyse */
+.an-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media(max-width:860px){.an-grid{grid-template-columns:1fr}}
+.hist{display:flex;align-items:flex-end;gap:6px;height:180px;padding-top:18px}
+.hbar{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;height:100%;justify-content:flex-end;min-width:0}
+.hbar .bar2{width:100%;max-width:38px;border-radius:6px 6px 3px 3px;transition:height .8s cubic-bezier(.2,.8,.2,1);position:relative}
+.hbar .bar2 span{position:absolute;top:-18px;left:-6px;right:-6px;text-align:center;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--muted)}
+.hbar .xl{font-family:var(--mono);font-size:10.5px;color:var(--muted);font-weight:500}
+.trend{width:100%;height:210px;display:block}
+.prof-list{display:flex;flex-direction:column;gap:11px}
+.prof{display:flex;align-items:center;gap:12px}
+.prof .av{width:34px;height:34px;border-radius:10px;flex:0 0 auto;display:grid;place-items:center;font-family:var(--disp);font-weight:600;font-size:12px;color:#fff}
+.prof .info{flex:1;min-width:0}
+.prof .pn{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prof .pm{font-size:11px;color:var(--muted)}
+.prof .pv{font-family:var(--mono);font-weight:700;font-size:14px}
+.load{display:flex;align-items:flex-end;gap:10px;height:170px;padding-top:18px;position:relative}
+.load .lc{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;height:100%;justify-content:flex-end;position:relative;z-index:1}
+.load .stack{width:100%;max-width:46px;display:flex;flex-direction:column-reverse;border-radius:6px;overflow:hidden;position:relative}
+.load .stack i{display:block;width:100%}
+.load .lv{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--muted)}
+.load .xl{font-family:var(--mono);font-size:10.5px;color:var(--muted);height:16px;line-height:16px}
+.load .ref{position:absolute;left:0;right:0;border-top:1.5px dashed var(--faint);z-index:0}
+.load .ref span{position:absolute;right:0;top:-16px;font-family:var(--mono);font-size:10px;color:var(--faint)}
+
+/* Simulator */
+.sim-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:760px){.sim-grid{grid-template-columns:1fr}}
+.scenario{display:flex;flex-direction:column;gap:11px}
+.scn{display:flex;align-items:center;gap:13px;padding:12px 15px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--surface-2)}
+.scn .sv{font-family:var(--mono);font-weight:700;font-size:22px;min-width:64px;text-align:center}
+.scn .st{font-size:12.5px;font-weight:600}
+.scn .sd{font-size:11.5px;color:var(--muted)}
+.target-box{display:flex;flex-direction:column;gap:14px}
+.slider-row label{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:7px}
+.slider-row label b{font-family:var(--mono);color:var(--accent);font-size:15px}
+input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:6px;border-radius:6px;background:linear-gradient(90deg,var(--accent) var(--p,40%),var(--surface-3) var(--p,40%));outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--surface);border:3px solid var(--accent);cursor:pointer;box-shadow:var(--shadow)}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--surface);border:3px solid var(--accent);cursor:pointer}
+.need{padding:16px;border-radius:var(--r-sm);text-align:center;background:var(--accent-soft);border:1px solid var(--accent-line)}
+.need .nb{font-family:var(--mono);font-weight:700;font-size:34px;color:var(--accent);line-height:1}
+.need .nt{font-size:12.5px;color:var(--muted);margin-top:5px}
+.wi-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.wi-res{display:flex;gap:18px;align-items:baseline}
+.wi-res .big{font-family:var(--mono);font-weight:700;font-size:30px;line-height:1}
+.wi-res small{font-size:11.5px;color:var(--muted)}
+.wi-tbl{min-width:520px}
+.wi-tbl td{padding:8px 12px}
+.wi-tbl select{font-family:var(--mono);font-weight:700;font-size:13px;padding:6px 8px;border-radius:8px;border:1px solid var(--border-strong);background:var(--surface);color:var(--ink);cursor:pointer}
+.wi-bulk{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted)}
+
+/* Regeln */
+.rules{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:16px}
+.rule{padding:14px 15px;border-radius:12px;border:1px solid var(--border);background:var(--surface-2);font-size:12.5px;line-height:1.5;color:var(--muted)}
+.rule b{display:block;color:var(--ink);font-family:var(--disp);font-size:13px;font-weight:600;margin-bottom:4px}
+.rule .src{display:block;margin-top:6px;font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+#mhbTable{min-width:900px}
+#mhbTable td{font-size:12.5px;vertical-align:top}
+#mhbTable .c{font-family:var(--mono);font-size:11.5px;white-space:nowrap}
+#mhbTable .pr{font-family:var(--mono);font-size:11px;color:var(--muted)}
+
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(15,18,28,.55);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:50;padding:18px}
+.overlay.show{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-lg);width:100%;max-width:600px;max-height:92vh;overflow:auto}
+.modal-h{padding:20px 22px 0;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.modal-h h3{font-family:var(--disp);font-size:17px;font-weight:600}
+.modal-b{padding:18px 22px 22px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:520px){.modal-b{grid-template-columns:1fr}}
+.fld{display:flex;flex-direction:column;gap:5px;min-width:0}
+.fld.full{grid-column:1/-1}
+.fld label,.fld .lb{font-size:11.5px;font-weight:600;color:var(--muted);font-family:var(--disp);letter-spacing:.2px}
+.fld input,.fld select,.fld textarea{font-family:var(--body);font-size:13.5px;color:var(--ink);background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:10px 11px;width:100%}
+.fld textarea{resize:vertical;min-height:62px;line-height:1.45}
+.fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:var(--accent);background:var(--surface)}
+.fld .help{font-size:11px;color:var(--faint)}
+.modal-f{padding:0 22px 22px;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.mhb-box{grid-column:1/-1;font-size:12px;color:var(--muted);background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:10px;padding:11px 13px;line-height:1.55}
+.mhb-box b{color:var(--ink);font-weight:600}
+.mhb-box .w{color:var(--mid-ink);font-weight:600}
+.parts{grid-column:1/-1;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.parts-h{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--surface-2);font-size:12px;font-weight:600;color:var(--muted);gap:8px;flex-wrap:wrap}
+.part{display:grid;grid-template-columns:1fr 64px 64px auto 30px;gap:6px;align-items:center;padding:7px 10px;border-top:1px solid var(--border)}
+.part input[type=text],.part input[type=number]{font-size:12.5px;padding:7px 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--ink);width:100%;min-width:0;font-family:var(--body)}
+.part input.g{font-family:var(--mono);font-weight:700;text-align:center}
+.part label{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px;white-space:nowrap}
+.parts-empty{padding:10px 12px;font-size:12px;color:var(--faint);border-top:1px solid var(--border)}
+@media(max-width:520px){.part{grid-template-columns:1fr 56px 56px 30px}.part label{grid-column:1/-1}}
+
+.empty{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty svg{width:38px;height:38px;stroke-width:1.5;color:var(--faint);margin-bottom:10px}
+.empty p{font-size:13.5px}
+.note-box{font-size:12.5px;color:var(--muted);background:var(--surface-2);border:1px dashed var(--border-strong);border-radius:var(--r-sm);padding:13px 15px;line-height:1.55}
+.note-box b{color:var(--ink);font-weight:600}
+code{font-family:var(--mono);font-size:11.5px;background:var(--surface-3);padding:1px 5px;border-radius:4px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:var(--bg);font-size:13px;font-weight:500;
+  padding:11px 18px;border-radius:11px;box-shadow:var(--shadow-lg);z-index:99;opacity:0;transition:.3s cubic-bezier(.2,.8,.2,1);pointer-events:none;max-width:calc(100vw - 32px);text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.view{display:none;animation:fade .35s ease}
+.view.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.foot{margin-top:30px;text-align:center;font-size:11.5px;color:var(--faint)}
+.foot b{color:var(--muted);font-family:var(--mono);font-weight:500}
+
+/* Backup-Dialog */
+.modal.bk{max-width:620px}
+.bk-body{padding:14px 22px 22px;display:flex;flex-direction:column;gap:20px}
+.bk-sec h4{font-family:var(--disp);font-size:13.5px;font-weight:600;margin-bottom:9px}
+.bk-hint{font-size:12.5px;color:var(--muted);line-height:1.55;margin-top:8px}
+.bk-hint b{color:var(--ink);font-weight:600}
+.bk-status{list-style:none;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden}
+.bk-status li{display:flex;align-items:center;gap:10px;padding:9px 12px;font-size:13px;background:var(--surface-2)}
+.bk-status li+li{border-top:1px solid var(--border)}
+.bk-status .dot{width:9px;height:9px;border-radius:50%;flex:none;background:var(--faint)}
+.bk-status .dot.ok{background:var(--good)} .bk-status .dot.warn{background:var(--warn)} .bk-status .dot.bad{background:var(--bad)}
+.bk-status .val{margin-left:auto;color:var(--muted);font-size:12px;text-align:right}
+.bk-actions{display:flex;flex-wrap:wrap;gap:8px}
+.bk-snaps{list-style:none;max-height:230px;overflow:auto;border:1px solid var(--border);border-radius:var(--r-sm)}
+.bk-snaps li{display:flex;align-items:center;gap:10px;padding:8px 12px;font-size:12.5px;flex-wrap:wrap}
+.bk-snaps li+li{border-top:1px solid var(--border)}
+.bk-snaps .when{font-family:var(--mono);font-size:12px;min-width:118px}
+.bk-snaps .what{color:var(--muted);flex:1}
+.bk-snaps .btn{padding:5px 10px;font-size:12px}
+.bk-empty{padding:14px;color:var(--muted);font-size:12.5px}
+.bk-danger{border-top:1px dashed var(--border-strong);padding-top:16px}
+.bk-danger .btn:hover{border-color:var(--bad);color:var(--bad)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* Druck: Übersicht + Modultabelle */
+@media print{
+  body{background:#fff}
+  .tools,.tabs,.toolbar,.row-act,.prec,.foot,.toast,.overlay{display:none!important}
+  .view{display:none!important;animation:none}
+  #overview,#modules{display:block!important}
+  #modules{break-before:page}
+  .card,.stat,.hero-main{box-shadow:none!important}
+  .tbl-wrap{overflow:visible;border:0}
+  #modTable{min-width:0}
+  .grade-in{border:0;width:auto}
+  .hint .go{display:none}
+}
+
+/* Reihenfolge */
+.ord-td{padding:6px 0 6px 8px!important;width:52px}
+.ord{display:flex;align-items:center;gap:1px}
+.grip{cursor:grab;color:var(--faint);display:grid;place-items:center;padding:4px 1px;border-radius:5px}
+.grip:hover{color:var(--accent);background:var(--accent-soft)}
+.ord .arr{display:flex;flex-direction:column;gap:1px}
+.ord .arr button,.vp-blk .mv button{border:0;cursor:pointer;display:grid;place-items:center;border-radius:5px;transition:.12s}
+.ord .arr button{width:22px;height:15px;background:none;color:var(--faint)}
+.ord .arr button:hover:not(:disabled){color:var(--accent);background:var(--accent-soft)}
+.ord .arr button:disabled,.vp-blk .mv button:disabled{opacity:.45;cursor:not-allowed}
+.ord .arr button:disabled{color:var(--border-strong);opacity:1}
+tr.dragging{opacity:.4}
+tbody tr.ins-before td{box-shadow:inset 0 3px 0 var(--accent)}
+tbody tr.ins-after td{box-shadow:inset 0 -3px 0 var(--accent)}
+.vp-blk.ins-before{box-shadow:0 -4px 0 0 var(--accent)!important}
+.vp-blk.ins-after{box-shadow:0 4px 0 0 var(--accent)!important}
+#vplanUebk .vp-blk.ins-before{box-shadow:-4px 0 0 0 var(--accent)!important}
+#vplanUebk .vp-blk.ins-after{box-shadow:4px 0 0 0 var(--accent)!important}
+#vplanUebk{display:flex;flex-wrap:wrap;gap:8px}
+#vplanUebk .vp-blk{flex:1 1 260px}
+.vp-blk .mv{position:absolute;top:5px;right:5px;display:none;gap:3px;z-index:3}
+.vp-blk:hover .mv,.vp-blk:focus-within .mv{display:flex}
+.vp-blk:hover .wf,.vp-blk:focus-within .wf{display:none}
+.vp-blk .mv button{width:22px;height:20px;background:rgba(255,255,255,.28);color:inherit;font-size:14px;font-weight:700;line-height:1}
+.vp-blk .mv button:hover:not(:disabled){background:rgba(255,255,255,.5)}
+.vp-blk.faded .mv button{background:var(--surface-3)}
+#vplanUebk .vp-blk .mv{position:static;margin-left:4px}
+#vplanUebk .vp-blk .mv{display:flex}
+@media(hover:none){.vp-blk .mv{display:flex}.vp-blk .wf{right:58px}}
+@media print{.ord-td,#modTable th:first-child,#modFoot td:first-child{display:none}}
+#vplanUebk .vp-blk .mv{order:5}
+.vp-blk:hover .bn,.vp-blk:focus-within .bn{padding-right:50px}@media(hover:none){#vplan .vp-blk .bn{padding-right:50px}}
+
+.vp-blk.show-mv .mv{display:flex}
+.vp-blk.show-mv .wf{display:none}
+.vp-blk.show-mv .bn{padding-right:50px}
+.vp-blk.moved{animation:blkflash .9s ease}
+@keyframes blkflash{0%{box-shadow:0 0 0 3px var(--accent),var(--shadow-lg)}100%{box-shadow:0 0 0 0 transparent}}
+tbody tr.moved td{animation:rowflash 1s ease}
+@keyframes rowflash{0%{background:var(--accent-soft)}100%{background:transparent}}
+.ord .arr button{height:17px;width:24px}
+
+.ord-sw{width:30px;height:30px;border-radius:8px;border:1px dashed var(--border-strong);background:none;color:var(--faint);cursor:pointer;display:grid;place-items:center}
+.ord-sw:hover{color:var(--accent);border-color:var(--accent);border-style:solid;background:var(--accent-soft)}
+.ord .arr button{color:var(--muted)}
+.ord .arr button:disabled{color:var(--faint);opacity:.5}
+
+/* ---------- Semester-Tab ---------- */
+.sv-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.sv-hero{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;border-radius:var(--r-lg);padding:20px 22px;display:flex;flex-direction:column;gap:4px;box-shadow:var(--shadow)}
+.sv-hero .lb{font-family:var(--mono);font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;opacity:.85}
+.sv-hero .what{font-family:var(--disp);font-weight:700;font-size:22px;line-height:1.2}
+.sv-hero .cd{font-family:var(--mono);font-weight:700;font-size:34px;letter-spacing:-1px;line-height:1.1;font-variant-numeric:tabular-nums}
+.sv-hero .when{font-size:13px;opacity:.92}
+.sv-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+@media(max-width:860px){.sv-grid{grid-template-columns:1fr}}
+.sv-grid .card h2{margin-bottom:3px}
+.slist{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--surface)}
+.srow{display:grid;grid-template-columns:5px 1fr auto;gap:12px;align-items:center;padding:9px 12px 9px 0;border-top:1px solid var(--border);min-height:52px}
+.srow:first-child{border-top:0}
+.srow .sb{align-self:stretch;border-radius:0 4px 4px 0}
+.srow .mn{display:flex;flex-direction:column;min-width:0}
+.srow .t{font-weight:600;font-size:13.5px;overflow-wrap:anywhere}
+.srow .s,.ksec .s,.prog .s{font-size:12px;color:var(--muted)}
+.srow .s .soon{color:var(--bad-ink);font-weight:700}
+.srow .tm{font-family:var(--mono);font-size:12.5px;color:var(--muted);white-space:nowrap}
+.srow .ra{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.srow.dl .t{color:var(--bad-ink)}
+.semp{padding:14px;color:var(--muted);font-size:13px}
+.spill{font:600 12px var(--body);border:0;border-radius:999px;padding:7px 12px;cursor:pointer;white-space:nowrap;min-width:92px;transition:background .15s,color .15s}
+.st0{background:var(--surface-3);color:var(--ink)}
+.st1{background:color-mix(in srgb,var(--mid) 22%,transparent);color:var(--mid-ink)}
+.st2{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good-ink)}
+.st3{background:var(--good);color:#fff}
+.tg{font-size:10.5px;font-weight:600;border:1px dashed var(--border-strong);border-radius:6px;padding:0 5px;color:var(--muted);white-space:nowrap}
+.pts{display:flex;align-items:center;gap:3px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.pts input{width:48px;font:600 12px var(--mono);padding:5px 4px;border:1px solid var(--border-strong);border-radius:7px;background:var(--surface);color:var(--ink);text-align:center}
+.alma{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);cursor:pointer}
+.alma input{width:16px;height:16px;accent-color:var(--good)}
+.adm{display:flex;flex-direction:column;gap:14px}
+.prog{display:flex;flex-direction:column;gap:5px}
+.prog .ph{display:flex;justify-content:space-between;gap:8px;font-size:13px;flex-wrap:wrap}
+.prog .bar{overflow:visible}
+.prog .bar i{border-radius:6px}
+.prog .needmk{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);opacity:.55;border-radius:1px}
+.tgl{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted);margin-left:auto}
+.tab-c{font-family:var(--mono);font-size:11px;background:var(--surface-3);padding:1px 7px;border-radius:6px;color:var(--muted);vertical-align:2px}
+.sday h3{font-family:var(--disp);font-size:14px;font-weight:600;margin:16px 0 6px;display:flex;gap:8px;align-items:center}
+.sday h3 small{font-weight:500;color:var(--muted);font-family:var(--body);font-size:12.5px}
+.sday.today h3::after{content:"heute";font:700 10px var(--body);text-transform:uppercase;letter-spacing:.08em;background:var(--accent);color:#fff;padding:2px 7px;border-radius:999px}
+.kcard{margin-bottom:16px;display:flex;flex-direction:column;gap:16px}
+.khead{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.khead .dot{width:12px;height:12px;border-radius:50%;flex:none}
+.kname{font-family:var(--disp);font-weight:600;font-size:15.5px;line-height:1.25}
+.ksec{display:flex;flex-direction:column;gap:7px;border-top:1px dashed var(--border);padding-top:13px}
+.klb{display:flex;justify-content:space-between;align-items:center;gap:8px;font-family:var(--disp);font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.3px;text-transform:uppercase}
+.kin{font-family:var(--body);font-size:13px;padding:8px 9px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);color:var(--ink);width:100%;min-width:0}
+.kin:focus{outline:none;border-color:var(--accent);background:var(--surface)}
+.kslot{display:grid;grid-template-columns:1.25fr .7fr .9fr .9fr 1.3fr auto 30px;gap:6px;align-items:center}
+.klink{display:grid;grid-template-columns:.8fr 2fr 30px 30px;gap:6px;align-items:center}
+.klink a.mini{text-decoration:none;font-weight:700}
+.kgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kgrid label{display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:var(--muted);font-weight:600;min-width:0}
+.kgrid .w2{grid-column:span 2} .kgrid .w3{grid-column:span 3}
+.kchk{display:flex!important;flex-direction:row!important;align-items:center;gap:6px;font-size:12px;color:var(--muted);white-space:nowrap}
+.kchk input{width:16px;height:16px;accent-color:var(--accent)}
+.kgrid .kchk{align-self:end;padding-bottom:9px}
+@media(max-width:700px){
+  .kslot{grid-template-columns:1fr 1fr 1fr;row-gap:6px}
+  .kslot .kin:nth-child(1){grid-column:1/-1}
+  .kslot .kin:nth-child(5){grid-column:1/3}
+  .kgrid{grid-template-columns:1fr 1fr}
+  .kgrid .w2,.kgrid .w3{grid-column:1/-1}
+  .srow{grid-template-columns:5px 1fr}
+  .srow .ra,.srow .tm{grid-column:2;justify-content:flex-start}
+}
+@media print{#semester{display:none!important}}
+
+/* ===== Druckblatt (A4 quer) ===== */
+#printSheet{display:none}
+@media print{
+  @page{size:A4 landscape;margin:9mm 10mm}
+  :root,html,body{background:#fff!important;color-scheme:light!important}
+  body>*:not(#printSheet){display:none!important}
+  #printSheet{display:block!important;
+    --bg:#fff;--surface:#fff;--surface-2:#F6F8FC;--surface-3:#EDF1F8;--border:#E1E6F0;--border-strong:#CFD6E4;
+    --ink:#141B2C;--muted:#5C6680;--faint:#8A93A8;--accent:#5B4BE0;--accent-soft:rgba(91,75,224,.10);
+    --good:#16A85A;--ok:#3F9D5B;--mid:#C98510;--warn:#E0772A;--bad:#DD4636;
+    color:#141B2C;font-family:var(--body);-webkit-print-color-adjust:exact;print-color-adjust:exact;color-scheme:light}
+}
+#printSheet .ps{display:flex;flex-direction:column;gap:9px;font-size:9.5pt;line-height:1.3}
+#printSheet .ph{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #5B4BE0;padding-bottom:6px}
+#printSheet .pt{font-family:var(--disp);font-size:17pt;font-weight:700;letter-spacing:-.3px}
+#printSheet .psub{color:#5C6680;font-size:9pt}
+#printSheet .pdate{text-align:right;font-size:9pt;font-weight:600}
+#printSheet .pdate span{font-weight:400;color:#8A93A8;font-size:8pt}
+#printSheet .pkpis{display:grid;grid-template-columns:1.3fr 1.5fr 1fr 1fr 1fr 1fr;gap:6px}
+#printSheet .pk{border:1px solid #E1E6F0;border-radius:7px;padding:5px 8px}
+#printSheet .pkl{font-size:7pt;text-transform:uppercase;letter-spacing:.6px;color:#5C6680;font-weight:600}
+#printSheet .pkv{font-family:var(--disp);font-size:17pt;font-weight:700;line-height:1.15}
+#printSheet .pkv small{font-size:10pt;color:#8A93A8;font-weight:500}
+#printSheet .pks{font-size:7.5pt;color:#5C6680;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+#printSheet .pbar{position:relative;display:block;width:100%;height:5px;border-radius:3px;background:#EDF1F8;overflow:hidden;margin:2px 0}
+#printSheet .pbar i{position:absolute;left:0;top:0;bottom:0;background:#5B4BE0}
+#printSheet .pbar b{position:absolute;top:0;bottom:0;background:#5B4BE0;opacity:.35}
+#printSheet .pmain{display:grid;grid-template-columns:31% 1fr;gap:12px;align-items:start}
+#printSheet .psec{font-family:var(--disp);font-weight:700;font-size:10pt;margin-bottom:4px}
+#printSheet .psec small{font-family:var(--body);font-weight:400;color:#8A93A8;font-size:7.5pt;margin-left:4px}
+#printSheet .preq{display:flex;flex-direction:column;gap:4px}
+#printSheet .prh{display:flex;justify-content:space-between;gap:6px;font-size:8pt}
+#printSheet .prh span{display:flex;align-items:center;gap:5px}
+#printSheet .prh i{width:7px;height:7px;border-radius:2px;display:inline-block}
+#printSheet .prh b{font-family:var(--mono);font-size:7.5pt;white-space:nowrap}
+#printSheet .prb{display:flex;height:5px;border-radius:3px;background:#EDF1F8;overflow:hidden;margin-top:1px}
+#printSheet .prb i.run{opacity:.35}
+#printSheet .ptrend{width:100%;height:auto;display:block;font-family:var(--mono)}
+#printSheet .pgrid{display:grid;gap:5px}
+#printSheet .pc{display:flex;flex-direction:column;gap:3px;min-width:0}
+#printSheet .pch{font-weight:700;font-size:8.5pt;border-bottom:1px solid #E1E6F0;padding-bottom:2px;display:flex;justify-content:space-between;align-items:baseline;gap:4px}
+#printSheet .pch small{font-weight:400;color:#8A93A8;font-size:7pt}
+#printSheet .pc.now .pch{color:#5B4BE0;border-bottom-color:#5B4BE0}
+#printSheet .pb{border-left:3px solid var(--c);background:color-mix(in srgb,var(--c) 11%,#fff);border-radius:4px;padding:2px 5px;display:flex;flex-direction:column;break-inside:avoid;min-width:0}
+#printSheet .pb.open{background:#fff;border:1px dashed #CFD6E4;border-left:3px dashed var(--c)}
+#printSheet .pb.fail{border-left-color:#DD4636}
+#printSheet .pbn{font-weight:600;font-size:7.8pt;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+#printSheet .pbm{margin-top:auto;display:flex;justify-content:space-between;font-family:var(--mono);font-size:7pt;color:#5C6680}
+#printSheet .pbm b{color:#141B2C}
+#printSheet .pb.open .pbm b{color:#8A93A8;font-weight:400}
+#printSheet .pcf{font-family:var(--mono);font-size:7pt;color:#5C6680;border-top:1px solid #E1E6F0;padding-top:2px;margin-top:1px}
+#printSheet .pempty{color:#CFD6E4;font-size:8pt}
+#printSheet .pextra{display:flex;flex-wrap:wrap;gap:4px;align-items:stretch;margin-top:6px}
+#printSheet .pextra .pb{flex:0 1 150px}
+#printSheet .pxl{font-size:7.5pt;color:#8A93A8;align-self:center;margin-right:2px}
+#printSheet .pleg{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:6px;font-size:7.5pt;color:#5C6680}
+#printSheet .pleg span{display:flex;align-items:center;gap:4px}
+#printSheet .pleg i{width:9px;height:9px;border-radius:2px;display:inline-block}
+#printSheet .pleg i.o{border:1px dashed #8A93A8}
+#printSheet .pfoot{font-size:7pt;color:#8A93A8;border-top:1px solid #E1E6F0;padding-top:4px}
+
+/* Touch-Geräte: größere Tippflächen, keine Zoom-Sprünge in Feldern */
+@media (pointer:coarse){
+  .mini{width:42px;height:42px}
+  .btn.icon{width:44px;height:44px}
+  .btn{min-height:42px}
+  .chip{min-height:38px;padding:8px 13px}
+  .ord .arr button{width:34px;height:22px}
+  .grade-in{font-size:16px;min-height:42px;width:68px}
+  input,select,textarea{font-size:16px}
+  .tab{min-height:44px}
+}
+
+/* Modultabelle: Scroll-Box hält ihre Inhalte (auch .sr) – keine Seitenbreite > Bildschirm */
+.tbl-wrap{position:relative}
+/* Handy: Tabellenzeilen als Karten */
+@media(max-width:640px){
+  #modules .tbl-wrap{overflow:visible;border:0;border-radius:0}
+  #modTable{min-width:0;width:100%;border-collapse:separate;border-spacing:0}
+  #modTable thead{display:none}
+  #modTable tbody{display:flex;flex-direction:column;gap:8px}
+  #modTable tbody tr{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;border:1px solid var(--border);border-radius:12px;padding:10px 12px;background:var(--surface)}
+  #modTable tbody td{display:block;padding:0!important;border:0!important;text-align:left!important}
+  #modTable tbody td:nth-child(1){display:none}
+  #modTable tbody td:nth-child(2){order:1;flex:1 1 calc(100% - 96px);min-width:0}
+  #modTable tbody td:nth-child(6){order:2;flex:none}
+  #modTable tbody td:nth-child(3){order:3}
+  #modTable tbody td:nth-child(4){order:4}
+  #modTable tbody td:nth-child(4)::after{content:" ECTS";font-family:var(--body);font-size:11.5px;color:var(--muted)}
+  #modTable tbody td:nth-child(5){order:5}
+  #modTable tbody td:nth-child(7){order:6}
+  #modTable tbody td:nth-child(7):not(:empty)::before{content:"Gewicht ";font-family:var(--body);color:var(--muted)}
+  #modTable tbody td:nth-child(8){order:7;flex-basis:100%;display:flex;align-items:center;justify-content:space-between}
+  #modTable tbody td:nth-child(9){order:8;margin-left:auto;margin-top:-34px}
+  #modTable tbody .sem-pill{height:26px;min-width:26px;font-size:11.5px}
+  #modTable .row-act{opacity:1}
+  #modTable tfoot{display:block;margin-top:10px}
+  #modTable tfoot tr{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--surface-2)}
+  #modTable tfoot td{display:block;padding:0!important;border:0!important}
+  #modTable tfoot td:empty{display:none}
+  #modTable tfoot td:nth-child(4)::after{content:" ECTS"}
+}
+
+/* Handy: Bereiche als feste Leiste unten (wie im Semesterplaner) */
+.tab .ts{display:none}
+@media(max-width:640px){
+  .app{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;width:auto;max-width:none;margin:0;border-radius:0;border:0;border-top:1px solid var(--border);
+    padding:4px 4px calc(4px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0;overflow:visible;
+    background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+  .tab{flex-direction:column;gap:3px;font-size:10.5px;padding:7px 0 6px;position:relative;justify-content:center;min-width:0}
+  .tab svg{width:21px;height:21px}
+  .tab .tl{display:none}.tab .ts{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .tab.active{background:none}
+  .tab .cnt{position:absolute;top:2px;left:calc(50% + 6px);font-size:9.5px;padding:0 5px}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+}
+@media (pointer:coarse) and (max-width:640px){ .tab{font-size:11px} }
+
+/* Kontrast: gefüllte Flächen mit weißer Schrift, Bereichs-Tags im Dunkelmodus */
+:root{--accent-fill:#5B4BE0}
+[data-theme="dark"]{--accent-fill:#6553E6}
+.btn.primary{background:var(--accent-fill);border-color:var(--accent-fill)}
+.tab.active .cnt{background:var(--accent-fill)}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="glyph">B<span style="font-size:13px">Sc</span></div>
+      <div>
+        <h1>Notencockpit · BSc Informatik</h1>
+        <div class="sub" id="brandSub">Universität Tübingen · PO 2021 · 180 ECTS · 6 Semester</div>
+      </div>
+    </div>
+    <div class="tools">
+      <button class="btn" id="addBtn" title="Modul hinzufügen (Taste N)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>Modul</button>
+      <input type="file" id="importFile" accept="application/json,.json,.html,text/html" class="sr" tabindex="-1">
+      <button class="btn icon" id="printBtn" title="Übersicht + Studienplan auf einer Seite drucken / als PDF speichern" aria-label="Drucken"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg></button>
+      <button class="btn icon" id="setBtn" title="Einstellungen (Studienbeginn, Rundung)" aria-label="Einstellungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+      <button class="btn icon" id="bkBtn" title="Daten &amp; Backup" aria-label="Daten und Backup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></button>
+      <button class="btn icon" id="themeBtn" title="Hell / Dunkel" aria-label="Farbschema wechseln"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Bereiche">
+    <button class="tab active" data-view="overview" role="tab" aria-selected="true"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg><span class="tl">Übersicht</span><span class="ts">Übersicht</span> <span class="cnt warn" id="hintCount" hidden>0</span></button>
+    <button class="tab" data-view="modules" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg><span class="tl">Module</span><span class="ts">Module</span> <span class="cnt" id="modCount">0</span></button>
+    <button class="tab" data-view="planner" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="tl">Studienplan</span><span class="ts">Plan</span></button>
+    <button class="tab" data-view="analytics" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg><span class="tl">Analyse</span><span class="ts">Analyse</span></button>
+    <button class="tab" data-view="simulator" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg><span class="tl">Zielrechner</span><span class="ts">Ziel</span></button>
+    <button class="tab" data-view="rules" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15z"/><path d="M8 7h8M8 11h6"/></svg><span class="tl">Modulhandbuch</span><span class="ts">Handbuch</span></button>
+  </nav>
+
+  <main id="views">
+  <!-- ============ ÜBERSICHT ============ -->
+  <section class="view active" id="overview" role="tabpanel">
+    <div class="hero">
+      <div class="hero-main">
+        <div class="gauge-wrap">
+          <div class="gauge-box">
+            <svg class="gauge" viewBox="0 0 200 132" aria-hidden="true">
+              <path d="M14 120 A86 86 0 0 1 186 120" fill="none" stroke="var(--surface-3)" stroke-width="15" stroke-linecap="round"/>
+              <path id="gaugeArc" d="M14 120 A86 86 0 0 1 186 120" fill="none" stroke="var(--accent)" stroke-width="15" stroke-linecap="round" stroke-dasharray="270" stroke-dashoffset="270"/>
+            </svg>
+            <div class="gauge-read">
+              <div class="big" id="gpaBig">–</div>
+              <div class="lbl">Ø bisher (gewichtet)</div>
+            </div>
+          </div>
+          <div class="gauge-class" id="gpaClass"></div>
+          <div class="prec">
+            <div class="seg" id="precDigits" role="group" aria-label="Nachkommastellen">
+              <button data-d="1" title="1 Nachkommastelle (wie im Zeugnis)">,0</button><button data-d="2" title="2 Nachkommastellen">,00</button><button data-d="3" title="3 Nachkommastellen">,000</button><button data-d="4" title="4 Nachkommastellen">,0000</button>
+            </div>
+            <div class="seg txt" id="precMode" role="group" aria-label="Rundungsart">
+              <button data-m="trunc" title="Weitere Stellen ohne Rundung streichen – übliche Regel in Prüfungsordnungen">abschneiden</button><button data-m="round" title="Kaufmännisch runden">runden</button>
+            </div>
+          </div>
+        </div>
+        <div class="hero-facts">
+          <div class="fact-row"><span class="k">Benotete Credits<small>zählen in die Endnote</small></span><span class="v" id="fWeighted">0 <small>/ 162</small></span></div>
+          <div class="fact-row"><span class="k">Prognose Endnote<small>offene Module wie bisher</small></span><span class="v" id="fProj">–</span></div>
+          <div class="fact-row"><span class="k">Beste Note</span><span class="v" id="fBest">–</span></div>
+          <div class="fact-row"><span class="k">Fachsemester<small id="heroSemSub">laut Studienbeginn</small></span><span class="v" id="heroSem">–</span></div>
+        </div>
+      </div>
+
+      <div class="card ring-card">
+        <div class="eyebrow">Fortschritt zum Bachelor</div>
+        <div class="ring-wrap">
+          <svg width="172" height="172" viewBox="0 0 172 172" aria-hidden="true">
+            <circle cx="86" cy="86" r="74" fill="none" stroke="var(--surface-3)" stroke-width="13"/>
+            <circle id="ringRun" cx="86" cy="86" r="74" fill="none" stroke="var(--mid)" stroke-width="13" stroke-linecap="round" transform="rotate(-90 86 86)" stroke-dasharray="465" stroke-dashoffset="465" opacity=".75"/>
+            <circle id="ring" cx="86" cy="86" r="74" fill="none" stroke="var(--accent)" stroke-width="13" stroke-linecap="round" transform="rotate(-90 86 86)" stroke-dasharray="465" stroke-dashoffset="465"/>
+          </svg>
+          <div class="ring-center">
+            <div class="pct" id="ringPct">0%</div>
+            <div class="cr" id="ringCr">0 / 180 ECTS</div>
+          </div>
+        </div>
+        <div class="ring-legend">
+          <span class="lg"><i style="background:var(--accent)"></i>bestanden</span>
+          <span class="lg"><i style="background:var(--mid)"></i>laufend</span>
+          <span class="lg"><i style="background:var(--surface-3)"></i>offen</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
+        <div class="n" id="sCredits">0</div><div class="l">Credits bestanden</div><div class="d" id="sCreditsD"></div>
+      </div>
+      <div class="stat">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+        <div class="n" id="sPassed">0</div><div class="l">Module bestanden</div><div class="d" id="sPassedD"></div>
+      </div>
+      <div class="stat">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+        <div class="n" id="sRun">0</div><div class="l">ECTS laufend</div><div class="d" id="sRunD"></div>
+      </div>
+      <div class="stat">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+        <div class="n" id="sExam">–</div><div class="l" id="sExamL">Nächste Prüfung</div><div class="d" id="sExamD"></div>
+      </div>
+    </div>
+
+    <div class="two">
+      <div class="card">
+        <h2><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Abschluss-Check</h2>
+        <div class="cap">Anforderungen laut Modulhandbuch (PO 2021) – bestanden, laufend und eingeplant</div>
+        <div class="req" id="reqList"></div>
+        <div class="vp-legend" style="margin-top:16px">
+          <span class="lg"><i style="background:var(--accent)"></i>bestanden</span>
+          <span class="lg"><i style="background:var(--mid)"></i>laufend</span>
+          <span class="lg"><i style="background:var(--border-strong)"></i>eingeplant</span>
+        </div>
+      </div>
+      <div class="card">
+        <h2><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--accent)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Anstehende Prüfungen</h2>
+        <div class="cap">Termine trägst du im Modul ein (Feld „Prüfungstermin")</div>
+        <div class="exams" id="examList"></div>
+        <h2><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>Hinweise zur Planung</h2>
+        <div class="cap">Automatisch geprüft: Voraussetzungen, Turnus, Credits, Fehlversuche</div>
+        <div class="hints" id="hintList"></div>
+        <h2 style="margin-top:18px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>Merkliste</h2>
+        <div class="cap">Notizen aus deinen Modulen</div>
+        <div class="notes-list" id="noteList"></div>
+      </div>
+    </div>
+  </section>
+
+  
+
+  <!-- ============ MODULE ============ -->
+  <section class="view" id="modules" role="tabpanel">
+    <div class="card">
+      <div class="toolbar">
+        <div class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="search" id="search" placeholder="Modul, Code, Dozent*in oder Notiz suchen…" aria-label="Module durchsuchen">
+        </div>
+        <div class="chip-row" id="filterChips">
+          <button class="chip on" data-f="all">Alle</button>
+          <button class="chip" data-f="passed">Bestanden</button>
+          <button class="chip" data-f="current">Laufend</button>
+          <button class="chip" data-f="open">Offen</button>
+          <button class="chip" data-f="issues">Hinweise</button>
+        </div>
+        <select class="sel" id="semFilter" aria-label="Semester filtern"><option value="all">Alle Semester</option></select>
+      </div>
+      <div class="tbl-wrap">
+        <table id="modTable">
+          <thead>
+            <tr>
+              <th style="width:52px;padding-right:0" title="Reihenfolge – gilt bei Sortierung nach Semester"><span class="sr">Reihenfolge</span></th>
+              <th data-sort="name" style="min-width:250px">Modul <span class="ar">▾</span></th>
+              <th data-sort="semester" style="text-align:center">Sem <span class="ar">▾</span></th>
+              <th data-sort="credits" style="text-align:center">ECTS <span class="ar">▾</span></th>
+              <th data-sort="area">Bereich <span class="ar">▾</span></th>
+              <th data-sort="grade" style="text-align:center">Note <span class="ar">▾</span></th>
+              <th data-sort="weight" style="text-align:center" title="Anteil an der Endnote">Gewicht <span class="ar">▾</span></th>
+              <th data-sort="status">Status <span class="ar">▾</span></th>
+              <th><span class="sr">Aktionen</span></th>
+            </tr>
+          </thead>
+          <tbody id="modBody"></tbody>
+          <tfoot id="modFoot"></tfoot>
+        </table>
+      </div>
+      <datalist id="gradeSteps"><option value="1,0"><option value="1,3"><option value="1,7"><option value="2,0"><option value="2,3"><option value="2,7"><option value="3,0"><option value="3,3"><option value="3,7"><option value="4,0"><option value="5,0"><option value="X"><option value="B"></datalist>
+      <p class="cap" style="margin:13px 2px 0">Note direkt eintragen: <code>1,0</code>–<code>4,0</code> bestanden, <code>5,0</code> nicht bestanden (zählt nicht in den Schnitt), <code>X</code> = läuft, <code>B</code> = bestanden ohne Note. Module mit Teilleistungen (z. B. Bachelorarbeit, Wahlpflicht) berechnen ihre Note selbst – Klick öffnet sie. <b>Gewicht</b> = Anteil des Moduls an der Endnote. Mit ▲▼ oder dem Griff ⋮⋮ änderst du die Reihenfolge innerhalb eines Semesters (ziehen auf ein Modul eines anderen Semesters verschiebt es dorthin).</p>
+    </div>
+  </section>
+
+  <!-- ============ STUDIENPLAN ============ -->
+  <section class="view" id="planner" role="tabpanel">
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:6px">
+        <div>
+          <h2><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--accent)" stroke-width="2"><rect x="3" y="3" width="7" height="18"/><rect x="10" y="3" width="7" height="12"/><rect x="17" y="3" width="4" height="9"/></svg>Verlaufsplan</h2>
+          <div class="cap" style="margin-bottom:0" id="vpCap">Blockhöhe ∝ Credits · Module ziehen oder mit ▲▼ verschieben · Klick öffnet Details · <b style="color:var(--warn)">!</b> = Hinweis</div>
+        </div>
+        <div class="chip-row" id="planColorMode">
+          <button class="chip on" data-cm="area">nach Bereich</button>
+          <button class="chip" data-cm="grade">nach Note</button>
+          <button class="chip" data-cm="status">nach Status</button>
+        </div>
+      </div>
+      <div class="vp-scroll"><div class="vplan" id="vplan"></div></div>
+      <div class="vp-extra" id="vplanUebk" data-sem="1-6"></div>
+      <div class="vp-legend" id="vplanLegend"></div>
+    </div>
+    <div class="road" id="roadmap"></div>
+  </section>
+
+  <!-- ============ ANALYSE ============ -->
+  <section class="view" id="analytics" role="tabpanel">
+    <div class="an-grid">
+      <div class="card">
+        <h2><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M3 3v18h18"/><rect x="6" y="12" width="3" height="6"/><rect x="11" y="8" width="3" height="10"/><rect x="16" y="5" width="3" height="13"/></svg>Notenverteilung</h2>
+        <div class="cap">Anzahl benoteter Leistungen je Notenstufe</div>
+        <div class="hist" id="hist"></div>
+      </div>
+      <div class="card">
+        <h2><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></svg>Schnitt-Verlauf</h2>
+        <div class="cap">Linie: kumulierter Schnitt · Punkte: Schnitt des einzelnen Semesters</div>
+        <svg class="trend" id="trend" viewBox="0 0 460 210" preserveAspectRatio="none" role="img" aria-label="Schnitt-Verlauf"></svg>
+      </div>
+      <div class="card">
+        <h2><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--accent)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/></svg>Arbeitslast je Semester</h2>
+        <div class="cap">Eingeplante ECTS (Soll: 30 pro Semester; übK nicht mitgezählt)</div>
+        <div class="load" id="loadChart"></div>
+      </div>
+      <div class="card">
+        <h2><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/></svg>Bereichs-Bilanz</h2>
+        <div class="cap">Bestandene Credits und Durchschnitt je Bereich</div>
+        <div id="areaBalance" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+      <div class="card" style="grid-column:1/-1">
+        <h2><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Nach Dozent*in</h2>
+        <div class="cap">Bestandene ECTS und Ø je Lehrperson</div>
+        <div class="prof-list" id="profList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ZIELRECHNER ============ -->
+  <section class="view" id="simulator" role="tabpanel">
+    <div class="sim-grid" style="margin-bottom:16px">
+      <div class="card">
+        <h2><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M2 12h4l3 8 4-16 3 8h4"/></svg>Szenarien</h2>
+        <div class="cap" id="scnCap">Voraussichtliche Endnote – je nachdem, wie die offenen Module ausfallen</div>
+        <div class="scenario" id="scenarios"></div>
+      </div>
+      <div class="card">
+        <h2><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Zielrechner</h2>
+        <div class="cap">Welchen Schnitt brauchst du auf die restlichen benoteten Credits?</div>
+        <div class="target-box">
+          <div class="slider-row">
+            <label for="tgtSlider">Wunsch-Endnote im Zeugnis <b id="tgtVal">2,0</b></label>
+            <input type="range" id="tgtSlider" min="1" max="4" step="0.1" value="2.0">
+          </div>
+          <div class="need">
+            <div class="nb" id="needVal">–</div>
+            <div class="nt" id="needTxt">benötigter Ø auf die offenen Credits</div>
+          </div>
+          <div class="note-box" id="needNote"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="wi-head">
+        <div>
+          <h2><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Was-wäre-wenn</h2>
+          <div class="cap" style="margin-bottom:0">Spiele Noten für offene Module durch – ändert deine echten Daten nicht</div>
+        </div>
+        <div class="wi-res"><div><div class="big" id="wiBig">–</div><small id="wiExact"></small></div></div>
+      </div>
+      <div class="wi-bulk" style="margin-bottom:12px">Alle setzen auf:
+        <span class="chip-row" id="wiBulk"></span>
+      </div>
+      <div class="tbl-wrap"><table class="wi-tbl"><thead><tr><th>Offenes Modul</th><th style="text-align:center">Offene benotete ECTS</th><th style="text-align:center">Gewicht</th><th style="text-align:center">Angenommene Note</th></tr></thead><tbody id="wiBody"></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- ============ MODULHANDBUCH ============ -->
+  <section class="view" id="rules" role="tabpanel">
+    <div class="card" style="margin-bottom:16px">
+      <h2><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15z"/></svg>So wird gerechnet</h2>
+      <div class="cap">Regeln aus dem Modulhandbuch BSc Informatik (PO vom 28.04.2021, Stand 29.03.2024), die das Cockpit anwendet</div>
+      <div class="rules" id="ruleCards"></div>
+      <div class="note-box">Das Modulhandbuch ist eine Planungshilfe – maßgeblich sind die Prüfungsordnung und das Prüfungsamt. Wie die Gesamtnote gerundet wird (abschneiden oder runden), steht in der Prüfungsordnung; das Cockpit schneidet standardmäßig nach der ersten Nachkommastelle ab. Das stellst du über den Schalter unter dem Notenschnitt um.</div>
+    </div>
+    <div class="card">
+      <h2><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>Module laut Modulhandbuch</h2>
+      <div class="cap">Klick auf eine Zeile öffnet das passende Modul in deinem Plan (oder legt es an)</div>
+      <div class="tbl-wrap"><table id="mhbTable"><thead><tr><th>Code</th><th>Modul</th><th style="text-align:center">LP</th><th style="text-align:center">Sem.</th><th>Prüfung</th><th>Voraussetzungen</th><th>Turnus</th><th>Verantwortlich</th></tr></thead><tbody id="mhbBody"></tbody></table></div>
+    </div>
+  </section>
+
+  </main>
+  <div class="foot">Notencockpit · mehrfach lokal gesichert · <b id="savedAt">–</b></div>
+</div>
+
+<!-- MODUL-DIALOG -->
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-h"><h3 id="modalTitle">Modul hinzufügen</h3>
+      <button class="mini" id="closeModal" aria-label="Schließen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="modal-b">
+      <div class="fld full"><label for="fMhb">Aus dem Modulhandbuch übernehmen</label><select id="fMhb"><option value="">— eigenes Modul —</option></select></div>
+      <div class="mhb-box" id="mhbInfo" hidden></div>
+      <div class="fld full"><label for="fName">Modulname</label><input id="fName" placeholder="z. B. Lineare Algebra"></div>
+      <div class="fld"><label for="fShort">Kurzname (fürs Raster)</label><input id="fShort" placeholder="z. B. Mathe 2"></div>
+      <div class="fld"><label for="fCode">Code</label><input id="fCode" placeholder="INFM1020"></div>
+      <div class="fld"><label for="fProf">Dozent*in</label><input id="fProf" placeholder="optional"></div>
+      <div class="fld"><label for="fCredits">Credits (ECTS)</label><input id="fCredits" type="number" min="1" max="60" step="0.5" value="6"></div>
+      <div class="fld"><label for="fSem">Semester</label><input id="fSem" placeholder="1–6 oder 1-6" list="semSteps"><datalist id="semSteps"><option value="1"><option value="2"><option value="3"><option value="4"><option value="5"><option value="6"><option value="7"><option value="1-6"></datalist></div>
+      <div class="fld"><label for="fArea">Bereich</label><select id="fArea"></select></div>
+      <div class="fld"><label for="fGrade">Note</label><input id="fGrade" placeholder="1,0–5,0 · X · B · leer" list="gradeSteps"></div>
+      <div class="fld"><label for="fExam">Prüfungstermin</label><input id="fExam" type="date"></div>
+      <div class="fld"><label for="fPruef">Prüfungsform</label><input id="fPruef" placeholder="z. B. Klausur 90 min"></div>
+      <div class="fld"><label for="fTurnus">Angeboten</label><select id="fTurnus">
+        <option value="">—</option><option>WS</option><option>SS</option><option>jedes Semester</option>
+      </select></div>
+      <div class="parts" id="partsBox">
+        <div class="parts-h"><span id="partsTitle">Teilleistungen / gewählte Veranstaltungen</span><button class="btn sm" id="addPart" type="button">+ Teilleistung</button></div>
+        <div id="partsList"></div>
+      </div>
+      <div class="fld full"><label for="fNote">Notiz</label><textarea id="fNote" placeholder="z. B. Proseminar-Optionen, Anmeldefrist, gewählte Vorlesung …"></textarea></div>
+      <div class="fld full" style="flex-direction:row;align-items:center;gap:9px">
+        <input id="fUnben" type="checkbox" style="width:16px;height:16px;accent-color:var(--accent);flex:none">
+        <label for="fUnben" style="font-weight:450;color:var(--ink);font-family:var(--body);font-size:13px">Zählt nicht in die Endnote (z. B. übK / Liberal Education)</label>
+      </div>
+    </div>
+    <div class="modal-f">
+      <button class="btn" id="delModal" style="margin-right:auto" hidden>Löschen</button>
+      <button class="btn" id="cancelModal">Abbrechen</button>
+      <button class="btn primary" id="saveModal">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- EINSTELLUNGEN -->
+<div class="overlay" id="setOverlay">
+  <div class="modal" style="max-width:480px" role="dialog" aria-modal="true" aria-labelledby="setTitle">
+    <div class="modal-h"><h3 id="setTitle">Einstellungen</h3>
+      <button class="mini" id="setClose" aria-label="Schließen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="modal-b">
+      <div class="fld"><label for="sSeason">Studienbeginn</label><select id="sSeason"><option value="WS">Wintersemester</option><option value="SS">Sommersemester</option></select></div>
+      <div class="fld"><label for="sYear">Jahr</label><input id="sYear" type="number" min="2015" max="2040"></div>
+      <div class="fld full"><span class="help" id="sHelp" style="font-size:12px;color:var(--muted)"></span></div>
+      <div class="fld full">
+        <span class="lb">Endnote im Zeugnis</span>
+        <div class="seg txt" id="setPrec" style="width:fit-content"><button data-m="trunc">nach 1. Stelle abschneiden</button><button data-m="round">kaufmännisch runden</button></div>
+        <span class="help">Wird für Prädikat, Prognose und Zielrechner verwendet.</span>
+      </div>
+    </div>
+    <div class="modal-f"><button class="btn primary" id="setSave">Übernehmen</button></div>
+  </div>
+</div>
+
+<!-- BACKUP -->
+<div class="overlay" id="bkOverlay">
+  <div class="modal bk" role="dialog" aria-modal="true" aria-labelledby="bkTitle">
+    <div class="modal-h"><h3 id="bkTitle">Daten &amp; Backup</h3>
+      <button class="mini" id="bkClose" aria-label="Schließen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="bk-body">
+      <div class="bk-sec"><h4>Wo deine Daten liegen</h4><ul class="bk-status" id="bkStatus"></ul><p class="bk-hint" id="bkSource"></p></div>
+      <div class="bk-sec">
+        <h4>Sicherung, die nicht verschwinden kann</h4>
+        <div class="bk-actions">
+          <button class="btn primary" id="bkHtml">HTML mit Daten speichern</button>
+          <button class="btn" id="bkJson">JSON-Backup</button>
+          <button class="btn" id="bkImport">Backup importieren</button>
+          <button class="btn" id="csvBtn">Als CSV (Excel)</button>
+        </div>
+        <p class="bk-hint">Die gespeicherte HTML-Datei trägt deine Noten in sich. Öffne einfach die neueste Kopie – sie funktioniert auch in einem anderen Browser oder nachdem der Verlauf gelöscht wurde. <span id="bkLastExport"></span></p>
+      </div>
+      <div class="bk-sec"><h4>Automatische Sync-Datei</h4><div class="bk-actions" id="bkFileActions"></div><p class="bk-hint" id="bkFileHint"></p></div>
+      <div class="bk-sec"><h4>Frühere Stände</h4><ul class="bk-snaps" id="bkSnaps"></ul>
+        <p class="bk-hint">Beim Öffnen, alle 10 Minuten beim Arbeiten und vor jedem Import wird ein Stand gesichert (die letzten 25).</p></div>
+      <div class="bk-sec bk-danger"><button class="btn" id="bkReset">Auf Startdaten zurücksetzen</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- Eingebettete Daten: wird von „HTML mit Daten speichern" befüllt -->
+<script type="application/json" id="embeddedData">null</script>
+
+<script>
+"use strict";
+// unveränderte Kopie des Dokuments (vor dem Rendern) – Vorlage für „HTML mit Daten speichern"
+const PRISTINE=document.documentElement.outerHTML;
+
+/* =====================================================================
+   MODULHANDBUCH BSc Informatik · PO 28.04.2021 · Stand 29.03.2024
+   Turnus: aus den Verlaufsplänen (Abb. 2.1, Start WS und SS) abgeleitet.
+   req = Teilnahmevoraussetzung · rec = empfohlen · any = eine von mehreren
+   ===================================================================== */
+const MHB={
+  INFM1010:{t:"Mathematik für Informatik 1: Analysis",s:"Mathematik f. Informatik 1",cr:9,sem:1,a:"Pflicht",pf:"Klausur 120 min",tu:"WS",resp:"Dorn, Ochs"},
+  INFM1110:{t:"Praktische Informatik 1: Deklarative Programmierung",s:"Praktische Informatik 1",cr:9,sem:1,a:"Pflicht",pf:"Klausur 90 min",tu:"WS",resp:"Ostermann, Grust"},
+  INFM1310:{t:"Technische Informatik 1: Digitaltechnik",s:"Techn. Informatik 1",cr:6,sem:1,a:"Pflicht",pf:"Klausur 90 min",tu:"WS",resp:"Bringmann"},
+  INFM1020:{t:"Mathematik für Informatik 2: Lineare Algebra",s:"Mathematik f. Informatik 2",cr:9,sem:2,a:"Pflicht",pf:"Klausur 120 min",tu:"SS",resp:"Dorn, Ochs",rec:["INFM1010"]},
+  INFM1120:{t:"Praktische Informatik 2: Imperative und objektorientierte Programmierung",s:"Praktische Informatik 2",cr:9,sem:2,a:"Pflicht",pf:"Klausur 90 min",tu:"SS",resp:"Lensch, Butz"},
+  INFM2310:{t:"Technische Informatik 2: Informatik der Systeme",s:"Techn. Informatik 2",cr:9,sem:2,a:"Pflicht",pf:"Klausur 90 min",tu:"SS",resp:"Menth"},
+  INFM2320:{t:"Technische Informatik 3: Praktikum Microcomputer",s:"Techn. Informatik 3",cr:6,sem:2,a:"Pflicht",pf:"Praktikum / Ausarbeitung (Anwesenheitspflicht)",tu:"jedes Semester",resp:"Bringmann",req:["INFM1310"]},
+  INFM2420:{t:"Theoretische Informatik 1: Algorithmen und Datenstrukturen",s:"Theoretische Informatik 1",cr:9,sem:3,a:"Pflicht",pf:"Klausur 90 min",tu:"WS",resp:"Kaufmann",req:["INFM1010","INFM1020","INFM1110","INFM1120"]},
+  INFM2010:{t:"Mathematik für Informatik 3: Fortgeschrittene Themen",s:"Mathematik f. Informatik 3",cr:9,sem:3,a:"Pflicht",pf:"Klausur 120 min",tu:"WS",resp:"Dorn, Ochs",rec:["INFM1010","INFM1020"]},
+  INFM2111:{t:"Praktische Informatik 3: Software Engineering",s:"Praktische Informatik 3",cr:6,sem:3,a:"Pflicht",pf:"Klausur 90 min",tu:"WS",resp:"Brachthäuser",req:["INFM1110","INFM1120"]},
+  INFM2020:{t:"Mathematik für Informatik 4: Numerik oder Stochastik",s:"Mathematik f. Informatik 4",cr:6,sem:4,a:"Pflicht",pf:"Klausur 90 min",tu:"SS",resp:"Dorn",req:["INFM1010","INFM1020"],info:"Eine der Vorlesungen INF2021 Stochastik oder INF2022 Numerik (4 LP Vorlesung + 2 LP Übung)."},
+  INFM2410:{t:"Theoretische Informatik 2: Formale Sprachen, Berechenbarkeit und Komplexität",s:"Theoretische Informatik 2",cr:9,sem:4,a:"Pflicht",pf:"Klausur 90 min",tu:"SS",resp:"von Luxburg, Hennig",rec:["INFM1010"]},
+  INFM2110:{t:"Praktische Informatik 4: Teamprojekt",s:"Teamprojekt",cr:9,sem:4,a:"Pflicht",pf:"Hausarbeit + Referat (Projekt)",tu:"jedes Semester",resp:"Brachthäuser",req:["INFM1110","INFM1120","INFM2111"]},
+  INFM3151:{t:"Grundlagen des maschinellen Lernens",s:"Grundlagen ML",cr:6,sem:4,a:"Pflicht",pf:"Klausur 90 min",tu:"SS",resp:"Schilling",any:["INFM1110","INFM1120"]},
+  INFM1510:{t:"Proseminar (übK)",s:"Proseminar",cr:3,sem:5,a:"Proseminar",pf:"Vortrag 60 min + Ausarbeitung",tu:"",resp:"Dozent*innen der Informatik",req:["INFM1110"],info:"Formal Teil der übK (21 LP = 3 Proseminar + 18), aber benotet – die Note zählt in die Bachelornote."},
+  INFM3110:{t:"Wahlpflichtfach Praktische Informatik",s:"WP Praktische Informatik",cr:6,sem:5,a:"WP Praktische",pf:"Klausur 60 min oder Praktikum",tu:"",resp:"Grust",rec:["INFM1110","INFM1120"],parts:true,info:"Ausgewählte Veranstaltungen laut courses.cs (z. B. Datenbanken, Grafik, ML/KI, MCI, Compilerbau)."},
+  INFM3310:{t:"Wahlpflichtfach Technische Informatik",s:"WP Technische Informatik",cr:6,sem:5,a:"WP Technische",pf:"Klausur 60 min oder Praktikum",tu:"",resp:"Menth",rec:["INFM1310","INFM2310","INFM2320"],parts:true,info:"Voraussetzungen hängen von der Veranstaltung ab (z. B. Internet, Rechnerarchitektur, Chip Design, Robotik)."},
+  INFM3410:{t:"Wahlpflichtfach Theoretische Informatik",s:"WP Theoretische Informatik",cr:6,sem:5,a:"WP Theoretische",pf:"Klausur 60 min",tu:"",resp:"von Luxburg",req:["INFM2410"],parts:true,info:"Z. B. Algorithmik, Komplexität, Diskrete Mathematik, Kryptologie, Logik."},
+  INFM2510:{t:"Wahlpflichtfach Informatik",s:"WP Informatik",cr:15,sem:5,a:"WP Info",pf:"Klausur / mdl. 60 min oder Praktikum",tu:"",resp:"Professor*innen der Informatik",parts:true,info:"15 LP, frei aus allen Informatik-Wahlpflichtbereichen. In den vier WP-Fächern zusammen höchstens 18 LP aus dem Master."},
+  INFM6110:{t:"Überfachliche berufsfeldorientierte Kompetenzen (übK / Liberal Education)",s:"übK",cr:18,sem:"1-6",a:"übk",pf:"je nach Veranstaltung",tu:"",resp:"–",parts:true,unben:true,info:"Alle Veranstaltungen der Uni Tübingen außer Sport. Die Note zählt NICHT in die Bachelornote."},
+  INFM1710:{t:"Schwerpunkt (statt übK)",s:"Schwerpunkt",cr:18,sem:"1-6",a:"Schwerpunkt",pf:"Klausur 90 min je Vorlesung",tu:"",resp:"Menth",parts:true,info:"Alternative zu INFM6110: 3 × 6 LP in z. B. Biologie, Chemie, Medizin, Physik, Psychologie, Mathematik, Wirtschaft. Die Note ZÄHLT in die Bachelornote."},
+  INFM3999:{t:"Bachelorarbeit incl. Vortrag",s:"Bachelorarbeit (inkl. Kolloquium)",cr:15,sem:6,a:"Bachelorarbeit",pf:"Arbeit (12 LP, 80 %) + Vortrag 30 min (3 LP, 20 %)",tu:"",resp:"Professor*innen der Informatik",parts:true,info:"Bearbeitungszeit 4 Monate. Modulnote = 80 % Arbeit + 20 % Vortrag."},
+};
+const BA_PARTS=()=>[{id:'p'+rnd(6),n:"Bachelorarbeit (schriftlich)",cr:12,g:null},{id:'p'+rnd(6),n:"Abschlussvortrag / Kolloquium",cr:3,g:null}];
+
+/* Anforderungen (Summe 180) */
+const REQ=[
+  {k:"Pflicht",l:"Pflichtmodule Sem. 1–4",c:"14 Module",req:111,areas:["Pflicht"]},
+  {k:"Proseminar",l:"Proseminar",c:"INFM1510",req:3,areas:["Proseminar"]},
+  {k:"WP Praktische",l:"WP Praktische Informatik",c:"INFM3110",req:6,areas:["WP Praktische"]},
+  {k:"WP Technische",l:"WP Technische Informatik",c:"INFM3310",req:6,areas:["WP Technische"]},
+  {k:"WP Theoretische",l:"WP Theoretische Informatik",c:"INFM3410",req:6,areas:["WP Theoretische"]},
+  {k:"WP Info",l:"Wahlpflicht Informatik",c:"INFM2510",req:15,areas:["WP Info"]},
+  {k:"übk",l:"übK oder Schwerpunkt",c:"INFM6110 / 1710",req:18,areas:["übk","Schwerpunkt"]},
+  {k:"Bachelorarbeit",l:"Bachelorarbeit + Vortrag",c:"INFM3999",req:15,areas:["Bachelorarbeit"]},
+];
+const AREAS={
+  "Pflicht":{l:"Pflicht",tag:"var(--accent)",blk:"#2F5FB3"},
+  "Proseminar":{l:"Proseminar",tag:"#B4567F",blk:"#9C4A6E"},
+  "WP Praktische":{l:"WP Praktische",tag:"#2E9BB5",blk:"#1F7E95"},
+  "WP Technische":{l:"WP Technische",tag:"#C07A2C",blk:"#9A6220"},
+  "WP Theoretische":{l:"WP Theoretische",tag:"#8A5BD0",blk:"#7448B8"},
+  "WP Info":{l:"WP Informatik",tag:"#3F9D5B",blk:"#2F7F47"},
+  "übk":{l:"übK (unbenotet)",tag:"#8A8174",blk:"#857868"},
+  "Schwerpunkt":{l:"Schwerpunkt",tag:"#4F7FA8",blk:"#466A8C"},
+  "Bachelorarbeit":{l:"Bachelorarbeit",tag:"#8C6F4E",blk:"#6B5B4B"},
+};
+const MATHE_BLK="#1D4880";
+const GRADE_STEPS=[1.0,1.3,1.7,2.0,2.3,2.7,3.0,3.3,3.7,4.0];
+const TOTAL_ECTS=180;
+
+/* ---------- Startdaten (aus BSc_Informatik.xlsx, mit MHB abgeglichen) ---------- */
+const SEED=[
+ {mhb:"INFM1010",n:"Mathematik für Informatik 1: Analysis",short:"Mathematik f. Informatik 1",c:"INFM1010",p:"Anna Levina",cr:9,s:"1",a:"Pflicht",g:"X",pruefung:"Klausur 120 min",turnus:"WS"},
+ {mhb:"INFM1110",n:"Praktische Informatik 1: Deklarative Programmierung",short:"Praktische Informatik 1",c:"INFM1110",p:"Klaus Ostermann",cr:9,s:"1",a:"Pflicht",g:"X",pruefung:"Klausur 90 min",turnus:"WS"},
+ {mhb:"INFM1310",n:"Technische Informatik 1: Digitaltechnik",short:"Techn. Informatik 1",c:"INFM1310",p:"Oliver Bringmann",cr:6,s:"1",a:"Pflicht",g:"X",pruefung:"Klausur 90 min",turnus:"WS"},
+ {mhb:"INFM1120",n:"Praktische Informatik 2: Imperative und objektorientierte Programmierung",short:"Praktische Informatik 2",c:"INFM1120",p:"",cr:9,s:"2",a:"Pflicht",g:null,pruefung:"Klausur 90 min",turnus:"SS"},
+ {mhb:"INFM1020",n:"Mathematik für Informatik 2: Lineare Algebra",short:"Mathematik f. Informatik 2",c:"INFM1020",p:"",cr:9,s:"2",a:"Pflicht",g:null,pruefung:"Klausur 120 min",turnus:"SS"},
+ {mhb:"INFM2310",n:"Technische Informatik 2: Informatik der Systeme",short:"Techn. Informatik 2",c:"INFM2310",p:"Michael Menth",cr:9,s:"2",a:"Pflicht",g:null,pruefung:"Klausur 90 min",turnus:"SS"},
+ {mhb:"INFM2320",n:"Technische Informatik 3: Praktikum Microcomputer",short:"Techn. Informatik 3",c:"INFM2320",p:"Oliver Bringmann",cr:6,s:"2",a:"Pflicht",g:null,pruefung:"Praktikum / Ausarbeitung",turnus:"jedes Semester"},
+ {mhb:"INFM2420",n:"Theoretische Informatik 1: Algorithmen und Datenstrukturen",short:"Theoretische Informatik 1",c:"INFM2420",p:"",cr:9,s:"3",a:"Pflicht",g:null,pruefung:"Klausur 90 min",turnus:"WS"},
+ {mhb:"INFM2010",n:"Mathematik für Informatik 3: Fortgeschrittene Themen",short:"Mathematik f. Informatik 3",c:"INFM2010",p:"",cr:9,s:"3",a:"Pflicht",g:null,pruefung:"Klausur 120 min",turnus:"WS"},
+ {mhb:"INFM2111",n:"Praktische Informatik 3: Software Engineering",short:"Praktische Informatik 3",c:"INFM2111",p:"",cr:6,s:"3",a:"Pflicht",g:null,pruefung:"Klausur 90 min",turnus:"WS"},
+ {mhb:"INFM2510",n:"WP Informatik",short:"WP Informatik",c:"INFM2510",p:"",cr:6,s:"3",a:"WP Info",g:null,pruefung:"",turnus:"",parts:[]},
+ {mhb:"INFM2410",n:"Theoretische Informatik 2: Formale Sprachen, Berechenbarkeit und Komplexität",short:"Theoretische Informatik 2",c:"INFM2410",p:"",cr:9,s:"4",a:"Pflicht",g:null,pruefung:"Klausur 90 min",turnus:"SS"},
+ {mhb:"INFM3151",n:"Grundlagen des maschinellen Lernens",short:"Grundlagen ML",c:"INFM3151",p:"",cr:6,s:"4",a:"Pflicht",g:null,pruefung:"Klausur 90 min",turnus:"SS"},
+ {mhb:"INFM2020",n:"Mathematik für Informatik 4: Numerik oder Stochastik",short:"Mathematik f. Informatik 4",c:"INFM2020",p:"",cr:6,s:"4",a:"Pflicht",g:null,pruefung:"Klausur 90 min",turnus:"SS",note:"Wahl: INF2021 Stochastik oder INF2022 Numerik"},
+ {mhb:"INFM2110",n:"Praktische Informatik 4: Teamprojekt",short:"Teamprojekt",c:"INFM2110",p:"",cr:9,s:"4",a:"Pflicht",g:null,pruefung:"Hausarbeit + Referat",turnus:"jedes Semester"},
+ {mhb:"INFM3110",n:"WP Praktische Informatik",short:"WP Praktische Informatik",c:"INFM3110",p:"",cr:6,s:"5",a:"WP Praktische",g:null,pruefung:"",turnus:"",parts:[]},
+ {mhb:"INFM3310",n:"WP Technische Informatik",short:"WP Technische Informatik",c:"INFM3310",p:"",cr:6,s:"5",a:"WP Technische",g:null,pruefung:"",turnus:"",parts:[]},
+ {mhb:"INFM3410",n:"WP Theoretische Informatik",short:"WP Theoretische Informatik",c:"INFM3410",p:"",cr:6,s:"5",a:"WP Theoretische",g:null,pruefung:"",turnus:"",parts:[]},
+ {mhb:"INFM2510",n:"WP Informatik",short:"WP Informatik",c:"INFM2510",p:"",cr:9,s:"5",a:"WP Info",g:null,pruefung:"",turnus:"",parts:[]},
+ {mhb:"INFM1510",n:"Proseminar",short:"Proseminar",c:"INFM1510",p:"",cr:3,s:"5",a:"Proseminar",g:null,pruefung:"Vortrag + Ausarbeitung",turnus:"",note:"Optionen:\n• Moderne Architekturen Eingebetteter Systeme (INF3667)\n• Maschinelles Lernen (INF3657)"},
+ {mhb:"INFM6110",n:"Überfachliche berufsfeldorientierte Kompetenzen (übK)",short:"übK",c:"INFM6110",p:"",cr:18,s:"1-6",a:"übk",g:null,pruefung:"je nach Veranstaltung",turnus:"",unbenotet:true,parts:[]},
+ {mhb:"INFM3999",n:"Bachelorarbeit incl. Vortrag",short:"Bachelorarbeit (inkl. Kolloquium)",c:"INFM3999",p:"",cr:15,s:"6",a:"Bachelorarbeit",g:null,pruefung:"Arbeit + Vortrag",turnus:"",parts:"BA"},
+];
+
+/* ---------- state ---------- */
+let modules=[]; let editId=null; let draftParts=[];
+let settings={start:{season:"WS",year:2026}};
+let filter="all", semFilter="all", search="", sortKey="semester", sortDir=1, planColorMode="area";
+
+/* ================== PERSISTENZ (mehrschichtig) ==================
+   1. localStorage · 2. IndexedDB · 3. Sync-Datei (File System Access API) · 4. eingebettet in HTML
+   Beim Laden gewinnt der neueste gültige Stand. Startdaten werden NIE über vorhandene Daten geschrieben. */
+const APP_ID="notencockpit-bsc-informatik";
+const KEY_V1="bsc_informatik_cockpit_v1";
+const KEY="bsc_informatik_cockpit_v2";
+const KEY_SNAP="bsc_informatik_cockpit_snaps";
+const KEY_META="bsc_informatik_cockpit_meta";
+const SNAP_MAX=25, SNAP_EVERY=10*60*1000, BACKUP_WARN_DAYS=14;
+
+let savedAt=0, snaps=[], meta={lastExport:0,lastSnap:0}, fileHandle=null, saveT=null;
+const st={ls:null,idb:null,cs:null,file:null,persist:null,source:"–"};
+const fsSupported=('showSaveFilePicker' in window)&&('showOpenFilePicker' in window);
+const cs=(window.storage&&typeof window.storage.get==='function')?window.storage:null;
+
+function rnd(n){return Math.random().toString(36).slice(2,2+n);}
+const today=()=>new Date().toISOString().slice(0,10);
+const fmtDT=t=>new Date(t).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+const withTimeout=(p,ms=1500)=>Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),ms))]);
+
+function normGrade(g){
+  if(g==null||g==='') return null;
+  if(typeof g==='number') return (g>=1&&g<=5)?g:null;
+  const u=String(g).trim().toUpperCase();
+  if(u==='X'||u==='B') return u;
+  const v=parseFloat(u.replace(',','.')); return (!isNaN(v)&&v>=1&&v<=5)?v:null;
+}
+function normModule(m,i){
+  const o={id:m.id??('m'+i+'_'+rnd(6)),n:String(m.n??'').trim()||'Unbenanntes Modul',short:m.short||'',c:m.c||'',p:m.p||'',
+    cr:Number(m.cr)||0,s:String(m.s??'1'),a:AREAS[m.a]?m.a:'Pflicht',g:normGrade(m.g),pruefung:m.pruefung||'',turnus:m.turnus||'',
+    note:m.note||'',exam:m.exam||''};
+  if(m.mhb&&MHB[m.mhb]) o.mhb=m.mhb;
+  if(m.kurs&&typeof m.kurs==='object') o.kurs=JSON.parse(JSON.stringify(m.kurs));   // Semester-Tab: Termine, Abgaben, Zulassung
+  if(m.unbenotet!==undefined&&m.unbenotet!==null) o.unbenotet=!!m.unbenotet;
+  if(m.parts==="BA") o.parts=BA_PARTS();
+  else if(Array.isArray(m.parts)) o.parts=m.parts.map(p=>({id:p.id||('p'+rnd(6)),n:String(p.n||'').trim(),cr:Number(p.cr)||0,g:normGrade(p.g),master:!!p.master}));
+  return o;
+}
+
+/* ---- Migration: ältere Stände an das Modulhandbuch angleichen (einmalig, Noten bleiben unangetastet) ---- */
+function guessMhb(m){
+  const n=m.n||'', a=m.a;
+  if(MHB[m.c]&&!(m.c==='INFM1310'&&/Software|Praktische Informatik 3/i.test(n))) return m.c;
+  const rules=[
+    [/Mathematik f.*1|Analysis/i,"INFM1010"],[/Mathematik f.*2|Lineare Algebra/i,"INFM1020"],
+    [/Mathematik f.*3|Fortgeschrittene/i,"INFM2010"],[/Mathematik f.*4|Numerik|Stochastik/i,"INFM2020"],
+    [/Praktische Informatik 1|Deklarative/i,"INFM1110"],[/Praktische Informatik 2|objektorient/i,"INFM1120"],
+    [/Praktische Informatik 3|Software Engineering/i,"INFM2111"],[/Teamprojekt|Praktische Informatik 4/i,"INFM2110"],
+    [/Techn.*Informatik 1|Digitaltechnik/i,"INFM1310"],[/Techn.*Informatik 2|Informatik der Systeme/i,"INFM2310"],
+    [/Techn.*Informatik 3|Mi[ck]rocomputer/i,"INFM2320"],[/Theoretische Informatik 1|Algorithmen und Daten/i,"INFM2420"],
+    [/Theoretische Informatik 2|Formale Sprachen/i,"INFM2410"],[/maschinell|Grundlagen ML/i,"INFM3151"],
+    [/^Proseminar/i,"INFM1510"],[/Bachelor-?\s?Arbeit|Bachelorarbeit/i,"INFM3999"],
+  ];
+  for(const [re,c] of rules) if(re.test(n)) return c;
+  return {"WP Praktische":"INFM3110","WP Technische":"INFM3310","WP Theoretische":"INFM3410","WP Info":"INFM2510","übk":"INFM6110"}[a]||null;
+}
+function migrate(arr){
+  let changed=0;
+  arr.forEach(m=>{
+    if(m.mhb) return;
+    const k=guessMhb(m); if(!k) { m.mhb=undefined; return; }
+    const d=MHB[k]; m.mhb=k; changed++;
+    if(m.c!==k) m.c=k;
+    if(/^Mathematik für Informatiker 1/.test(m.n)) m.n=d.t;
+    if(k==="INFM2020"&&/XOR/.test(m.n)) m.n=d.t;
+    if(k==="INFM1510"){ m.a="Proseminar"; if(!m.note) m.note="Optionen:\n• Moderne Architekturen Eingebetteter Systeme (INF3667)\n• Maschinelles Lernen (INF3657)"; }
+    if(k==="INFM3999"){ m.a="Bachelorarbeit"; if(!m.parts||!m.parts.length){ const g=normGrade(m.g); m.parts=BA_PARTS(); if(typeof g==='number'||g==='X'){ m.parts.forEach(p=>p.g=g); } m.g=null; } }
+    if(k==="INFM2320"||k==="INFM2110") m.turnus="jedes Semester";
+    if(m.turnus==="jährlich") m.turnus=d.tu||"";
+    if(d.parts&&!m.parts) m.parts=[];
+    if(/^(Klausur|Praktikum|Projekt|Klausur \/ Projekt|)$/.test(m.pruefung||'')) m.pruefung=d.pf;
+  });
+  return changed;
+}
+
+function unwrap(raw){
+  if(raw==null) return null;
+  let d=raw;
+  if(typeof d==='string'){ try{d=JSON.parse(d);}catch(e){return null;} }
+  let arr, t, set=null;
+  if(Array.isArray(d)){arr=d;t=1;}
+  else if(d&&Array.isArray(d.modules)){arr=d.modules;t=Number(d.savedAt)||1; set=d.settings||null;}
+  else return null;
+  if(!arr.length||!arr.every(m=>m&&typeof m==='object'&&'n' in m)) return null;
+  const mods=arr.map(normModule); const orig=JSON.parse(JSON.stringify(mods)); const mig=migrate(mods);
+  return {savedAt:t,modules:mods,settings:set,migrated:mig,orig};
+}
+const wrap=()=>({app:APP_ID,v:3,savedAt,settings,modules});
+const sig=arr=>JSON.stringify(arr.map(({id,...r})=>r));
+
+const ls={
+  get(k){try{return localStorage.getItem(k);}catch(e){return null;}},
+  set(k,v){try{localStorage.setItem(k,v);return true;}catch(e){return false;}}
+};
+const idb={
+  _p:null,
+  open(){
+    if(!this._p) this._p=new Promise((res,rej)=>{
+      if(!('indexedDB' in window)) return rej(new Error('no idb'));
+      const r=indexedDB.open('notencockpit_bsc_informatik',1);
+      r.onupgradeneeded=()=>r.result.createObjectStore('kv');
+      r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); r.onblocked=()=>rej(new Error('blocked'));
+    });
+    return this._p;
+  },
+  async get(k){const db=await this.open();return new Promise((res,rej)=>{const q=db.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);});},
+  async set(k,v){const db=await this.open();return new Promise((res,rej)=>{const tx=db.transaction('kv','readwrite');tx.objectStore('kv').put(v,k);tx.oncomplete=()=>res();tx.onerror=tx.onabort=()=>rej(tx.error);});},
+  async del(k){const db=await this.open();return new Promise((res,rej)=>{const tx=db.transaction('kv','readwrite');tx.objectStore('kv').delete(k);tx.oncomplete=()=>res();tx.onerror=tx.onabort=()=>rej(tx.error);});}
+};
+
+async function loadAll(){
+  const cands=[]; const add=(raw,src)=>{const u=unwrap(raw); if(u) cands.push({...u,src});};
+  const lsRaw=ls.get(KEY); st.ls=ls.set('__probe','1')?'ok':'fail';
+  add(lsRaw,'Browser-Speicher');
+  add(ls.get(KEY_V1),'Browser-Speicher (alte Version)');
+  try{ add(JSON.parse(document.getElementById('embeddedData').textContent||'null'),'in dieser HTML-Datei eingebettet'); }catch(e){}
+  try{ add(await withTimeout(idb.get('state')),'IndexedDB'); st.idb='ok'; }catch(e){ st.idb='fail'; }
+  if(cs){ try{ const r=await withTimeout(cs.get(KEY)); add(r&&r.value,'Artifact-Speicher'); }catch(e){} st.cs='ok'; }
+  try{
+    const h=await withTimeout(idb.get('fileHandle'));
+    if(h){ fileHandle=h;
+      if(await filePerm(h,false)){ add(await (await h.getFile()).text(),'Sync-Datei'); st.file='ok'; } else st.file='perm'; }
+  }catch(e){}
+  try{ const x=await withTimeout(idb.get('snaps')); if(Array.isArray(x)) snaps=x; }catch(e){}
+  if(!snaps.length){ try{ const x=JSON.parse(ls.get(KEY_SNAP)||'[]'); if(Array.isArray(x)) snaps=x; }catch(e){} }
+  try{ meta={...meta,...JSON.parse(ls.get(KEY_META)||'{}')}; }catch(e){}
+  try{ const m2=await withTimeout(idb.get('meta')); if(m2){ meta.lastExport=Math.max(meta.lastExport||0,m2.lastExport||0); meta.lastSnap=Math.max(meta.lastSnap||0,m2.lastSnap||0);
+    ['precDigits','precMode','sim','tgt'].forEach(k=>{ if(meta[k]==null&&m2[k]!=null) meta[k]=m2[k]; }); } }catch(e){}
+  cands.sort((a,b)=>b.savedAt-a.savedAt);
+  return cands;
+}
+
+function commit(){
+  savedAt=Date.now();
+  st.ls=ls.set(KEY,JSON.stringify(wrap()))?'ok':'fail';
+  clearTimeout(saveT); saveT=setTimeout(persistNow,350);
+  if(Date.now()-(meta.lastSnap||0)>SNAP_EVERY) snapshot('automatisch');
+}
+async function persistNow(){
+  clearTimeout(saveT);
+  if(!modules.length||!savedAt) return;
+  const env=wrap(), json=JSON.stringify(env);
+  st.ls=ls.set(KEY,json)?'ok':'fail';
+  try{ await withTimeout(idb.set('state',JSON.parse(json)),3000); st.idb='ok'; }catch(e){ st.idb='fail'; }
+  if(cs){ try{ await cs.set(KEY,json,false); st.cs='ok'; }catch(e){ st.cs='fail'; } }
+  await writeFile();
+  stamp(); refreshBackupUI(); pushSum();
+}
+/* Auf dem Raspberry Pi: Kurzinfo für die Startseite */
+function pushSum(){ if(!window.__PI_SYNC) return; try{ const k=calc();
+  fetch('/api/sum_noten',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({savedAt:Date.now(),gpa:k.gpa!=null?fmtOff(k.gpa):null,ects:fmt1(k.passedCredits)})}).catch(()=>{}); }catch(e){} }
+function saveMeta(){ ls.set(KEY_META,JSON.stringify(meta)); idb.set('meta',JSON.parse(JSON.stringify(meta))).catch(()=>{}); }
+async function requestPersist(){
+  try{ if(navigator.storage&&navigator.storage.persist){ st.persist=(await navigator.storage.persisted())||(await navigator.storage.persist()); } }catch(e){}
+}
+
+function snapshot(reason,force){
+  if(!modules.length) return;
+  const last=snaps[snaps.length-1];
+  if(!force&&last&&sig(last.modules)===sig(modules)) { meta.lastSnap=Date.now(); saveMeta(); return; }
+  snaps.push({t:Date.now(),reason,modules:JSON.parse(JSON.stringify(modules))});
+  while(snaps.length>SNAP_MAX) snaps.shift();
+  meta.lastSnap=Date.now(); saveMeta();
+  idb.set('snaps',JSON.parse(JSON.stringify(snaps))).catch(()=>{});
+  ls.set(KEY_SNAP,JSON.stringify(snaps.slice(-8)));
+}
+function restoreSnap(t){
+  const s=snaps.find(x=>x.t===t); if(!s) return;
+  if(!confirm(`Stand vom ${fmtDT(s.t)} (${s.modules.length} Module) wiederherstellen?\nDer aktuelle Stand wird vorher gesichert.`)) return;
+  snapshot('vor Wiederherstellung',true);
+  modules=s.modules.map(normModule); migrate(modules); buildSemFilter(); renderAll(); persistNow();
+  toast('Stand vom '+fmtDT(s.t)+' wiederhergestellt'); renderBackup();
+}
+function applyState(u,src){
+  modules=u.modules; savedAt=u.savedAt; st.source=src; if(u.settings) settings={...settings,...u.settings};
+  buildSemFilter(); renderAll(false); persistNow();
+  toast('Aktualisiert aus: '+src);
+}
+
+async function filePerm(h,ask){
+  if(!h||!h.queryPermission) return false;
+  const o={mode:'readwrite'};
+  if((await h.queryPermission(o))==='granted') return true;
+  return ask? (await h.requestPermission(o))==='granted' : false;
+}
+async function writeFile(){
+  if(!fileHandle){ st.file=null; return; }
+  try{
+    if(!(await filePerm(fileHandle,false))){ st.file='perm'; return; }
+    const w=await fileHandle.createWritable(); await w.write(JSON.stringify(wrap(),null,2)); await w.close();
+    st.file='ok';
+  }catch(e){ st.file='fail'; }
+}
+async function linkNewFile(){
+  try{
+    const h=await window.showSaveFilePicker({suggestedName:'notencockpit_sync.json',types:[{description:'Notencockpit-Daten',accept:{'application/json':['.json']}}]});
+    fileHandle=h; await idb.set('fileHandle',h).catch(()=>{});
+    if(!savedAt) savedAt=Date.now();
+    await writeFile(); stamp(); toast('Sync-Datei angelegt – ab jetzt wird automatisch mitgeschrieben');
+  }catch(e){ if(e.name!=='AbortError') toast('Anlegen fehlgeschlagen'); }
+  renderBackup();
+}
+async function linkExistingFile(){
+  try{
+    const [h]=await window.showOpenFilePicker({types:[{description:'Notencockpit-Daten',accept:{'application/json':['.json']}}]});
+    const u=unwrap(await (await h.getFile()).text());
+    if(!u){ toast('Die Datei enthält keine gültigen Notencockpit-Daten'); return; }
+    if(!(await filePerm(h,true))){ toast('Ohne Schreibrecht kann nicht synchronisiert werden'); return; }
+    fileHandle=h; await idb.set('fileHandle',h).catch(()=>{});
+    if(u.savedAt>savedAt||confirm(`Die Datei ist älter (${fmtDT(u.savedAt)}) als der aktuelle Stand.\nTrotzdem den Stand aus der Datei laden?\n(Abbrechen = aktuellen Stand in die Datei schreiben)`)){
+      snapshot('vor Laden der Sync-Datei',true); applyState(u,'Sync-Datei');
+    } else { await writeFile(); toast('Sync-Datei verknüpft'); }
+  }catch(e){ if(e.name!=='AbortError') toast('Öffnen fehlgeschlagen'); }
+  renderBackup();
+}
+async function reconnectFile(){
+  if(!fileHandle) return;
+  try{
+    if(await filePerm(fileHandle,true)){
+      const u=unwrap(await (await fileHandle.getFile()).text());
+      if(u&&u.savedAt>savedAt){ snapshot('vor Laden der Sync-Datei',true); applyState(u,'Sync-Datei'); }
+      else { await writeFile(); toast('Sync-Datei wieder verbunden'); }
+    }
+  }catch(e){ st.file='fail'; toast('Verbindung fehlgeschlagen – Datei verschoben oder gelöscht?'); }
+  stamp(); renderBackup();
+}
+async function unlinkFile(){ fileHandle=null; st.file=null; await idb.del('fileHandle').catch(()=>{}); toast('Sync-Datei getrennt (die Datei selbst bleibt erhalten)'); stamp(); renderBackup(); }
+
+function okCount(){ return [st.ls,st.idb,st.cs,st.file].filter(x=>x==='ok').length; }
+function stamp(){
+  const el=document.getElementById('savedAt');
+  if(!savedAt){ el.textContent='Startdaten – noch nichts gespeichert'; return; }
+  const n=okCount();
+  if(n===0){ el.textContent='⚠ Speichern im Browser nicht möglich – bitte „HTML mit Daten speichern"'; el.style.color='var(--bad)'; return; }
+  el.style.color='';
+  const d=new Date(savedAt), sameDay=d.toDateString()===new Date().toDateString();
+  const t=sameDay? d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}) : fmtDT(savedAt);
+  el.textContent=`gespeichert ${t} · ${n} Speicherort${n===1?'':'e'}`;
+}
+function backupDue(){ return savedAt>0 && (Date.now()-(meta.lastExport||0))>BACKUP_WARN_DAYS*864e5; }
+function updateBackupBadge(){
+  const b=document.getElementById('bkBtn'); const due=backupDue();
+  b.classList.toggle('alert',due);
+  b.title= due? 'Daten & Backup – letzte Sicherung ist über '+BACKUP_WARN_DAYS+' Tage her' : 'Daten & Backup';
+}
+
+async function init(){
+  let th=null; try{th=localStorage.getItem('cockpit_theme');}catch(e){}
+  if(!th) th=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+  document.documentElement.setAttribute('data-theme',th); updateThemeIcon(th);
+
+  const cands=await loadAll();
+  let pick=cands[0];
+  if(!pick&&snaps.length){ const x=snaps[snaps.length-1]; const mods=x.modules.map(normModule); migrate(mods); pick={savedAt:x.t,modules:mods,src:'letzter Snapshot'}; }
+  if(pick){ modules=pick.modules; savedAt=pick.savedAt; st.source=pick.src; if(pick.settings) settings={...settings,...pick.settings}; }
+  else { modules=SEED.map(normModule); savedAt=0; st.source='Startdaten (keine gespeicherten Daten gefunden)'; }
+  if(meta.precMode==null) meta.precMode='trunc';
+  if(meta.precDigits==null) meta.precDigits=1;
+  buildSemFilter(); renderAll(false); setTimeout(pushSum,2500);
+  if(pick){
+    if(pick.migrated&&pick.orig){ const cur=modules; modules=pick.orig; snapshot('vor MHB-Abgleich',true); modules=cur; savedAt=Date.now(); }
+    await persistNow();
+    snapshot('Sitzungsstart');
+    if(pick.migrated) toast(`${pick.migrated} Module mit dem Modulhandbuch abgeglichen (Codes, Prüfungsformen) – Noten unverändert`);
+    else if(!/^Browser-Speicher$|^IndexedDB$/.test(pick.src)) toast('Daten wiederhergestellt aus: '+pick.src);
+  } else toast('Keine gespeicherten Daten gefunden – unter „Daten & Backup" kannst du ein Backup laden');
+  stamp(); updateBackupBadge(); syncPrec();
+  requestPersist().then(refreshBackupUI);
+
+  window.addEventListener('storage',e=>{ if(e.key!==KEY||!e.newValue) return; const u=unwrap(e.newValue); if(u&&u.savedAt>savedAt) applyState(u,'anderem Tab'); });
+  document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') persistNow(); });
+  window.addEventListener('pagehide',()=>{ if(savedAt&&modules.length) ls.set(KEY,JSON.stringify(wrap())); });
+}
+
+/* =================== Noten-Logik =================== */
+const num=g=> (typeof g==='number')? g : (typeof g==='string' && g.trim()!=='' && !isNaN(g.replace(',','.'))? parseFloat(g.replace(',','.')) : null);
+const isX=g=> typeof g==='string'&&g.trim().toUpperCase()==='X';
+const isB=g=> typeof g==='string'&&g.trim().toUpperCase()==='B';
+const passG=g=>{const v=num(g); return (v!=null&&v>=1&&v<=4)||isB(g);};
+const isUnbenotet=m=> m.unbenotet ?? (m.a==='übk');
+const hasParts=m=> Array.isArray(m.parts)&&(m.parts.length>0||(m.mhb&&MHB[m.mhb]&&MHB[m.mhb].parts));
+const usesParts=m=> Array.isArray(m.parts)&&m.parts.length>0;
+
+/* liefert alles, was man über ein Modul wissen muss */
+function info(m){
+  const unb=isUnbenotet(m);
+  if(usesParts(m)){
+    let pc=0,gw=0,gc=0,run=0,fail=false,tot=0,anyX=false;
+    m.parts.forEach(p=>{ const v=num(p.g), cr=+p.cr||0; tot+=cr;
+      if(passG(p.g)){ pc+=cr; if(v!=null){gw+=v*cr; gc+=cr;} }
+      else if(v!=null&&v>4) fail=true;
+      else if(isX(p.g)){ run+=cr; anyX=true; } });
+    const passedCr=Math.min(m.cr,pc), done=pc>=m.cr-1e-9;
+    const state= done?'passed': fail?'failed': anyX?'current': pc>0?'partial':'open';
+    const grade=gc?gw/gc:null;
+    const graded=unb?0:Math.min(gc,m.cr);
+    return {state,passedCr,runCr:Math.min(run,Math.max(0,m.cr-pc)),grade,unb,gw:unb?0:(gc?gw*(graded/gc):0),gc:graded,
+      remGraded:unb?0:(done?0:Math.max(0,m.cr-gc)),partsCr:tot,parts:true};
+  }
+  const v=num(m.g);
+  if(v!=null&&v>=1&&v<=4) return {state:'passed',passedCr:m.cr,runCr:0,grade:v,unb,gw:unb?0:v*m.cr,gc:unb?0:m.cr,remGraded:0};
+  if(isB(m.g)) return {state:'passed',passedCr:m.cr,runCr:0,grade:null,unb,gw:0,gc:0,remGraded:0};
+  if(v!=null&&v>4) return {state:'failed',passedCr:0,runCr:0,grade:v,unb,gw:0,gc:0,remGraded:unb?0:m.cr};
+  if(isX(m.g)) return {state:'current',passedCr:0,runCr:m.cr,grade:null,unb,gw:0,gc:0,remGraded:unb?0:m.cr};
+  return {state:'open',passedCr:0,runCr:0,grade:null,unb,gw:0,gc:0,remGraded:unb?0:m.cr};
+}
+/* einzelne benotete Leistungen (für Histogramm, beste Note) */
+function gradedItems(){
+  const out=[];
+  modules.forEach(m=>{
+    if(usesParts(m)) m.parts.forEach(p=>{const v=num(p.g); if(v!=null&&v>=1&&v<=5) out.push({m,n:p.n||m.n,cr:+p.cr||0,v,counts:!isUnbenotet(m)});});
+    else {const v=num(m.g); if(v!=null&&v>=1&&v<=5) out.push({m,n:m.n,cr:m.cr,v,counts:!isUnbenotet(m)});}
+  });
+  return out;
+}
+function calc(){
+  let wsum=0,wcr=0,passedCredits=0,currentCredits=0,passedCount=0,openCount=0,failedCount=0,rem=0,plannedGraded=0,bestG=null;
+  modules.forEach(m=>{
+    const i=info(m);
+    wsum+=i.gw; wcr+=i.gc; passedCredits+=i.passedCr; currentCredits+=i.runCr; rem+=i.remGraded;
+    if(!i.unb) plannedGraded+=m.cr;
+    if(i.state==='passed') passedCount++; else if(i.state==='failed') failedCount++; else if(i.state==='open') openCount++;
+  });
+  gradedItems().forEach(x=>{ if(x.counts&&x.v<=4&&(bestG==null||x.v<bestG)) bestG=x.v; });
+  const gpa=wcr>0?wsum/wcr:null;
+  return {gpa,wsum,wcr,passedCredits,currentCredits,passedCount,openCount,failedCount,rem,plannedGraded,bestG};
+}
+
+/* Rundung/Anzeige */
+const fmtG=v=> v==null? "–" : v.toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1});
+const precD=()=>Math.min(4,Math.max(1,Number(meta.precDigits)||1));
+const precM=()=>meta.precMode==='round'?'round':'trunc';
+function cut(v,d,mode){ const f=10**d; return mode==='trunc'? Math.floor(v*f+1e-9)/f : Math.round(v*f+1e-9)/f; }
+function fmtAvg(v){ if(v==null||isNaN(v)) return "–"; const d=precD(); return cut(v,d,precM()).toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d}); }
+const official=v=> v==null?null:cut(v,1,precM());           // Zeugnisnote
+const fmtOff=v=> v==null?'–':fmtG(official(v));
+const fmtExact=v=> v==null? "–" : v.toLocaleString('de-DE',{minimumFractionDigits:4,maximumFractionDigits:4});
+const fmt1=n=> (Math.round(n*10)/10).toLocaleString('de-DE');
+function classify(v){
+  if(v==null) return {t:"",c:"var(--muted)"};
+  const o=official(v);
+  if(o<=1.5) return {t:"sehr gut",c:"var(--good)"};
+  if(o<=2.5) return {t:"gut",c:"var(--ok)"};
+  if(o<=3.5) return {t:"befriedigend",c:"var(--mid)"};
+  if(o<=4.0) return {t:"ausreichend",c:"var(--warn)"};
+  return {t:"nicht ausreichend",c:"var(--bad)"};
+}
+function gradeColor(v){
+  if(v==null) return "var(--muted)";
+  if(v<=1.5) return "var(--good)"; if(v<=2.5) return "var(--ok)"; if(v<=3.5) return "var(--mid)"; if(v<=4.0) return "var(--warn)"; return "var(--bad)";
+}
+function gradeText(m){
+  if(usesParts(m)){ const i=info(m); if(i.grade!=null) return fmtG(cut(i.grade,1,'trunc')); if(i.state==='passed') return 'B'; if(i.state==='current') return 'X'; return i.state==='partial'?'…':''; }
+  if(isX(m.g)) return 'X'; if(isB(m.g)) return 'B'; return m.g==null?'':fmtG(num(m.g));
+}
+
+/* =================== Semester & Zeit =================== */
+function termIdx(d){ const y=d.getFullYear(), mo=d.getMonth()+1; return mo>=10? 2*y+1 : mo<=3? 2*(y-1)+1 : 2*y; }
+function startIdx(){ const s=settings.start||{season:'WS',year:2026}; return s.season==='SS'? 2*s.year : 2*s.year+1; }
+function semLabel(k){ const t=startIdx()+k-1; if(t%2){ const y=(t-1)/2; return 'WS '+String(y).slice(2)+'/'+String(y+1).slice(2);} return 'SS '+String(t/2).slice(2); }
+function semSeason(k){ return (startIdx()+k-1)%2?'WS':'SS'; }
+function fachsemester(){ return termIdx(new Date())-startIdx()+1; }
+const semNum=s=>{const n=parseInt(s,10); return isNaN(n)?99:n;};
+const isRange=s=>!/^\d+$/.test(String(s));
+
+/* =================== Prüfungen der Planung =================== */
+function findByCode(code){ return modules.find(m=>m.mhb===code||m.c===code); }
+function issuesFor(m){
+  const out=[]; const i=info(m); const s=semNum(m.s);
+  if(i.state==='failed') out.push({lvl:'bad',t:`<b>${esc(m.short||m.n)}</b> nicht bestanden – Wiederholungsprüfung einplanen. Die 5,0 zählt nicht in den Schnitt.`});
+  const d=m.mhb&&MHB[m.mhb];
+  if(d&&i.state!=='passed'&&!isRange(m.s)){
+    const chk=(codes,soft)=>codes.forEach(c=>{ const p=findByCode(c); if(!p) return; const pi=info(p);
+      if(pi.state==='passed') return;
+      const ps=semNum(p.s);
+      if(ps>=s) out.push({lvl:soft?'info':'warn',t:`<b>${esc(m.short||m.n)}</b> (Sem. ${s}): ${soft?'empfohlen ist vorher':'Voraussetzung laut MHB ist'} <b>${esc(p.short||p.n)}</b> – liegt aber in Sem. ${esc(p.s)}.`});
+      else if(!soft&&(i.state==='current')&&pi.state!=='current') out.push({lvl:'warn',t:`<b>${esc(m.short||m.n)}</b> läuft, aber die Voraussetzung <b>${esc(p.short||p.n)}</b> ist noch nicht bestanden.`});
+    });
+    if(d.req) chk(d.req,false);
+    if(d.rec) chk(d.rec,true);
+    if(d.any){ const ps=d.any.map(findByCode).filter(Boolean);
+      if(ps.length&&!ps.some(p=>info(p).state==='passed'||semNum(p.s)<s)) out.push({lvl:'warn',t:`<b>${esc(m.short||m.n)}</b>: Voraussetzung ist PI 1 oder PI 2 – keines davon liegt vor Sem. ${s}.`}); }
+  }
+  if((m.turnus==='WS'||m.turnus==='SS')&&!isRange(m.s)&&i.state!=='passed'&&semSeason(s)!==m.turnus)
+    out.push({lvl:'warn',t:`<b>${esc(m.short||m.n)}</b> wird laut Plan im ${m.turnus} angeboten, Sem. ${s} ist aber ein ${semSeason(s)} (${semLabel(s)}).`});
+  if(usesParts(m)){ const tot=m.parts.reduce((a,p)=>a+(+p.cr||0),0);
+    if(tot>m.cr+1e-9) out.push({lvl:'info',t:`<b>${esc(m.short||m.n)}</b>: Teilleistungen ergeben ${fmt1(tot)} LP, das Modul hat ${fmt1(m.cr)} LP.`}); }
+  return out;
+}
+function globalIssues(){
+  const out=[];
+  // Bereichs-Soll vs. Planung
+  REQ.forEach(r=>{
+    const planned=modules.filter(m=>r.areas.includes(m.a)).reduce((a,m)=>a+m.cr,0);
+    if(planned<r.req) out.push({lvl:'warn',t:`<b>${r.l}</b>: ${fmt1(planned)} von ${r.req} LP eingeplant – es fehlen ${fmt1(r.req-planned)} LP.`});
+    else if(planned>r.req) out.push({lvl:'info',t:`<b>${r.l}</b>: ${fmt1(planned)} LP eingeplant, gefordert sind ${r.req} LP.`});
+  });
+  const hasSP=modules.some(m=>m.a==='Schwerpunkt'), hasUebk=modules.some(m=>m.a==='übk');
+  if(hasSP&&hasUebk) out.push({lvl:'warn',t:`Du hast <b>übK</b> und <b>Schwerpunkt</b> eingeplant – laut MHB wählst du eines von beiden (18 LP).`});
+  // Master-Veranstaltungen
+  const master=modules.filter(m=>/^WP/.test(m.a)&&usesParts(m)).flatMap(m=>m.parts).filter(p=>p.master).reduce((a,p)=>a+(+p.cr||0),0);
+  if(master>18) out.push({lvl:'warn',t:`In den Wahlpflichtfächern sind ${fmt1(master)} LP aus dem Master eingeplant – erlaubt sind höchstens 18 LP.`});
+  // Semesterlast
+  for(let s=1;s<=7;s++){ const cr=modules.filter(m=>m.s===String(s)&&info(m).state!=='passed').reduce((a,m)=>a+m.cr,0);
+    if(cr>36) out.push({lvl:'info',t:`Semester ${s} (${semLabel(s)}) hat ${fmt1(cr)} offene LP eingeplant – deutlich über 30.`}); }
+  return out;
+}
+function allIssues(){ return [...modules.flatMap(issuesFor),...globalIssues()]; }
+
+/* =================== Rendering =================== */
+function renderAll(save=true){
+  if(save) commit();
+  renderOverview(); renderModules(); renderPlanner(); renderAnalytics(); renderSimulator(); renderRules(); if(typeof renderSemester==='function') renderSemester();
+  document.getElementById('modCount').textContent=modules.length;
+  const n=allIssues().filter(x=>x.lvl!=='info').length;
+  const hc=document.getElementById('hintCount'); hc.hidden=!n; hc.textContent=n;
+}
+
+/* ---------- Übersicht ---------- */
+function renderOverview(){
+  const k=calc();
+  const g=document.getElementById('gpaBig');
+  g.textContent=k.gpa!=null?fmtAvg(k.gpa):"–";
+  g.className='big'+(precD()>=4?' p4':precD()===3?' p3':'');
+  g.title=k.gpa!=null?`Exakt: ${fmtExact(k.gpa)}  (${fmt1(k.wsum)} ÷ ${fmt1(k.wcr)} ECTS)\nIm Zeugnis: ${fmtOff(k.gpa)} (${precM()==='trunc'?'abgeschnitten':'gerundet'})`:'';
+  g.style.color=gradeColor(k.gpa);
+  const cls=classify(k.gpa); const gc=document.getElementById('gpaClass'); gc.textContent=cls.t; gc.style.color=cls.c;
+  const arc=document.getElementById('gaugeArc'); const len=270;
+  const frac=k.gpa!=null?Math.max(0.04,Math.min(1,(4-k.gpa)/3)):0;
+  arc.style.stroke=gradeColor(k.gpa);
+  requestAnimationFrame(()=>{arc.style.transition="stroke-dashoffset 1s cubic-bezier(.2,.8,.2,1)";arc.style.strokeDashoffset=len-len*frac;});
+
+  document.getElementById('fWeighted').innerHTML=`${fmt1(k.wcr)} <small>/ ${fmt1(k.plannedGraded)}</small>`;
+  const sc=scenarios();
+  const fp=document.getElementById('fProj'); fp.textContent=sc.trend!=null?fmtOff(sc.trend):'–'; fp.style.color=gradeColor(sc.trend);
+  document.getElementById('fBest').textContent=k.bestG!=null?fmtG(k.bestG):"–";
+  document.getElementById('fBest').style.color=gradeColor(k.bestG);
+  const fs=fachsemester();
+  document.getElementById('heroSem').textContent=fs>=1?fs+'.':'–';
+  document.getElementById('heroSemSub').textContent=fs>=1?semLabel(fs)+' · Start '+semLabel(1):'Studienbeginn liegt in der Zukunft';
+
+  const C=2*Math.PI*74, pct=k.passedCredits/TOTAL_ECTS, run=Math.min(1,(k.passedCredits+k.currentCredits)/TOTAL_ECTS);
+  const ring=document.getElementById('ring'), rr=document.getElementById('ringRun');
+  requestAnimationFrame(()=>{[ring,rr].forEach(x=>x.style.transition="stroke-dashoffset 1.1s cubic-bezier(.2,.8,.2,1)");
+    ring.style.strokeDashoffset=C-C*Math.min(1,pct); ring.style.opacity=pct>0?1:0; rr.style.opacity=run>pct?.75:0; rr.style.strokeDashoffset=C-C*run;});
+  document.getElementById('ringPct').textContent=Math.round(pct*100)+"%";
+  document.getElementById('ringCr').textContent=`${fmt1(k.passedCredits)} / ${TOTAL_ECTS} ECTS`;
+
+  document.getElementById('sCredits').textContent=fmt1(k.passedCredits);
+  document.getElementById('sCreditsD').textContent=`noch ${fmt1(TOTAL_ECTS-k.passedCredits)} ECTS bis zum Abschluss`;
+  document.getElementById('sPassed').textContent=k.passedCount;
+  document.getElementById('sPassedD').textContent=`von ${modules.length} Modulen`+(k.failedCount?` · ${k.failedCount} nicht bestanden`:'');
+  document.getElementById('sRun').textContent=fmt1(k.currentCredits);
+  const runN=modules.filter(m=>info(m).runCr>0).length;
+  document.getElementById('sRunD').textContent=`${runN} Modul${runN===1?'':'e'} in diesem Semester`;
+  const ex=upcomingExams();
+  if(ex.length){ const e=ex[0]; document.getElementById('sExam').textContent=e.days===0?'heute':e.days+' T';
+    document.getElementById('sExamL').textContent='bis '+(e.m.short||e.m.n);
+    document.getElementById('sExamD').textContent=new Date(e.m.exam).toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'}); }
+  else { document.getElementById('sExam').textContent='–'; document.getElementById('sExamL').textContent='Nächste Prüfung'; document.getElementById('sExamD').textContent='Termin im Modul eintragen'; }
+
+  renderReq(); renderExams(ex); renderHints(); renderNotes();
+}
+function renderReq(){
+  const wrap=document.getElementById('reqList'); wrap.innerHTML='';
+  REQ.forEach(r=>{
+    const ms=modules.filter(m=>r.areas.includes(m.a));
+    const done=ms.reduce((a,m)=>a+info(m).passedCr,0), run=ms.reduce((a,m)=>a+info(m).runCr,0), plan=ms.reduce((a,m)=>a+m.cr,0);
+    const base=Math.max(r.req,plan);
+    const pD=done/base*100, pR=run/base*100, pP=Math.max(0,(Math.min(plan,base)-done-run))/base*100;
+    const ok=done>=r.req;
+    const gr=ms.map(info).filter(i=>i.gc>0); const avg=gr.length?gr.reduce((a,i)=>a+i.gw,0)/gr.reduce((a,i)=>a+i.gc,0):null;
+    let sub='';
+    if(plan<r.req) sub=`<div class="sub warn">nur ${fmt1(plan)} LP eingeplant – ${fmt1(r.req-plan)} LP fehlen im Plan</div>`;
+    else if(r.k==='übk'&&ms.some(m=>m.a==='übk')) sub=`<div class="sub">Note zählt nicht in die Endnote (Schwerpunkt INFM1710 würde zählen)</div>`;
+    const d=document.createElement('div'); d.className='req-row';
+    d.innerHTML=`<div class="top"><span class="nm"><span class="ck ${ok?'ok':''}">${ok?'✓':''}</span>${r.l} <span class="code">${r.c}</span></span>
+      <span class="vv">${avg!=null?`<span style="color:${gradeColor(avg)};font-weight:700">Ø ${fmtAvg(avg)}</span> · `:''}${fmt1(done)}${run?` <span style="color:var(--mid)">+${fmt1(run)}</span>`:''} / ${r.req}</span></div>
+      <div class="bar"><i style="width:0;background:var(--accent)"></i><i class="run" style="width:0"></i><i style="width:0;background:var(--border-strong)"></i></div>${sub}`;
+    wrap.appendChild(d);
+    const is=d.querySelectorAll('.bar i');
+    requestAnimationFrame(()=>{is[0].style.width=pD+'%'; is[1].style.width=pR+'%'; is[2].style.width=pP+'%';});
+  });
+}
+function upcomingExams(){
+  const t0=new Date(today()+'T00:00:00');
+  return modules.filter(m=>m.exam&&info(m).state!=='passed').map(m=>({m,days:Math.round((new Date(m.exam+'T00:00:00')-t0)/864e5)}))
+    .filter(x=>x.days>=0).sort((a,b)=>a.days-b.days);
+}
+function renderExams(ex){
+  const w=document.getElementById('examList');
+  const running=modules.filter(m=>info(m).state==='current'&&!m.exam);
+  let h=ex.slice(0,4).map(e=>`<div class="exam" data-edit="${e.m.id}"><div class="dd" style="color:${e.days<=7?'var(--bad)':e.days<=21?'var(--warn)':'var(--accent)'}">${e.days}<small>Tage</small></div>
+    <div class="en">${esc(e.m.short||e.m.n)}<small>${new Date(e.m.exam).toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'long'})}${e.m.kurs&&e.m.kurs.examTime?', '+esc(e.m.kurs.examTime)+' Uhr':''} · ${esc(e.m.pruefung||'Prüfung')}${e.m.kurs&&e.m.kurs.alma?' · ✓ Alma':''}</small></div></div>`).join('');
+  if(running.length) h+=`<div class="hint info"><span class="hi">i</span><span>Für ${running.map(m=>'<b>'+esc(m.short||m.n)+'</b>').join(', ')} ist noch kein Prüfungstermin eingetragen.</span></div>`;
+  if(!h) h=`<div class="hint ok"><span class="hi">✓</span><span>Keine offenen Prüfungstermine.</span></div>`;
+  w.innerHTML=h; bindEdit(w);
+}
+function renderHints(){
+  const w=document.getElementById('hintList');
+  const list=allIssues(); const order={bad:0,warn:1,info:2};
+  list.sort((a,b)=>order[a.lvl]-order[b.lvl]);
+  if(backupDue()) list.push({lvl:'info',t:`Letzte Datei-Sicherung ist über ${BACKUP_WARN_DAYS} Tage her.`,act:'bk'});
+  if(!list.length){ w.innerHTML=`<div class="hint ok"><span class="hi">✓</span><span>Alles stimmig: Voraussetzungen, Turnus und Credits passen zum Modulhandbuch.</span></div>`; return; }
+  const ic={bad:'!',warn:'!',info:'i'};
+  const max=7, shown=list.slice(0,max);
+  w.innerHTML=shown.map(x=>`<div class="hint ${x.lvl}"><span class="hi">${ic[x.lvl]}</span><span>${x.t}</span>${x.act==='bk'?'<button class="go" data-bk>sichern</button>':''}</div>`).join('')
+    +(list.length>max?`<div class="hint info"><span class="hi">+</span><span>${list.length-max} weitere – im Tab <b>Module</b> unter „Hinweise" filtern.</span></div>`:'');
+  const b=w.querySelector('[data-bk]'); if(b) b.onclick=showBackup;
+}
+function renderNotes(){
+  const w=document.getElementById('noteList');
+  const ns=modules.filter(m=>m.note&&m.note.trim());
+  w.innerHTML=ns.length? ns.map(m=>`<div class="nt" data-edit="${m.id}"><b>${esc(m.short||m.n)}</b>${esc(m.note.trim())}</div>`).join('')
+    : `<div class="note-box">Noch keine Notizen. Im Modul-Dialog kannst du z. B. Proseminar-Themen oder Fristen festhalten.</div>`;
+  bindEdit(w);
+}
+
+/* ---------- Module ---------- */
+function buildSemFilter(){
+  const sel=document.getElementById('semFilter'); const cur=sel.value;
+  const sems=[...new Set(modules.map(m=>m.s))].sort((a,b)=>semNum(a)-semNum(b));
+  sel.innerHTML='<option value="all">Alle Semester</option>'+sems.map(s=>`<option value="${esc(s)}">${isRange(s)?'Semester '+esc(s):'Sem. '+esc(s)+' · '+semLabel(semNum(s))}</option>`).join('');
+  if(sems.includes(cur)) sel.value=cur; else semFilter='all';
+}
+const STATUS={passed:{t:"bestanden",c:"var(--good)",k:"var(--good-ink)",r:1},failed:{t:"nicht bestanden",c:"var(--bad)",k:"var(--bad-ink)",r:0},current:{t:"läuft",c:"var(--mid)",k:"var(--mid-ink)",r:2},partial:{t:"teilweise",c:"var(--ok)",k:"var(--good-ink)",r:3},open:{t:"offen",c:"var(--faint)",k:"var(--muted)",r:4}};
+function areaTag(a){ const col=(AREAS[a]||{}).tag||"var(--muted)"; return `<span class="tag" style="color:color-mix(in srgb,${col} 70%,var(--ink));background:color-mix(in srgb,${col} 13%,transparent)">${esc((AREAS[a]||{}).l||a)}</span>`; }
+function weightOf(m){ const k=calc(); return isUnbenotet(m)||!k.plannedGraded?0:m.cr/k.plannedGraded*100; }
+function renderModules(){
+  const body=document.getElementById('modBody'); body.innerHTML="";
+  const k=calc();
+  const issueMap=new Map(modules.map(m=>[m.id,issuesFor(m)]));
+  let rows=modules.filter(m=>{
+    const s=info(m).state;
+    if(filter==="passed"&&s!=='passed')return false;
+    if(filter==="current"&&s!=='current'&&s!=='partial')return false;
+    if(filter==="open"&&s!=='open'&&s!=='failed')return false;
+    if(filter==="issues"&&!issueMap.get(m.id).length)return false;
+    if(semFilter!=="all"&&m.s!==semFilter)return false;
+    if(search){const q=search.toLowerCase(); if(!(m.n+' '+m.c+' '+m.p+' '+(m.short||'')+' '+(m.note||'')+' '+(m.parts||[]).map(p=>p.n).join(' ')).toLowerCase().includes(q))return false;}
+    return true;
+  });
+  const key={name:m=>m.n.toLowerCase(),area:m=>m.a,semester:m=>semNum(m.s)*10+(isRange(m.s)?5:0),credits:m=>m.cr,
+    grade:m=>{const i=info(m);return i.grade??99;},status:m=>STATUS[info(m).state].r,weight:m=>weightOf(m)};
+  rows.sort((a,b)=>{const va=key[sortKey](a),vb=key[sortKey](b); return va<vb?-sortDir:va>vb?sortDir:0;});
+  if(!rows.length) body.innerHTML=`<tr><td colspan="9"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><p>Keine Module gefunden. Filter anpassen oder ein Modul hinzufügen.</p></div></td></tr>`;
+  rows.forEach(m=>{
+    const i=info(m), stt=STATUS[i.state], iss=issueMap.get(m.id);
+    const gv=i.grade, parts=usesParts(m);
+    const tr=document.createElement('tr'); tr.dataset.id=m.id; const ordMode=sortKey==='semester';
+    const vs=rows.filter(x=>x.s===m.s).sort((a,b)=>modules.indexOf(a)-modules.indexOf(b)), vi=vs.indexOf(m);
+    const nb={up:vi>0,down:vi<vs.length-1};
+    const flag=iss.length?`<span class="flag ${iss.some(x=>x.lvl==='bad')?'bad':''}" title="${esc(iss.map(x=>x.t.replace(/<[^>]+>/g,'')).join('\n'))}">!</span>`:'';
+    const sub=[m.c?esc(m.c):'',m.p?'<span class="pf">'+esc(m.p)+'</span>':'',m.pruefung?'<span class="pf">'+esc(m.pruefung)+'</span>':'',
+      parts&&m.parts.length?'<span class="pf">'+m.parts.length+' Teilleistung'+(m.parts.length===1?'':'en')+'</span>':''].filter(Boolean).join(' · ');
+    tr.innerHTML=`
+      <td class="ord-td">${ordMode?`<div class="ord"><span class="grip" draggable="true" title="Ziehen zum Verschieben" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg></span>
+        <span class="arr"><button type="button" data-up="${m.id}" ${nb.up?'title="nach oben"':`disabled title="Schon das erste Modul in ${isRange(m.s)?'dieser Gruppe':'Semester '+esc(m.s)}"`} aria-label="${esc(m.n)} nach oben"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.6"><path d="m6 15 6-6 6 6"/></svg></button><button type="button" data-dn="${m.id}" ${nb.down?'title="nach unten"':`disabled title="Schon das letzte Modul in ${isRange(m.s)?'dieser Gruppe':'Semester '+esc(m.s)}"`} aria-label="${esc(m.n)} nach unten"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.6"><path d="m6 9 6 6 6-6"/></svg></button></span></div>`:`<button type="button" class="ord-sw" data-sw title="Reihenfolge ändern: nach Semester sortieren" aria-label="Nach Semester sortieren, um die Reihenfolge zu ändern"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 4v16M3 8l4-4 4 4M17 20V4M13 16l4 4 4-4"/></svg></button>`}</td>
+      <td><div class="m-name" data-edit="${m.id}">${esc(m.n)}${flag}</div>${sub?`<div class="m-code">${sub}</div>`:''}</td>
+      <td style="text-align:center"><span class="sem-pill" title="${isRange(m.s)?'semesterübergreifend':semLabel(semNum(m.s))}">${esc(m.s)}</span></td>
+      <td style="text-align:center" class="cr">${fmt1(m.cr)}</td>
+      <td>${areaTag(m.a)}</td>
+      <td style="text-align:center"><input class="grade-in" value="${gradeText(m)}" data-id="${m.id}" inputmode="decimal" list="gradeSteps" aria-label="Note ${esc(m.n)}"
+        ${parts?'readonly title="Note ergibt sich aus den Teilleistungen – Klick öffnet sie"':''}
+        style="color:${gradeColor(gv)};border-color:${gv!=null||i.state==='current'?'color-mix(in srgb,'+gradeColor(gv)+' 45%,var(--border-strong))':'var(--border-strong)'}"></td>
+      <td style="text-align:center" class="wt">${isUnbenotet(m)?'<span title="zählt nicht in die Endnote">—</span>':fmt1(weightOf(m))+' %'}</td>
+      <td><span class="status"><i style="background:${stt.c}"></i><span style="color:${stt.k}">${stt.t}</span></span>${i.state==='partial'?`<div class="m-code">${fmt1(i.passedCr)} / ${fmt1(m.cr)} LP</div>`:''}</td>
+      <td><div class="row-act">
+        <button class="mini" data-edit="${m.id}" title="Bearbeiten" aria-label="Bearbeiten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></button>
+        <button class="mini del" data-del="${m.id}" title="Löschen" aria-label="Löschen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
+      </div></td>`;
+    body.appendChild(tr);
+  });
+  const totCr=modules.reduce((s,m)=>s+m.cr,0);
+  document.getElementById('modFoot').innerHTML=`<tr><td></td><td>Gesamt · ${modules.length} Module${totCr!==TOTAL_ECTS?` <span style="color:var(--warn);font-weight:500">(Plan ≠ 180)</span>`:''}</td><td></td>
+     <td style="text-align:center" class="cr">${fmt1(totCr)}</td><td></td>
+     <td style="text-align:center;color:${gradeColor(k.gpa)}" title="Exakt ${fmtExact(k.gpa)}">${k.gpa!=null?fmtAvg(k.gpa):'–'}</td><td class="wt" style="text-align:center">100 %</td>
+     <td colspan="2">${fmt1(k.passedCredits)} ECTS bestanden</td></tr>`;
+  document.querySelectorAll('#modTable thead th').forEach(th=>{
+    th.classList.toggle('sorted',th.dataset.sort===sortKey);
+    const ar=th.querySelector('.ar'); if(ar) ar.textContent=(th.dataset.sort===sortKey&&sortDir<0)?'▴':'▾';
+  });
+  body.querySelectorAll('.grade-in').forEach(inp=>{
+    if(inp.readOnly){ inp.addEventListener('click',()=>openEdit(inp.dataset.id)); return; }
+    inp.addEventListener('change',e=>setGrade(e.target.dataset.id,e.target.value));
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur();});
+  });
+  bindEdit(body);
+  body.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>delModule(b.dataset.del)));
+  // Reihenfolge per Pfeil
+  // bei anderer Sortierung erst auf „Semester“ umstellen (nur dort gilt die eigene Reihenfolge)
+  const ensureOrder=()=>{ if(sortKey==='semester') return true; sortKey='semester'; sortDir=1; renderModules(); toast('Sortierung auf „Semester“ zurückgestellt – dort gilt deine eigene Reihenfolge'); return false; };
+  body.querySelectorAll('[data-up],[data-dn]').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation();
+    const up='up' in b.dataset, id=up?b.dataset.up:b.dataset.dn; const keep=ensureOrder(); moveModule(id,up?-1:1,'table',keep); }));
+  // Reihenfolge per Ziehen (Griff)
+  body.querySelectorAll('tr[data-id]').forEach(tr=>{
+    const g=tr.querySelector('.grip');
+    if(!g){ const sw=tr.querySelector('[data-sw]'); if(sw) sw.onclick=e=>{ e.stopPropagation(); sortKey='semester'; sortDir=1; renderModules(); toast('Nach Semester sortiert – jetzt kannst du mit ▲▼ oder ⋮⋮ umsortieren'); }; return; }
+    g.addEventListener('dragstart',e=>{ dragId=tr.dataset.id; tr.classList.add('dragging'); e.dataTransfer.effectAllowed='move';
+      try{ e.dataTransfer.setData('text/plain',dragId); e.dataTransfer.setDragImage(tr,20,tr.offsetHeight/2); }catch(_){} });
+    g.addEventListener('dragend',()=>{ tr.classList.remove('dragging'); clearIns(); dragId=null; });
+    const side=e=>{ const r=tr.getBoundingClientRect(); return e.clientY>r.top+r.height/2; };
+    tr.addEventListener('dragover',e=>{ if(!dragId||dragId===tr.dataset.id) return; e.preventDefault(); clearIns(); tr.classList.add(side(e)?'ins-after':'ins-before'); });
+    tr.addEventListener('drop',e=>{ if(!dragId) return; e.preventDefault(); const id=dragId, after=side(e); dragId=null; clearIns();
+      if(sortKey!=='semester'){ sortKey='semester'; sortDir=1; }
+      const t=modules.find(x=>x.id===tr.dataset.id); placeModule(id,tr.dataset.id,after,t.s); });
+  });
+}
+function parseGradeInput(val){
+  val=(val||'').trim(); if(val==='') return {g:null};
+  const u=val.toUpperCase(); if(u==='X'||u==='B') return {g:u};
+  const v=parseFloat(val.replace(',','.'));
+  if(!isNaN(v)&&v>=1&&v<=5) return {g:Math.round(v*100)/100,odd:!GRADE_STEPS.includes(Math.round(v*10)/10)&&v!==5};
+  return {err:true};
+}
+function setGrade(id,val){
+  const m=modules.find(x=>x.id===id); if(!m)return;
+  const r=parseGradeInput(val);
+  if(r.err){ toast('Note 1,0–5,0, „X" (läuft) oder „B" (bestanden ohne Note)'); renderModules(); return; }
+  m.g=r.g;
+  if(r.odd) toast(`Hinweis: ${fmtG(r.g)} ist keine übliche Notenstufe (1,0 · 1,3 · 1,7 · … · 4,0) – trotzdem übernommen`);
+  else if(typeof r.g==='number'&&r.g>4) toast('5,0 = nicht bestanden: zählt nicht in den Schnitt, Wiederholung nötig');
+  renderAll();
+}
+
+/* ---------- Studienplan ---------- */
+function blockColor(m){
+  const i=info(m);
+  if(planColorMode==="grade"){
+    if(i.grade!=null) return {bg:gradeColor(i.grade)};
+    if(i.state==='passed') return {bg:"var(--ok)"};
+    if(i.state==='current'||i.state==='partial') return {bg:"var(--mid)"};
+    return {faded:true};
+  }
+  if(planColorMode==="status"){
+    return {passed:{bg:"var(--accent)"},current:{bg:"var(--mid)"},partial:{bg:"var(--ok)"},failed:{bg:"var(--bad)"},open:{faded:true}}[i.state];
+  }
+  if(/^INFM(1010|1020|2010|2020)$/.test(m.mhb||'')) return {bg:MATHE_BLK};
+  return {bg:(AREAS[m.a]||AREAS.Pflicht).blk};
+}
+function blockGrade(m){
+  const i=info(m);
+  if(i.grade!=null&&i.state!=='partial') return {t:fmtG(cut(i.grade,1,'trunc'))};
+  if(i.state==='passed') return {t:"best."};
+  if(i.state==='current') return {t:"läuft"};
+  if(i.state==='partial') return {t:fmt1(i.passedCr)+"/"+fmt1(m.cr)};
+  return {t:isUnbenotet(m)?"unben.":"offen",empty:true};
+}
+function blockHTML(m,extra){
+  const col=blockColor(m), gr=blockGrade(m), iss=issuesFor(m).filter(x=>x.lvl!=='info');
+  const h=extra?0:Math.round(m.cr*9.5+30);
+  const tip=[m.n,m.pruefung,m.turnus?'Angebot: '+m.turnus:'',...iss.map(x=>'⚠ '+x.t.replace(/<[^>]+>/g,''))].filter(Boolean).join('\n');
+  return `<div class="vp-blk${col.faded?' faded':''}" draggable="true" data-edit="${m.id}" data-id="${m.id}" title="${esc(tip)}"
+    style="${h?'min-height:'+h+'px;':''}background:${col.faded?'var(--surface-2)':col.bg};border-color:${col.faded?'var(--border-strong)':'transparent'}${col.faded?';border-style:dashed':''}">
+    ${iss.length?`<span class="wf ${iss.some(x=>x.lvl==='bad')?'bad':''}">!</span>`:''}
+    <span class="mv">${(()=>{const nb=neighbors(m);return `<button type="button" data-mv="${m.id}" data-dir="-1" data-k="up" ${nb.up?'':'disabled'} title="${extra?'nach links':'nach oben'}" aria-label="${esc(m.short||m.n)} nach oben">${extra?'‹':'<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.6"><path d="m6 15 6-6 6 6"/></svg>'}</button><button type="button" data-mv="${m.id}" data-dir="1" data-k="dn" ${nb.down?'':'disabled'} title="${extra?'nach rechts':'nach unten'}" aria-label="${esc(m.short||m.n)} nach unten">${extra?'›':'<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.6"><path d="m6 9 6 6 6-6"/></svg>'}</button>`;})()}</span>
+    <div class="bn">${esc(m.short||m.n)}${extra?' · Semester '+esc(m.s):''}</div>
+    <div class="bb"><span class="blp">${fmt1(m.cr)} LP</span><span class="bg${gr.empty?' e':''}">${gr.t}</span></div></div>`;
+}
+function renderVerlaufsplan(){
+  const grid=document.getElementById('vplan'); grid.innerHTML="";
+  const maxSem=Math.max(6,...modules.filter(m=>!isRange(m.s)).map(m=>semNum(m.s)).filter(n=>n<99));
+  grid.style.gridTemplateColumns=`repeat(${maxSem},minmax(124px,1fr))`; grid.style.minWidth=(maxSem*130)+'px';
+  const fs=fachsemester();
+  for(let s=1;s<=maxSem;s++){
+    const ms=modules.filter(m=>m.s===String(s));
+    const col=document.createElement('div'); col.className='vp-col'; col.dataset.sem=String(s);
+    const cr=ms.reduce((a,m)=>a+m.cr,0);
+    const exams=ms.filter(m=>/Klausur|mdl|mündl/i.test(m.pruefung||'')).length;
+    col.innerHTML=`<div class="vp-h${s===fs?' now':''}">${s}. Semester<small>${semLabel(s)}${s===fs?' · jetzt':''}</small></div>`+ms.map(m=>blockHTML(m)).join('')+
+      `<div class="vp-tot${cr>36?' hi':''}">${fmt1(cr)} LP<small>${exams} Klausur${exams===1?'':'en'}</small></div>`;
+    grid.appendChild(col);
+  }
+  const extra=document.getElementById('vplanUebk');
+  extra.innerHTML=modules.filter(m=>isRange(m.s)).map(m=>blockHTML(m,true)).join('');
+  const leg=document.getElementById('vplanLegend');
+  if(planColorMode==='grade') leg.innerHTML=`<span class="lg"><i style="background:var(--good)"></i>1,0–1,5</span><span class="lg"><i style="background:var(--ok)"></i>1,6–2,5</span><span class="lg"><i style="background:var(--mid)"></i>2,6–3,5 · läuft</span><span class="lg"><i style="background:var(--warn)"></i>3,6–4,0</span><span class="lg"><i style="background:var(--bad)"></i>nicht bestanden</span><span class="lg"><i style="background:var(--surface-3)"></i>offen</span>`;
+  else if(planColorMode==='status') leg.innerHTML=`<span class="lg"><i style="background:var(--accent)"></i>bestanden</span><span class="lg"><i style="background:var(--mid)"></i>läuft</span><span class="lg"><i style="background:var(--ok)"></i>teilweise</span><span class="lg"><i style="background:var(--bad)"></i>nicht bestanden</span><span class="lg"><i style="background:var(--surface-3)"></i>offen</span>`;
+  else leg.innerHTML=`<span class="lg"><i style="background:${AREAS.Pflicht.blk}"></i>Pflicht</span><span class="lg"><i style="background:${MATHE_BLK}"></i>Mathematik</span>`+
+    ["WP Praktische","WP Technische","WP Theoretische","WP Info","Proseminar","übk","Schwerpunkt","Bachelorarbeit"].filter(a=>modules.some(m=>m.a===a)).map(a=>`<span class="lg"><i style="background:${AREAS[a].blk}"></i>${AREAS[a].l}</span>`).join('');
+  bindEdit(grid); bindEdit(extra); bindDrag();
+}
+/* ---------- Reihenfolge ---------- */
+// Reihenfolge = Position im modules-Array (innerhalb eines Semesters)
+function neighbors(m){ const same=modules.filter(x=>x.s===m.s); const i=same.indexOf(m); return {up:i>0,down:i<same.length-1}; }
+// Tabelle: nur sichtbare Zeilen zählen als Nachbarn (Filter/Suche); Plan: alle
+function sameScope(m,ctx){
+  let same=modules.filter(x=>x.s===m.s);
+  if(ctx==='table'){ const vis=new Set([...document.querySelectorAll('#modBody tr[data-id]')].map(t=>t.dataset.id)); same=same.filter(x=>vis.has(x.id)); }
+  return same;
+}
+const elOf=(id,ctx)=>document.querySelector(ctx==='table'?`#modBody tr[data-id="${id}"]`:`#planner .vp-blk[data-id="${id}"]`);
+function moveModule(id,dir,ctx,keepPos=true){
+  const m=modules.find(x=>x.id===id); if(!m) return;
+  const same=sameScope(m,ctx), o=same[same.indexOf(m)+dir]; if(!o) return;
+  const el=elOf(id,ctx), before=el?el.getBoundingClientRect().top:null;
+  modules.splice(modules.indexOf(m),1);
+  const t=modules.indexOf(o); modules.splice(dir<0?t:t+1,0,m);   // direkt vor bzw. hinter den sichtbaren Nachbarn
+  renderAll();
+  const el2=elOf(id,ctx); if(!el2) return;
+  // Modul bleibt unter dem Mauszeiger → erneutes Klicken bewegt dasselbe Modul weiter
+  if(keepPos&&before!=null){ const d=el2.getBoundingClientRect().top-before; if(Math.abs(d)>1) window.scrollBy({top:d,behavior:'instant'}); }
+  el2.classList.remove('moved'); void el2.offsetWidth; el2.classList.add('moved');
+  if(ctx==='plan'){ el2.classList.add('show-mv'); el2.addEventListener('mouseleave',()=>el2.classList.remove('show-mv'),{once:true}); }
+  const sel=ctx==='table'?(k=>`[data-${k}="${id}"]`):(k=>`.mv button[data-k="${k}"]`);
+  const root=el2; let btn=root.querySelector(sel(dir<0?'up':'dn'));
+  if(!btn||btn.disabled) btn=root.querySelector(sel(dir<0?'dn':'up'));
+  if(btn&&!btn.disabled) btn.focus({preventScroll:true});
+}
+// verschiebt id vor/hinter targetId (oder ans Ende von Semester sem)
+function placeModule(id,targetId,after,sem){
+  const m=modules.find(x=>x.id===id); if(!m||id===targetId) return false;
+  const oldS=m.s, oldIdx=modules.indexOf(m);
+  modules.splice(oldIdx,1);
+  if(sem!=null) m.s=sem;
+  if(targetId){ const t=modules.findIndex(x=>x.id===targetId); modules.splice(after?t+1:t,0,m); }
+  else { let last=-1; modules.forEach((x,i)=>{ if(x.s===m.s) last=i; }); modules.splice(last>=0?last+1:modules.length,0,m); }
+  if(oldS!==m.s){ buildSemFilter(); toast(`${m.short||m.n} → ${isRange(m.s)?'semesterübergreifend':'Semester '+m.s}`); }
+  renderAll(); return true;
+}
+function clearIns(){ document.querySelectorAll('.ins-before,.ins-after,.drop').forEach(x=>x.classList.remove('ins-before','ins-after','drop')); }
+let dragId=null;
+function bindDrag(){
+  document.querySelectorAll('#planner .vp-blk').forEach(b=>{
+    b.addEventListener('dragstart',e=>{dragId=b.dataset.id; b.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; try{e.dataTransfer.setData('text/plain',dragId);}catch(_){}});
+    b.addEventListener('dragend',()=>{b.classList.remove('dragging'); document.querySelectorAll('.drop').forEach(x=>x.classList.remove('drop'));});
+  });
+  document.querySelectorAll('#planner .vp-blk').forEach(b=>{
+    const side=e=>{ const r=b.getBoundingClientRect(); return b.closest('#vplanUebk')? e.clientX>r.left+r.width/2 : e.clientY>r.top+r.height/2; };
+    b.addEventListener('dragover',e=>{ if(!dragId||dragId===b.dataset.id) return; e.preventDefault(); e.stopPropagation();
+      clearIns(); b.closest('.vp-col,#vplanUebk').classList.add('drop'); b.classList.add(side(e)?'ins-after':'ins-before'); });
+    b.addEventListener('drop',e=>{ if(!dragId) return; e.preventDefault(); e.stopPropagation(); const after=side(e); const id=dragId; dragId=null; clearIns();
+      const col=b.closest('.vp-col,#vplanUebk'); placeModule(id,b.dataset.id,after,col.dataset.sem); });
+  });
+  document.querySelectorAll('#planner .vp-col,#vplanUebk').forEach(c=>{
+    c.ondragover=e=>{ if(!dragId) return; e.preventDefault(); clearIns(); c.classList.add('drop'); };
+    c.ondragleave=e=>{ if(!c.contains(e.relatedTarget)) c.classList.remove('drop'); };
+    c.ondrop=e=>{ e.preventDefault(); const id=dragId; dragId=null; clearIns(); if(!id) return;
+      const m=modules.find(x=>x.id===id); if(m&&m.s===c.dataset.sem){ // ans Ende des eigenen Semesters
+        const same=modules.filter(x=>x.s===m.s); if(same[same.length-1]===m) return; }
+      placeModule(id,null,false,c.dataset.sem); };
+  });
+  document.querySelectorAll('#planner .mv').forEach(mv=>{
+    const blk=mv.closest('.vp-blk');
+    // Firefox: in ziehbaren Blöcken startet sonst beim Klicken leicht ein Drag statt eines Klicks
+    mv.addEventListener('pointerenter',()=>{ blk.draggable=false; });
+    mv.addEventListener('pointerleave',()=>{ blk.draggable=true; });
+    mv.querySelectorAll('button').forEach(bt=>{
+      bt.addEventListener('mousedown',e=>e.stopPropagation());
+      bt.addEventListener('click',e=>{ e.stopPropagation(); e.preventDefault(); moveModule(bt.dataset.mv,+bt.dataset.dir,'plan'); });
+    });
+  });
+}
+function renderPlanner(){
+  renderVerlaufsplan();
+  const wrap=document.getElementById('roadmap'); wrap.innerHTML="";
+  const sems=[...new Set(modules.map(m=>m.s))].sort((a,b)=>semNum(a)-semNum(b)||(isRange(a)?1:-1));
+  sems.forEach(s=>{
+    const ms=modules.filter(m=>m.s===s);
+    const cr=ms.reduce((a,m)=>a+m.cr,0), done=ms.reduce((a,m)=>a+info(m).passedCr,0);
+    const is=ms.map(info).filter(i=>i.gc>0); const gpa=is.length?is.reduce((a,i)=>a+i.gw,0)/is.reduce((a,i)=>a+i.gc,0):null;
+    const card=document.createElement('div'); card.className='sem-card';
+    card.innerHTML=`<div class="sem-head"><div class="ti"><span class="sem-no">${esc(s)}</span>
+        <div><div style="font-weight:600;font-size:13.5px;font-family:var(--disp)">${isRange(s)?'Semesterübergreifend':'Semester '+esc(s)+' · '+semLabel(semNum(s))}</div>
+        <div class="meta">${ms.length} Module · ${fmt1(cr)} ECTS</div></div></div>
+        <span class="sem-gpa" style="color:${gradeColor(gpa)};background:color-mix(in srgb,${gradeColor(gpa)} 12%,transparent)">${gpa!=null?fmtAvg(gpa):'–'}</span></div>
+      <div class="sem-body">${ms.map(m=>{const i=info(m);const stt=STATUS[i.state];
+        return `<div class="sm" data-edit="${m.id}"><span class="dot" style="background:${stt.c}"></span>
+          <div class="nm">${esc(m.n)}<div class="cr">${fmt1(m.cr)} ECTS · ${esc((AREAS[m.a]||{}).l||m.a)}</div></div>
+          <span class="gr" style="color:${gradeColor(i.grade)}">${gradeText(m)||'·'}</span></div>`;}).join('')}</div>
+      <div class="sem-foot"><span>bestanden</span><span><b>${fmt1(done)}</b> / ${fmt1(cr)} ECTS</span></div>`;
+    wrap.appendChild(card);
+  });
+  bindEdit(wrap);
+}
+
+/* ---------- Analyse ---------- */
+function renderAnalytics(){
+  const items=gradedItems();
+  const steps=[...GRADE_STEPS,5.0];
+  const counts=steps.map((s,i)=>items.filter(x=>{const lo=i?(steps[i-1]+s)/2:0, hi=i<steps.length-1?(s+steps[i+1])/2:9; return x.v>=lo&&x.v<hi;}).length);
+  const maxC=Math.max(1,...counts);
+  const hist=document.getElementById('hist'); hist.innerHTML="";
+  if(counts.every(c=>c===0)) hist.innerHTML=`<div class="empty" style="margin:auto"><p>Noch keine Noten eingetragen.</p></div>`;
+  else steps.forEach((s,i)=>{
+    const d=document.createElement('div'); d.className='hbar';
+    d.innerHTML=`<div class="bar2" style="height:0;background:${gradeColor(s)}"><span>${counts[i]||''}</span></div><div class="xl">${fmtG(s)}</div>`;
+    hist.appendChild(d);
+    requestAnimationFrame(()=>{d.querySelector('.bar2').style.height=(counts[i]?Math.max(5,counts[i]/maxC*100):0)+"%";});
+  });
+  renderTrend(); renderLoad(); renderProf(); renderAreaBalance();
+}
+function renderTrend(){
+  const svg=document.getElementById('trend');
+  const W=460,H=210,pl=38,pr=16,pt=16,pb=30;
+  const maxSem=Math.max(6,...modules.filter(m=>!isRange(m.s)).map(m=>semNum(m.s)).filter(n=>n<99));
+  let cw=0,cc=0; const pts=[];
+  for(let s=1;s<=maxSem;s++){
+    const is=modules.filter(m=>m.s===String(s)).map(info).filter(i=>i.gc>0);
+    const sw=is.reduce((a,i)=>a+i.gw,0), sc=is.reduce((a,i)=>a+i.gc,0);
+    cw+=sw; cc+=sc; pts.push({s,cum:cc?cw/cc:null,sem:sc?sw/sc:null});
+  }
+  const y=v=>pt+(v-1)/3*(H-pt-pb), x=s=>pl+(s-1)/(maxSem-1)*(W-pl-pr);
+  let g="";
+  [1,2,3,4].forEach(v=>{g+=`<line x1="${pl}" y1="${y(v)}" x2="${W-pr}" y2="${y(v)}" stroke="var(--border)"/><text x="${pl-8}" y="${y(v)+4}" text-anchor="end" font-size="10" font-family="var(--mono)" fill="var(--faint)">${v},0</text>`;});
+  for(let s=1;s<=maxSem;s++) g+=`<text x="${x(s)}" y="${H-10}" text-anchor="middle" font-size="10" font-family="var(--mono)" fill="var(--faint)">S${s}</text>`;
+  const lastS=Math.max(0,...pts.filter(p=>p.sem!=null).map(p=>p.s)); const v=pts.filter(p=>p.cum!=null&&p.s<=lastS);
+  let path=v.map((p,i)=>(i?'L':'M')+x(p.s)+' '+y(p.cum)).join(' ');
+  let out=g;
+  if(v.length){
+    out+=`<path d="${path} L${x(v[v.length-1].s)} ${H-pb} L${x(v[0].s)} ${H-pb} Z" fill="var(--accent-soft)"/>`;
+    out+=`<path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+    pts.filter(p=>p.sem!=null).forEach(p=>{out+=`<circle cx="${x(p.s)}" cy="${y(Math.min(4,p.sem))}" r="4" fill="${gradeColor(p.sem)}" opacity=".85"><title>Sem. ${p.s}: ${fmtAvg(p.sem)}</title></circle>`;});
+    v.forEach(p=>{out+=`<circle cx="${x(p.s)}" cy="${y(p.cum)}" r="4.5" fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5"><title>bis Sem. ${p.s}: ${fmtAvg(p.cum)}</title></circle>`;});
+  } else out+=`<text x="${W/2}" y="${H/2}" text-anchor="middle" font-size="12" fill="var(--muted)" font-family="var(--body)">Noch keine bewerteten Semester</text>`;
+  svg.innerHTML=out;
+}
+function renderLoad(){
+  const w=document.getElementById('loadChart');
+  const maxSem=Math.max(6,...modules.filter(m=>!isRange(m.s)).map(m=>semNum(m.s)).filter(n=>n<99));
+  const data=[]; for(let s=1;s<=maxSem;s++){ const ms=modules.filter(m=>m.s===String(s));
+    data.push({s,done:ms.reduce((a,m)=>a+info(m).passedCr,0),run:ms.reduce((a,m)=>a+info(m).runCr,0),tot:ms.reduce((a,m)=>a+m.cr,0)}); }
+  const top=Math.max(36,...data.map(d=>d.tot)), AREA_H=118, BASE=23;   // BASE = Beschriftung (16px) + Abstand (7px)
+  w.innerHTML=`<div class="ref" style="bottom:${BASE+30/top*AREA_H}px"><span>30 LP</span></div>`;
+  data.forEach(d=>{
+    const c=document.createElement('div'); c.className='lc';
+    c.innerHTML=`<div class="lv" style="${d.tot>36?'color:var(--warn)':''}">${fmt1(d.tot)}</div><div class="stack" style="height:${Math.max(d.tot?3:0,d.tot/top*AREA_H)}px" title="Sem. ${d.s}: ${fmt1(d.done)} bestanden, ${fmt1(d.run)} laufend, ${fmt1(d.tot)} eingeplant">
+      <i style="height:${d.tot?d.done/d.tot*100:0}%;background:var(--accent)"></i><i style="height:${d.tot?d.run/d.tot*100:0}%;background:var(--mid)"></i><i style="flex:1;background:var(--border-strong)"></i></div><div class="xl">S${d.s}</div>`;
+    w.appendChild(c);
+  });
+}
+function renderProf(){
+  const wrap=document.getElementById('profList'); wrap.innerHTML="";
+  const map={};
+  modules.forEach(m=>{ const p=(m.p||'').trim(); if(!p) return; const i=info(m);
+    map[p]=map[p]||{cr:0,done:0,gw:0,gc:0}; map[p].cr+=m.cr; map[p].done+=i.passedCr;
+    if(i.grade!=null&&i.state==='passed'){ map[p].gw+=i.grade*m.cr; map[p].gc+=m.cr; } });
+  const colors=["#5B4BE0","#16A85A","#D99318","#2E9BB5","#B5772E","#8A5BD0","#DD4636"];
+  const entries=Object.entries(map).sort((a,b)=>b[1].done-a[1].done||b[1].cr-a[1].cr);
+  if(!entries.length){wrap.innerHTML=`<div class="empty"><p>Keine Dozent*innen erfasst.</p></div>`;return;}
+  entries.forEach(([p,d],i)=>{
+    const ini=p.split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    const gpa=d.gc>0?d.gw/d.gc:null;
+    const el=document.createElement('div'); el.className='prof';
+    el.innerHTML=`<div class="av" style="background:${colors[i%colors.length]}">${esc(ini)}</div>
+      <div class="info"><div class="pn">${esc(p)}</div><div class="pm">${fmt1(d.done)} / ${fmt1(d.cr)} ECTS bestanden</div></div>
+      <div class="pv" style="color:${gradeColor(gpa)}">${gpa!=null?fmtAvg(gpa):'–'}</div>`;
+    wrap.appendChild(el);
+  });
+}
+function renderAreaBalance(){
+  const wrap=document.getElementById('areaBalance'); wrap.innerHTML="";
+  REQ.forEach(r=>{
+    const ms=modules.filter(m=>r.areas.includes(m.a)); if(!ms.length) return;
+    const is=ms.map(info); const done=is.reduce((a,i)=>a+i.passedCr,0);
+    const gr=is.filter(i=>i.gc>0); const gpa=gr.length?gr.reduce((a,i)=>a+i.gw,0)/gr.reduce((a,i)=>a+i.gc,0):null;
+    const unb=ms.every(isUnbenotet);
+    const el=document.createElement('div');
+    el.style.cssText="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 13px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2)";
+    el.innerHTML=`<div><div style="font-size:13px;font-weight:500">${r.l}</div><div style="font-size:11.5px;color:var(--muted);font-family:var(--mono)">${fmt1(done)} / ${r.req} ECTS${unb?' · unbenotet':''}</div></div>
+      <div style="font-family:var(--mono);font-weight:700;font-size:15px;color:${gradeColor(gpa)}">${gpa!=null?fmtAvg(gpa):'–'}</div>`;
+    wrap.appendChild(el);
+  });
+}
+
+/* ---------- Zielrechner & Szenarien ---------- */
+function remainingItems(){ return modules.map(m=>({m,rem:info(m).remGraded})).filter(x=>x.rem>0); }
+function scenarios(){
+  const k=calc();
+  const proj=a=>{const c=k.wcr+k.rem; return c>0?(k.wsum+k.rem*a)/c:null;};
+  return {best:proj(1.0),worst:proj(4.0),trend:k.gpa!=null?proj(k.gpa):null,current:k.gpa,rem:k.rem,wsum:k.wsum,wcr:k.wcr,k};
+}
+function renderSimulator(){
+  const sc=scenarios();
+  const wrap=document.getElementById('scenarios'); wrap.innerHTML="";
+  const tr=sc.current;
+  const data=[
+    {t:"Bestmöglich",d:"alle offenen Module mit 1,0",v:sc.best,c:"var(--good)"},
+    {t:"Aktueller Trend",d:tr!=null?`offene Module wie bisher (Ø ${fmtAvg(tr)})`:'noch keine Noten – Trend folgt',v:sc.trend,c:"var(--accent)"},
+    {t:"Trend −0,3",d:"etwas schlechter als bisher",v:tr!=null?(sc.wsum+sc.rem*Math.min(4,tr+0.3))/(sc.wcr+sc.rem):null,c:"var(--mid)"},
+    {t:"Schlechtester Fall",d:"alle offenen Module mit 4,0",v:sc.worst,c:"var(--warn)"},
+  ];
+  data.forEach(s=>{
+    const el=document.createElement('div'); el.className='scn';
+    el.innerHTML=`<div class="sv" style="color:${s.c}" title="${s.v!=null?'exakt '+fmtExact(s.v):''}">${s.v!=null?fmtOff(s.v):'–'}</div><div><div class="st">${s.t}</div><div class="sd">${s.d}</div></div>`;
+    wrap.appendChild(el);
+  });
+  document.getElementById('scnCap').textContent=`Zeugnisnote (${precM()==='trunc'?'nach 1. Stelle abgeschnitten':'gerundet'}) – ${fmt1(sc.rem)} benotete ECTS sind noch offen`;
+  const sl=document.getElementById('tgtSlider'); if(meta.tgt) sl.value=meta.tgt;
+  updateTarget(); renderWhatIf();
+}
+function updateTarget(){
+  const sc=scenarios();
+  const sl=document.getElementById('tgtSlider'); const tgt=parseFloat(sl.value);
+  document.getElementById('tgtVal').textContent=fmtG(tgt);
+  sl.style.setProperty('--p',((tgt-1)/3*100)+'%');
+  const need=document.getElementById('needVal'), txt=document.getElementById('needNote');
+  const trunc=precM()==='trunc';
+  const limit=tgt+(trunc?0.1:0.05);        // exakter Schnitt muss darunter bleiben
+  if(sc.rem<=0){
+    need.textContent=sc.current!=null?fmtOff(sc.current):'–'; need.style.color='var(--muted)';
+    txt.innerHTML=`Es sind keine offenen benoteten Credits mehr vorhanden. Deine Endnote steht bei <b>${sc.current!=null?fmtOff(sc.current):'–'}</b>.`;
+    return;
+  }
+  const needed=(limit*(sc.wcr+sc.rem)-sc.wsum)/sc.rem;
+  const step=[...GRADE_STEPS].reverse().find(s=>s<needed-1e-9);
+  const rule=trunc?`Da nach der 1. Nachkommastelle abgeschnitten wird, steht eine ${fmtG(tgt)} im Zeugnis für jeden exakten Schnitt unter ${fmtG(tgt+0.1)} (z. B. ${(tgt+0.099).toLocaleString('de-DE',{minimumFractionDigits:3})}).`:`Bei kaufmännischer Rundung muss der exakte Schnitt unter ${(tgt+0.05).toLocaleString('de-DE',{minimumFractionDigits:2})} bleiben.`;
+  if(needed<1.0){
+    need.textContent='> 1,0'; need.style.color='var(--bad)';
+    txt.innerHTML=`Mit den verbleibenden <b>${fmt1(sc.rem)} benoteten ECTS</b> ist eine ${fmtG(tgt)} rechnerisch <b>nicht mehr erreichbar</b> – selbst mit lauter 1,0 käme ein Schnitt von <b>${fmtOff(sc.best)}</b> heraus. Wähle ein etwas höheres Ziel.`;
+  } else if(needed>=4.0){
+    need.textContent='≤ 4,0'; need.style.color='var(--good)';
+    txt.innerHTML=`<b>Sicher:</b> Selbst wenn alle offenen ${fmt1(sc.rem)} ECTS mit 4,0 abgeschlossen werden, landest du bei <b>${fmtOff(sc.worst)}</b> – also mindestens bei deinem Ziel.`;
+  } else {
+    need.textContent=needed.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}); need.style.color=gradeColor(needed);
+    txt.innerHTML=`Für eine <b>${fmtG(tgt)}</b> im Zeugnis brauchst du auf den restlichen <b>${fmt1(sc.rem)} benoteten ECTS</b> einen Schnitt <b>besser als ${needed.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})}</b>${step?` – zum Beispiel durchgehend <b>${fmtG(step)}</b> oder besser`:''}.<br><span style="font-size:11.5px">${rule}</span>`;
+  }
+}
+function renderWhatIf(){
+  const items=remainingItems(); const sc=scenarios(); const k=sc.k;
+  meta.sim=meta.sim||{};
+  const def=sc.current!=null?Math.min(4,Math.max(1,[...GRADE_STEPS].reduce((a,b)=>Math.abs(b-sc.current)<Math.abs(a-sc.current)?b:a))):2.0;
+  const body=document.getElementById('wiBody');
+  if(!items.length){ body.innerHTML=`<tr><td colspan="4"><div class="empty"><p>Keine offenen benoteten Module.</p></div></td></tr>`; }
+  else body.innerHTML=items.map(({m,rem})=>{ const v=meta.sim[m.id]??def;
+    return `<tr><td><div class="m-name" data-edit="${m.id}">${esc(m.short||m.n)}</div><div class="m-code">Sem. ${esc(m.s)} · ${esc((AREAS[m.a]||{}).l||m.a)}</div></td>
+      <td style="text-align:center" class="cr">${fmt1(rem)}</td><td style="text-align:center" class="wt">${k.plannedGraded?fmt1(rem/k.plannedGraded*100):0} %</td>
+      <td style="text-align:center"><select data-wi="${m.id}" aria-label="Angenommene Note ${esc(m.n)}">${GRADE_STEPS.map(s=>`<option value="${s}" ${Math.abs(s-v)<1e-9?'selected':''}>${fmtG(s)}</option>`).join('')}</select></td></tr>`;}).join('');
+  body.querySelectorAll('select[data-wi]').forEach(s=>s.addEventListener('change',()=>{meta.sim[s.dataset.wi]=parseFloat(s.value);saveMeta();renderWhatIf();}));
+  bindEdit(body);
+  let w=k.wsum,c=k.wcr; items.forEach(({m,rem})=>{w+=(meta.sim[m.id]??def)*rem; c+=rem;});
+  const res=c?w/c:null;
+  const big=document.getElementById('wiBig'); big.textContent=res!=null?fmtOff(res):'–'; big.style.color=gradeColor(res);
+  document.getElementById('wiExact').textContent=res!=null?`Endnote · exakt ${fmtExact(res)} · ${classify(res).t}`:'';
+  const bulk=document.getElementById('wiBulk');
+  if(!bulk.dataset.ready){ bulk.dataset.ready=1;
+    bulk.innerHTML=[1.0,1.3,1.7,2.0,2.3,2.7,3.0].map(s=>`<button class="chip" data-b="${s}">${fmtG(s)}</button>`).join('')+`<button class="chip" data-b="trend">Trend</button>`;
+    bulk.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{ const items=remainingItems();
+      if(b.dataset.b==='trend') items.forEach(({m})=>delete meta.sim[m.id]); else items.forEach(({m})=>meta.sim[m.id]=parseFloat(b.dataset.b));
+      saveMeta(); renderWhatIf(); }); }
+}
+
+/* ---------- Modulhandbuch-Tab ---------- */
+function renderRules(){
+  const rc=document.getElementById('ruleCards');
+  if(!rc.dataset.ready){ rc.dataset.ready=1;
+    const R=[
+      ["Endnote = LP-gewichteter Schnitt","Jede Modulnote geht mit ihren Leistungspunkten gewichtet in die Bachelornote ein. Ein 9-LP-Modul zählt also 1,5-mal so viel wie ein 6-LP-Modul.","MHB 1.4"],
+      ["übK zählt nicht – Schwerpunkt schon","Die 18 LP übK / Liberal Education (INFM6110) gehen nicht in die Endnote ein. Wählst du stattdessen den Schwerpunkt (INFM1710, 18 LP), zählt dessen Note mit.","MHB 2.2"],
+      ["Proseminar ist benotet","Das Proseminar (INFM1510, 3 LP) gehört formal zu den 21 LP übK, seine Note fließt aber in die Bachelornote ein.","MHB S. 32"],
+      ["Bachelorarbeit: 80 / 20","Modulnote = 80 % schriftliche Arbeit (12 LP) + 20 % Vortrag (3 LP, 30 min). Bearbeitungszeit 4 Monate.","MHB S. 41"],
+      ["Wahlpflicht: 6 + 6 + 6 + 15 LP","Je 6 LP Praktische, Technische und Theoretische Informatik, dazu 15 LP Wahlpflicht Informatik. In diesen vier Fächern zusammen höchstens 18 LP aus dem Master.","MHB 2.2"],
+      ["Jedes Semester angeboten","Technische Informatik 3 (Praktikum Microcomputer) und das Teamprojekt laufen jedes Semester – gut zum Ausgleichen der Semesterlast.","MHB S. 12"],
+      ["Teilnahmevoraussetzungen","z. B. Teamprojekt erst nach PI 1, PI 2 und Software Engineering; Theoretische Informatik 1 nach Mathe 1+2 und PI 1+2; WP Theoretische nach Theoretische Informatik 2.","Modulbeschreibungen"],
+      ["Nicht bestanden = 5,0","Eine 5,0 bringt keine Credits und zählt im Cockpit nicht in den Schnitt; das Modul bleibt offen, bis es bestanden ist.","Annahme Cockpit"],
+    ];
+    rc.innerHTML=R.map(r=>`<div class="rule"><b>${r[0]}</b>${r[1]}<span class="src">${r[2]}</span></div>`).join('');
+  }
+  const nm=c=>{const d=MHB[c]; return d?d.s:c;};
+  document.getElementById('mhbBody').innerHTML=Object.entries(MHB).map(([c,d])=>{
+    const pre=[...(d.req||[]).map(nm),...(d.any?[d.any.map(nm).join(' oder ')]:[])].join(', ');
+    const rec=(d.rec||[]).map(nm).join(', ');
+    const own=modules.find(m=>m.mhb===c);
+    return `<tr data-mhb="${c}" style="cursor:pointer" title="${own?'In deinem Plan: Sem. '+esc(own.s):'Noch nicht in deinem Plan – Klick legt es an'}"><td class="c">${c}${own?'':' <span class="flag" style="background:var(--faint)">+</span>'}</td>
+      <td><b style="font-weight:500">${esc(d.t)}</b>${d.info?`<div class="m-code" style="font-family:var(--body);white-space:normal">${esc(d.info)}</div>`:''}</td>
+      <td style="text-align:center" class="cr">${d.cr}</td><td style="text-align:center" class="cr">${d.sem}</td><td>${esc(d.pf)}</td>
+      <td class="pr">${pre?'<b style="color:var(--ink)">nötig:</b> '+esc(pre):''}${pre&&rec?'<br>':''}${rec?'empfohlen: '+esc(rec):''}${!pre&&!rec?'–':''}</td>
+      <td>${esc(d.tu||'–')}</td><td style="color:var(--muted)">${esc(d.resp)}</td></tr>`;}).join('');
+  document.querySelectorAll('#mhbBody tr').forEach(tr=>tr.onclick=()=>{ const c=tr.dataset.mhb; const own=modules.find(m=>m.mhb===c); if(own) openEdit(own.id); else { openAdd(); fMhb.value=c; applyMhb(true); } });
+}
+
+/* =================== Dialog =================== */
+const $=id=>document.getElementById(id);
+const fMhb=$('fMhb'),fName=$('fName'),fShort=$('fShort'),fCode=$('fCode'),fProf=$('fProf'),fCredits=$('fCredits'),fSem=$('fSem'),fArea=$('fArea'),
+  fGrade=$('fGrade'),fExam=$('fExam'),fPruef=$('fPruef'),fTurnus=$('fTurnus'),fNote=$('fNote'),fUnben=$('fUnben');
+function fillSelects(){
+  fMhb.innerHTML='<option value="">— eigenes Modul —</option>'+Object.entries(MHB).map(([c,d])=>`<option value="${c}">${c} · ${esc(d.s)} (${d.cr} LP)</option>`).join('');
+  fArea.innerHTML=Object.entries(AREAS).map(([k,v])=>`<option value="${esc(k)}">${esc(v.l)}</option>`).join('');
+}
+function mhbInfoHTML(c){
+  const d=MHB[c]; if(!d) return '';
+  const nm=x=>(MHB[x]||{}).s||x;
+  const parts=[`<b>${c}</b> · ${d.cr} LP · empfohlen Sem. ${d.sem}${d.tu?' · '+d.tu:''}`,`Prüfung: ${esc(d.pf)}`];
+  if(d.req) parts.push(`Voraussetzung: ${d.req.map(x=>{const p=findByCode(x);const ok=p&&info(p).state==='passed';return `<span class="${ok?'':'w'}">${esc(nm(x))}${ok?' ✓':''}</span>`;}).join(', ')}`);
+  if(d.any) parts.push(`Voraussetzung: ${d.any.map(nm).join(' oder ')}`);
+  if(d.rec) parts.push(`Empfohlen: ${d.rec.map(nm).join(', ')}`);
+  parts.push(`Verantwortlich: ${esc(d.resp)}`);
+  if(d.info) parts.push(esc(d.info));
+  return parts.join('<br>');
+}
+function applyMhb(fill){
+  const c=fMhb.value, box=$('mhbInfo');
+  if(!c){ box.hidden=true; return; }
+  box.innerHTML=mhbInfoHTML(c); box.hidden=false;
+  if(fill){ const d=MHB[c];
+    fName.value=d.t; fShort.value=d.s; fCode.value=c; fCredits.value=d.cr; fSem.value=String(d.sem); fArea.value=d.a;
+    fPruef.value=d.pf; fTurnus.value=d.tu||''; fUnben.checked=!!d.unben;
+    if(c==='INFM3999'&&!draftParts.length) draftParts=BA_PARTS();
+    renderParts(); }
+}
+function renderParts(){
+  const list=$('partsList'); const isBA=fMhb.value==='INFM3999';
+  $('partsTitle').textContent=isBA?'Teilleistungen (Gewicht = LP: 12 LP Arbeit, 3 LP Vortrag)':'Teilleistungen / gewählte Veranstaltungen';
+  if(!draftParts.length){ list.innerHTML=`<div class="parts-empty">Keine – die Note wird direkt im Feld „Note" eingetragen. Für Wahlpflicht, übK oder Schwerpunkt kannst du hier einzelne Vorlesungen mit eigener Note erfassen; das Modul rechnet dann LP-gewichtet.</div>`; fGrade.disabled=false; return; }
+  fGrade.disabled=true; fGrade.value=''; fGrade.placeholder='aus Teilleistungen';
+  const wp=/^WP/.test(fArea.value);
+  list.innerHTML=draftParts.map((p,i)=>`<div class="part">
+    <input type="text" value="${esc(p.n)}" data-i="${i}" data-k="n" placeholder="Veranstaltung" aria-label="Veranstaltung">
+    <input type="number" value="${p.cr||''}" data-i="${i}" data-k="cr" min="0" step="0.5" placeholder="LP" aria-label="LP">
+    <input type="text" class="g" value="${p.g==null?'':(typeof p.g==='number'?fmtG(p.g):p.g)}" data-i="${i}" data-k="g" placeholder="Note" list="gradeSteps" aria-label="Note">
+    ${wp?`<label><input type="checkbox" data-i="${i}" data-k="master" ${p.master?'checked':''}>Master</label>`:'<span></span>'}
+    <button class="mini del" data-rm="${i}" type="button" aria-label="Entfernen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>`).join('')
+    +`<div class="parts-empty" id="partsSum"></div>`;
+  list.querySelectorAll('[data-k]').forEach(inp=>inp.addEventListener('input',()=>{ const p=draftParts[+inp.dataset.i];
+    if(inp.dataset.k==='cr') p.cr=parseFloat(inp.value)||0; else if(inp.dataset.k==='master') p.master=inp.checked; else if(inp.dataset.k==='g'){ const r=parseGradeInput(inp.value); p.g=r.err?null:r.g; } else p.n=inp.value; partsSum(); }));
+  list.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{draftParts.splice(+b.dataset.rm,1);renderParts();});
+  partsSum();
+}
+function partsSum(){
+  const el=$('partsSum'); if(!el) return;
+  const tmp={cr:parseFloat(fCredits.value)||0,parts:draftParts,a:fArea.value,unbenotet:fUnben.checked};
+  const i=info(tmp), tot=draftParts.reduce((a,p)=>a+(+p.cr||0),0);
+  el.innerHTML=`Summe ${fmt1(tot)} / ${fmt1(tmp.cr)} LP · bestanden ${fmt1(i.passedCr)} LP${i.grade!=null?` · Modulnote <b style="color:${gradeColor(i.grade)}">${fmtAvg(i.grade)}</b>`:''}${tot>tmp.cr?' · <span style="color:var(--warn)">mehr LP als das Modul hat</span>':''}`;
+}
+function openAdd(){ editId=null; $('modalTitle').textContent="Modul hinzufügen"; $('delModal').hidden=true;
+  fMhb.value='';fName.value="";fShort.value="";fCode.value="";fProf.value="";fCredits.value="6";fSem.value="";fArea.value="Pflicht";
+  fGrade.value="";fGrade.placeholder='1,0–5,0 · X · B · leer';fExam.value="";fPruef.value="";fTurnus.value="";fNote.value="";fUnben.checked=false;
+  draftParts=[]; applyMhb(false); renderParts(); showModal(); }
+function openEdit(id){ const m=modules.find(x=>x.id===id); if(!m)return; editId=id;
+  $('modalTitle').textContent="Modul bearbeiten"; $('delModal').hidden=false;
+  fMhb.value=m.mhb||''; fName.value=m.n;fShort.value=m.short||"";fCode.value=m.c||"";fProf.value=m.p||"";fCredits.value=m.cr;fSem.value=m.s;fArea.value=m.a;
+  fGrade.placeholder='1,0–5,0 · X · B · leer';
+  fGrade.value=isX(m.g)?'X':(isB(m.g)?'B':(m.g==null?'':fmtG(num(m.g))));
+  fExam.value=m.exam||'';fPruef.value=m.pruefung||"";fTurnus.value=m.turnus||"";fNote.value=m.note||'';fUnben.checked=isUnbenotet(m);
+  draftParts=(m.parts||[]).map(p=>({...p})); applyMhb(false); renderParts(); showModal(); }
+function saveModal(){
+  const n=fName.value.trim(); if(!n){toast('Bitte einen Modulnamen angeben');fName.focus();return;}
+  const r=parseGradeInput(fGrade.value); if(r.err&&!draftParts.length){toast('Note: 1,0–5,0, X oder B');fGrade.focus();return;}
+  const cr=parseFloat(fCredits.value); if(!(cr>0)){toast('Credits müssen größer als 0 sein');fCredits.focus();return;}
+  const parts=draftParts.filter(p=>p.n.trim()||p.cr||p.g!=null).map(p=>({id:p.id||('p'+rnd(6)),n:p.n.trim(),cr:+p.cr||0,g:p.g,master:!!p.master}));
+  const data={n,short:fShort.value.trim(),c:fCode.value.trim(),p:fProf.value.trim(),cr,s:fSem.value.trim()||"1",a:fArea.value,
+    g:parts.length?null:(r.g??null),exam:fExam.value,pruefung:fPruef.value.trim(),turnus:fTurnus.value,note:fNote.value.trim(),unbenotet:fUnben.checked};
+  const mh=fMhb.value; if(mh) data.mhb=mh;
+  const keepParts=parts.length||(mh&&MHB[mh].parts);
+  if(editId){ const m=modules.find(x=>x.id===editId); Object.assign(m,data); if(!mh) delete m.mhb; if(keepParts) m.parts=parts; else delete m.parts; toast('Modul aktualisiert'); }
+  else { const m={id:'m_'+rnd(7),...data}; if(keepParts) m.parts=parts; modules.push(m); toast('Modul hinzugefügt'); }
+  hideModal(); buildSemFilter(); renderAll();
+}
+function delModule(id){ const m=modules.find(x=>x.id===id); if(!m) return;
+  if(!confirm(`„${m.n}" wirklich löschen?\n(Unter „Daten & Backup → Frühere Stände" lässt es sich wiederherstellen.)`))return;
+  snapshot('vor Löschen: '+(m.short||m.n),true);
+  modules=modules.filter(x=>x.id!==id); hideModal(); buildSemFilter(); renderAll(); toast('Modul gelöscht'); }
+let lastFocus=null;
+function showModal(){ lastFocus=document.activeElement; $('overlay').classList.add('show'); setTimeout(()=>fName.focus(),50); }
+function hideModal(){ $('overlay').classList.remove('show'); if(lastFocus&&lastFocus.focus) lastFocus.focus(); }
+function bindEdit(root){ root.querySelectorAll('[data-edit]').forEach(b=>{ if(b.matches('input')) return; b.addEventListener('click',e=>{ if(e.target.closest('[data-del],.mv,.ord')) return; openEdit(b.dataset.edit); }); }); }
+
+/* Einstellungen */
+function showSettings(){ const s=settings.start||{season:'WS',year:2026}; $('sSeason').value=s.season; $('sYear').value=s.year; setPrecUI(precM()); setHelp(); $('setOverlay').classList.add('show'); }
+function setPrecUI(m){ document.querySelectorAll('#setPrec button').forEach(b=>b.classList.toggle('on',b.dataset.m===m)); }
+function setHelp(){ const y=parseInt($('sYear').value)||2026, se=$('sSeason').value; const old=settings.start; settings.start={season:se,year:y};
+  $('sHelp').textContent=`1. Semester = ${semLabel(1)} · heute = ${fachsemester()}. Fachsemester (${semLabel(Math.max(1,fachsemester()))}). Turnus-Prüfung nutzt diese Zuordnung.`; settings.start=old; }
+function saveSettings(){ settings.start={season:$('sSeason').value,year:parseInt($('sYear').value)||2026};
+  const m=document.querySelector('#setPrec button.on'); if(m){ meta.precMode=m.dataset.m; saveMeta(); }
+  $('setOverlay').classList.remove('show'); buildSemFilter(); syncPrec(); renderAll(); toast('Einstellungen übernommen'); }
+
+/* =================== IO =================== */
+function markExport(){ meta.lastExport=Date.now(); saveMeta(); updateBackupBadge(); refreshBackupUI(); renderHints(); }
+async function exportJSON(){
+  await persistNow();
+  dl(new Blob([JSON.stringify(wrap(),null,2)],{type:'application/json'}),'notencockpit_backup_'+today()+'.json');
+  markExport(); toast('JSON-Backup gespeichert');
+}
+async function exportHTML(){
+  try{
+    await persistNow();
+    const doc=new DOMParser().parseFromString(PRISTINE,'text/html');
+    doc.getElementById('embeddedData').textContent=JSON.stringify(wrap()).replace(/</g,'\\u003c');
+    dl(new Blob(['<!DOCTYPE html>\n'+doc.documentElement.outerHTML],{type:'text/html'}),'Notencockpit_BSc_Informatik_'+today()+'.html');
+    markExport(); toast('HTML mit deinen Daten gespeichert');
+  }catch(e){ toast('HTML-Export fehlgeschlagen – nutze JSON-Backup'); }
+}
+function exportCSV(){
+  const head=["Modul","Code","Dozent*in","Credits","Semester","Bereich","Note","Status","Bestandene Credits","Zählt in Endnote","Gewicht %","Prüfung","Prüfungstermin","Teilleistungen"];
+  const rows=modules.map(m=>{const i=info(m);return [m.n,m.c,m.p,fmt1(m.cr),m.s,(AREAS[m.a]||{}).l||m.a,gradeText(m),STATUS[i.state].t,fmt1(i.passedCr),isUnbenotet(m)?'nein':'ja',
+    isUnbenotet(m)?'':fmt1(weightOf(m)),m.pruefung,m.exam,(m.parts||[]).map(p=>`${p.n} (${fmt1(p.cr)} LP${p.g!=null?': '+(typeof p.g==='number'?fmtG(p.g):p.g):''})`).join(' | ')];});
+  const k=calc();
+  rows.push([],["Schnitt (exakt)","","","","","",k.gpa!=null?fmtExact(k.gpa):''],["Zeugnisnote","","","","","",k.gpa!=null?fmtOff(k.gpa):'']);
+  const csv=[head,...rows].map(r=>r.map(c=>`"${String(c??'').replace(/"/g,'""')}"`).join(';')).join('\n');
+  dl(new Blob(['﻿'+csv],{type:'text/csv'}),'bsc_informatik_'+today()+'.csv'); toast('CSV exportiert');
+}
+function importJSON(file){
+  const r=new FileReader();
+  r.onload=e=>{
+    let u=unwrap(e.target.result);
+    if(!u){ try{ const d=new DOMParser().parseFromString(e.target.result,'text/html').getElementById('embeddedData'); if(d) u=unwrap(d.textContent); }catch(err){} }
+    if(!u){ toast('Import fehlgeschlagen – keine gültigen Daten in der Datei'); return; }
+    snapshot('vor Import',true);
+    modules=u.modules; if(u.settings) settings={...settings,...u.settings}; buildSemFilter(); renderAll(); persistNow();
+    toast('Daten importiert ('+modules.length+' Module)'); renderBackup();
+  };
+  r.onerror=()=>toast('Datei konnte nicht gelesen werden');
+  r.readAsText(file);
+}
+function resetSeed(){
+  if(!confirm('Alle Noten auf die Startdaten zurücksetzen?\nDer aktuelle Stand bleibt unter „Frühere Stände" erhalten.')) return;
+  snapshot('vor Zurücksetzen',true);
+  modules=SEED.map(normModule); buildSemFilter(); renderAll(); persistNow();
+  toast('Auf Startdaten zurückgesetzt'); renderBackup();
+}
+
+function gpaOf(arr){ let w=0,c=0; arr.map(normModule).forEach(m=>{const i=info(m); w+=i.gw; c+=i.gc;}); return c? w/c : null; }
+function refreshBackupUI(){ if($('bkOverlay').classList.contains('show')) renderBackup(); }
+function renderBackup(){
+  const row=(cls,name,val)=>`<li><span class="dot ${cls}"></span><span>${name}</span><span class="val">${val}</span></li>`;
+  let h='';
+  h+=row(...(st.ls==='ok'?['ok','Browser-Speicher','aktiv']:['bad','Browser-Speicher','blockiert']));
+  h+=row(...(st.idb==='ok'?['ok','IndexedDB (zweite Kopie)','aktiv']:['bad','IndexedDB (zweite Kopie)','nicht verfügbar']));
+  if(cs) h+=row(st.cs==='ok'?'ok':'bad','Artifact-Speicher',st.cs==='ok'?'aktiv':'Fehler');
+  if(!fsSupported) h+=row('','Sync-Datei','nur in Chrome / Edge');
+  else if(!fileHandle) h+=row('warn','Sync-Datei','nicht verknüpft');
+  else if(st.file==='ok') h+=row('ok','Sync-Datei',esc(fileHandle.name));
+  else if(st.file==='perm') h+=row('warn','Sync-Datei',esc(fileHandle.name)+' · Zugriff erneut erlauben');
+  else h+=row('bad','Sync-Datei',esc(fileHandle.name)+' · Schreiben fehlgeschlagen');
+  h+=row(st.persist?'ok':'warn','Schutz vor automatischem Aufräumen',st.persist?'vom Browser gewährt':'nicht gewährt');
+  const le=meta.lastExport? fmtDT(meta.lastExport) : 'noch nie';
+  h+=row(backupDue()?'warn':'ok','Letzte manuelle Sicherung',le);
+  $('bkStatus').innerHTML=h;
+  $('bkSource').innerHTML=`Geladen aus: <b>${esc(st.source)}</b>`+(savedAt?` · Stand ${fmtDT(savedAt)}`:'')+
+    (st.persist?'':'<br>Browser dürfen Seitenspeicher bei Platzmangel, nach längerer Nichtnutzung (Safari: 7 Tage) oder beim Löschen des Verlaufs entfernen. Eine Datei-Sicherung schützt davor.');
+  $('bkLastExport').textContent= backupDue()? `Letzte Sicherung: ${le}.` : '';
+  const fa=$('bkFileActions'), fh=$('bkFileHint');
+  if(!fsSupported){ fa.innerHTML=''; fh.innerHTML='Dein Browser erlaubt kein automatisches Schreiben in Dateien. Nutze regelmäßig <b>HTML mit Daten speichern</b>.'; }
+  else if(!fileHandle){
+    fa.innerHTML='<button class="btn" id="bkFileNew">Neue Sync-Datei anlegen</button><button class="btn" id="bkFileOpen">Vorhandene öffnen</button>';
+    fh.innerHTML='Jede Änderung wird zusätzlich in eine JSON-Datei deiner Wahl geschrieben – z. B. in einen Cloud-Ordner.';
+    fa.querySelector('#bkFileNew').onclick=linkNewFile; fa.querySelector('#bkFileOpen').onclick=linkExistingFile;
+  } else {
+    fa.innerHTML=(st.file!=='ok'?'<button class="btn primary" id="bkFileRe">Wieder verbinden</button>':'')+'<button class="btn" id="bkFileOff">Trennen</button>';
+    fh.innerHTML= st.file==='ok' ? 'Jede Änderung wird automatisch in diese Datei geschrieben.' : 'Der Browser verlangt nach dem Neuladen eine Bestätigung, bevor wieder in die Datei geschrieben werden darf.';
+    const re=fa.querySelector('#bkFileRe'); if(re) re.onclick=reconnectFile;
+    fa.querySelector('#bkFileOff').onclick=unlinkFile;
+  }
+  const ul=$('bkSnaps');
+  if(!snaps.length){ ul.innerHTML='<li class="bk-empty">Noch keine gesicherten Stände.</li>'; }
+  else ul.innerHTML=snaps.slice().reverse().map(x=>{ const g=gpaOf(x.modules);
+    return `<li><span class="when">${fmtDT(x.t)}</span><span class="what">${esc(x.reason)} · ${x.modules.length} Module${g!=null?' · Ø '+fmtAvg(g):''}</span><button class="btn" data-snap="${x.t}">Wiederherstellen</button></li>`; }).join('');
+  ul.querySelectorAll('[data-snap]').forEach(b=>b.onclick=()=>restoreSnap(Number(b.dataset.snap)));
+}
+function showBackup(){ renderBackup(); $('bkOverlay').classList.add('show'); }
+function hideBackup(){ $('bkOverlay').classList.remove('show'); }
+function dl(blob,name){const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);}
+
+/* =================== UI plumbing =================== */
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+let toastT;
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),3200);}
+function updateThemeIcon(th){
+  $('themeIcon').innerHTML= th==='dark'
+    ? '<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/>'
+    : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+}
+function syncPrec(){
+  document.querySelectorAll('#precDigits button').forEach(b=>b.classList.toggle('on',Number(b.dataset.d)===precD()));
+  document.querySelectorAll('#precMode button').forEach(b=>b.classList.toggle('on',b.dataset.m===precM()));
+}
+function switchTab(v){
+  document.querySelectorAll('.tab').forEach(x=>{const on=x.dataset.view===v; x.classList.toggle('active',on); x.setAttribute('aria-selected',on);});
+  document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===v));
+  try{localStorage.setItem('cockpit_tab',v);}catch(e){}
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  fillSelects();
+  init();
+  document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>switchTab(t.dataset.view)));
+  try{const t=localStorage.getItem('cockpit_tab'); if(t&&$(t)) switchTab(t);}catch(e){}
+  $('search').addEventListener('input',e=>{search=e.target.value;renderModules();});
+  $('semFilter').addEventListener('change',e=>{semFilter=e.target.value;renderModules();});
+  document.querySelectorAll('#filterChips .chip').forEach(c=>c.addEventListener('click',()=>{
+    document.querySelectorAll('#filterChips .chip').forEach(x=>x.classList.remove('on')); c.classList.add('on'); filter=c.dataset.f; renderModules(); }));
+  document.querySelectorAll('#planColorMode .chip').forEach(c=>c.addEventListener('click',()=>{
+    document.querySelectorAll('#planColorMode .chip').forEach(x=>x.classList.remove('on')); c.classList.add('on'); planColorMode=c.dataset.cm; renderVerlaufsplan(); }));
+  document.querySelectorAll('#modTable thead th[data-sort]').forEach(th=>th.addEventListener('click',()=>{
+    const k=th.dataset.sort; if(sortKey===k)sortDir*=-1; else{sortKey=k;sortDir=1;} renderModules(); }));
+  $('addBtn').addEventListener('click',openAdd);
+  $('saveModal').addEventListener('click',saveModal);
+  $('cancelModal').addEventListener('click',hideModal);
+  $('closeModal').addEventListener('click',hideModal);
+  $('delModal').addEventListener('click',()=>editId&&delModule(editId));
+  $('overlay').addEventListener('click',e=>{if(e.target.id==='overlay')hideModal();});
+  $('addPart').addEventListener('click',()=>{draftParts.push({id:'p'+rnd(6),n:'',cr:/^WP|übk|Schwerpunkt/.test(fArea.value)?6:3,g:null});renderParts();
+    const ins=$('partsList').querySelectorAll('input[data-k="n"]'); if(ins.length) ins[ins.length-1].focus();});
+  fMhb.addEventListener('change',()=>applyMhb(true));
+  fArea.addEventListener('change',()=>{ if(fArea.value==='übk') fUnben.checked=true; else if(fArea.value==='Schwerpunkt') fUnben.checked=false; renderParts(); });
+  fCredits.addEventListener('input',partsSum); fUnben.addEventListener('change',partsSum);
+  document.querySelector('#overlay .modal').addEventListener('keydown',e=>{ if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)) saveModal(); });
+  if($('exportBtn')) $('exportBtn').addEventListener('click',exportJSON);
+  $('bkBtn').addEventListener('click',showBackup);
+  $('bkClose').addEventListener('click',hideBackup);
+  $('bkOverlay').addEventListener('click',e=>{if(e.target.id==='bkOverlay')hideBackup();});
+  $('bkHtml').addEventListener('click',exportHTML);
+  $('bkJson').addEventListener('click',exportJSON);
+  $('bkImport').addEventListener('click',()=>$('importFile').click());
+  $('bkReset').addEventListener('click',resetSeed);
+  $('csvBtn').addEventListener('click',exportCSV);
+  $('printBtn').addEventListener('click',printSheet);
+  if($('importBtn')) $('importBtn').addEventListener('click',()=>$('importFile').click());
+  $('importFile').addEventListener('change',e=>{if(e.target.files[0])importJSON(e.target.files[0]);e.target.value='';});
+  $('setBtn').addEventListener('click',showSettings);
+  $('setClose').addEventListener('click',()=>$('setOverlay').classList.remove('show'));
+  $('setOverlay').addEventListener('click',e=>{if(e.target.id==='setOverlay')$('setOverlay').classList.remove('show');});
+  $('setSave').addEventListener('click',saveSettings);
+  $('sSeason').addEventListener('change',setHelp); $('sYear').addEventListener('input',setHelp);
+  document.querySelectorAll('#setPrec button').forEach(b=>b.addEventListener('click',()=>setPrecUI(b.dataset.m)));
+  $('themeBtn').addEventListener('click',()=>{
+    const cur=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',cur); updateThemeIcon(cur);
+    try{localStorage.setItem('cockpit_theme',cur);}catch(e){}
+    renderOverview(); renderAnalytics();
+  });
+  const rerender=()=>{ saveMeta(); syncPrec(); renderAll(false); refreshBackupUI(); };
+  document.querySelectorAll('#precDigits button').forEach(b=>b.addEventListener('click',()=>{meta.precDigits=Number(b.dataset.d);rerender();}));
+  document.querySelectorAll('#precMode button').forEach(b=>b.addEventListener('click',()=>{meta.precMode=b.dataset.m;rerender();}));
+  $('tgtSlider').addEventListener('input',e=>{meta.tgt=e.target.value; updateTarget();});
+  $('tgtSlider').addEventListener('change',saveMeta);
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){hideModal();hideBackup();$('setOverlay').classList.remove('show');}
+    const anyOpen=document.querySelector('.overlay.show');
+    if(e.key==='n'&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!anyOpen&&!/input|select|textarea/i.test(document.activeElement.tagName)){e.preventDefault();openAdd();}
+  });
+});
+
+/* =====================================================================
+   DRUCK: eine A4-Seite quer – Kennzahlen, Fortschritt je Bereich,
+   Notenverlauf und Studienplan. Unabhängig vom Dark Mode immer hell.
+   ===================================================================== */
+function printSheet(){
+  let el=document.getElementById('printSheet');
+  if(!el){ el=document.createElement('div'); el.id='printSheet'; el.setAttribute('aria-hidden','true'); document.body.appendChild(el); }
+  el.innerHTML=printHTML();
+  setTimeout(()=>window.print(),60);
+}
+function printHTML(){
+  const k=calc(), fs=fachsemester(), now=new Date(), sc=scenarios();
+  const maxSem=Math.max(6,...modules.filter(m=>!isRange(m.s)).map(m=>semNum(m.s)).filter(n=>n<99));
+  const pct=Math.min(1,k.passedCredits/TOTAL_ECTS), runPct=Math.min(1-pct,k.currentCredits/TOTAL_ECTS);
+  const cls=classify(k.gpa);
+  const kpi=(l,v,s,col)=>`<div class="pk"><div class="pkl">${l}</div><div class="pkv"${col?` style="color:${col}"`:''}>${v}</div>${s?`<div class="pks">${s}</div>`:''}</div>`;
+
+  /* Kopf */
+  const head=`<div class="ph"><div><div class="pt">BSc Informatik · Notenübersicht</div>
+      <div class="psub">Universität Tübingen · PO 2021 · Studienbeginn ${esc(semLabel(1))}${fs>=1?` · aktuell ${fs}. Fachsemester (${esc(semLabel(fs))})`:''}</div></div>
+    <div class="pdate">Stand ${now.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'})}<br><span>inoffizielle Eigenaufstellung</span></div></div>`;
+
+  /* Kennzahlen */
+  const kpis=`<div class="pkpis">
+    ${kpi('Notenschnitt',k.gpa!=null?fmtOff(k.gpa):'–',k.gpa!=null?`exakt ${fmtExact(k.gpa)} · ${cls.t}`:'noch keine Noten',gradeColor(k.gpa))}
+    ${kpi('ECTS bestanden',`${fmt1(k.passedCredits)}<small> / ${TOTAL_ECTS}</small>`,`<span class="pbar"><i style="width:${pct*100}%"></i><b style="left:${pct*100}%;width:${runPct*100}%"></b></span>${Math.round(pct*100)} %${k.currentCredits?` · ${fmt1(k.currentCredits)} laufend`:''}`)}
+    ${kpi('Module',`${k.passedCount}<small> / ${modules.length}</small>`,`bestanden${k.failedCount?` · ${k.failedCount} nicht bestanden`:''}`)}
+    ${kpi('Benotete ECTS',`${fmt1(k.wcr)}<small> / ${fmt1(k.plannedGraded)}</small>`,'fließen in den Schnitt')}
+    ${kpi('Prognose',sc.trend!=null?fmtOff(sc.trend):'–','bei gleichbleibender Leistung',gradeColor(sc.trend))}
+    ${kpi('Beste Note',k.bestG!=null?fmtG(k.bestG):'–','',gradeColor(k.bestG))}
+  </div>`;
+
+  /* Fortschritt je Bereich */
+  const req=REQ.map(r=>{ const ms=modules.filter(m=>r.areas.includes(m.a));
+    const done=ms.reduce((a,m)=>a+info(m).passedCr,0), run=ms.reduce((a,m)=>a+info(m).runCr,0), plan=ms.reduce((a,m)=>a+m.cr,0), base=Math.max(r.req,plan)||1;
+    const gw=ms.reduce((a,m)=>a+info(m).gw,0), gc=ms.reduce((a,m)=>a+info(m).gc,0), g=gc?gw/gc:null;
+    const col=(AREAS[r.areas[0]]||AREAS.Pflicht).blk;
+    return `<div class="pr"><div class="prh"><span><i style="background:${col}"></i>${esc(r.l)}</span><b>${fmt1(done)}/${r.req}${g!=null?` · Ø ${fmtG(cut(g,1,'trunc'))}`:''}${done>=r.req?' ✓':''}</b></div>
+      <div class="prb"><i style="width:${done/base*100}%;background:${col}"></i><i class="run" style="width:${run/base*100}%;background:${col}"></i>${plan<r.req?'':''}</div></div>`; }).join('');
+
+  /* Notenverlauf */
+  const W=330,H=150,pl=30,pr=10,pt=10,pb=22; let cw=0,cc=0; const pts=[];
+  for(let s=1;s<=maxSem;s++){ const is=modules.filter(m=>m.s===String(s)).map(info).filter(i=>i.gc>0);
+    const sw=is.reduce((a,i)=>a+i.gw,0), sc2=is.reduce((a,i)=>a+i.gc,0); cw+=sw; cc+=sc2; pts.push({s,cum:cc?cw/cc:null,sem:sc2?sw/sc2:null}); }
+  const y=v=>pt+(Math.min(4,v)-1)/3*(H-pt-pb), x=s=>pl+(s-1)/(maxSem-1)*(W-pl-pr);
+  let svg=[1,2,3,4].map(v=>`<line x1="${pl}" y1="${y(v)}" x2="${W-pr}" y2="${y(v)}" stroke="#E1E6F0"/><text x="${pl-6}" y="${y(v)+3}" text-anchor="end" font-size="8.5" fill="#8A93A8">${v},0</text>`).join('');
+  for(let s=1;s<=maxSem;s++) svg+=`<text x="${x(s)}" y="${H-7}" text-anchor="middle" font-size="8.5" fill="#8A93A8">S${s}</text>`;
+  const lastS=Math.max(0,...pts.filter(p=>p.sem!=null).map(p=>p.s)), v=pts.filter(p=>p.cum!=null&&p.s<=lastS);
+  if(v.length){ const path=v.map((p,i)=>(i?'L':'M')+x(p.s)+' '+y(p.cum)).join(' ');
+    svg+=`<path d="${path}" fill="none" stroke="#5B4BE0" stroke-width="2" stroke-linejoin="round"/>`;
+    pts.filter(p=>p.sem!=null).forEach(p=>{ svg+=`<circle cx="${x(p.s)}" cy="${y(p.sem)}" r="3.2" fill="${pGradeCol(p.sem)}"/>`; });
+    v.forEach(p=>{ svg+=`<circle cx="${x(p.s)}" cy="${y(p.cum)}" r="3.6" fill="#fff" stroke="#5B4BE0" stroke-width="2"/><text x="${x(p.s)}" y="${y(p.cum)-7}" text-anchor="middle" font-size="8.5" font-weight="700" fill="#141B2C">${fmtG(cut(p.cum,1,'trunc'))}</text>`; });
+  } else svg+=`<text x="${W/2}" y="${H/2}" text-anchor="middle" font-size="10" fill="#5C6680">Noch keine bewerteten Semester</text>`;
+
+  /* Studienplan */
+  const blk=m=>{ const i=info(m), gr=blockGrade(m), faded=i.state==='open';
+    const col=/^INFM(1010|1020|2010|2020)$/.test(m.mhb||'')?MATHE_BLK:(AREAS[m.a]||AREAS.Pflicht).blk;
+    return `<div class="pb${faded?' open':''}${i.state==='failed'?' fail':''}" style="--c:${col};min-height:${Math.round(Math.min(15,m.cr)*2.6+24)}px"><span class="pbn">${esc(m.short||m.n)}</span><span class="pbm"><span>${fmt1(m.cr)}</span><b${i.grade!=null&&!faded?` style="color:${pGradeCol(i.grade)}"`:''}>${esc(gr.t)}</b></span></div>`; };
+  let cols='';
+  for(let s=1;s<=maxSem;s++){ const ms=modules.filter(m=>m.s===String(s)), cr=ms.reduce((a,m)=>a+m.cr,0);
+    const is=ms.map(info).filter(i=>i.gc>0), g=is.length?is.reduce((a,i)=>a+i.gw,0)/is.reduce((a,i)=>a+i.gc,0):null;
+    cols+=`<div class="pc${s===fs?' now':''}"><div class="pch">${s}. Sem<small>${esc(semLabel(s))}</small></div>${ms.map(blk).join('')||'<div class="pempty">–</div>'}<div class="pcf">${fmt1(cr)} LP${g!=null?` · Ø ${fmtG(cut(g,1,'trunc'))}`:''}</div></div>`; }
+  const extra=modules.filter(m=>isRange(m.s));
+  const used=["Pflicht","WP Praktische","WP Technische","WP Theoretische","WP Info","Proseminar","übk","Schwerpunkt","Bachelorarbeit"].filter(a=>modules.some(m=>m.a===a));
+  const legend=`<span><i style="background:${AREAS.Pflicht.blk}"></i>Pflicht</span>${modules.some(m=>/^INFM(1010|1020|2010|2020)$/.test(m.mhb||''))?`<span><i style="background:${MATHE_BLK}"></i>Mathematik</span>`:''}`+
+    used.filter(a=>a!=='Pflicht').map(a=>`<span><i style="background:${AREAS[a].blk}"></i>${esc(AREAS[a].l)}</span>`).join('')+`<span><i class="o"></i>geplant</span>`;
+
+  return `<div class="ps">${head}${kpis}
+    <div class="pmain">
+      <div class="pleft"><div class="psec">Fortschritt je Bereich <small>bestanden / Soll ECTS</small></div><div class="preq">${req}</div>
+        <div class="psec" style="margin-top:8px">Notenverlauf <small>Linie: kumulierter Schnitt · Punkte: einzelnes Semester</small></div>
+        <svg class="ptrend" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">${svg}</svg></div>
+      <div class="pright"><div class="psec">Studienplan <small>Kürzel · ECTS · Note</small></div>
+        <div class="pgrid" style="grid-template-columns:repeat(${maxSem},minmax(0,1fr))">${cols}</div>
+        ${extra.length?`<div class="pextra"><span class="pxl">semesterübergreifend</span>${extra.map(blk).join('')}</div>`:''}
+        <div class="pleg">${legend}</div></div>
+    </div>
+    <div class="pfoot">Schnitt: ECTS-gewichtet aus allen benoteten Modulen, übK unbenotet, Gesamtnote ${precM()==='trunc'?'nach der ersten Nachkommastelle abgeschnitten':'auf eine Nachkommastelle gerundet'}. Keine amtliche Leistungsübersicht – maßgeblich ist die Bescheinigung aus Alma.</div>
+  </div>`;
+}
+function pGradeCol(v){ if(v==null) return '#5C6680'; if(v<=1.5) return '#16A85A'; if(v<=2.5) return '#3F9D5B'; if(v<=3.5) return '#C98510'; if(v<=4.0) return '#E0772A'; return '#DD4636'; }
+</script></body></html>
