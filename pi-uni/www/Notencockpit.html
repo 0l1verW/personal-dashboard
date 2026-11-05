@@ -644,6 +644,18 @@ tbody tr.moved td{animation:rowflash 1s ease}
 [data-theme="dark"]{--accent-fill:#6553E6}
 .btn.primary{background:var(--accent-fill);border-color:var(--accent-fill)}
 .tab.active .cnt{background:var(--accent-fill)}
+
+/* Was-wäre-wenn: offen gelassene Module */
+tr.wi-skip td{opacity:.5}
+tr.wi-skip td:last-child{opacity:1}
+.wi-run{color:var(--mid-ink);font-family:var(--body);font-weight:600}
+
+/* Karten nicht künstlich strecken; Analyse als zweispaltiger Fluss ohne Lücken */
+.two,.sim-grid{align-items:start}
+.an-grid{align-items:stretch}
+.an-grid>.card{display:flex;flex-direction:column}
+.an-grid>.card>.hist,.an-grid>.card>.trend,.an-grid>.card>.load{margin-block:auto}
+#areaBalance{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px!important;margin-top:8px}
 </style>
 </head>
 <body>
@@ -902,7 +914,7 @@ tbody tr.moved td{animation:rowflash 1s ease}
         </div>
         <div class="wi-res"><div><div class="big" id="wiBig">–</div><small id="wiExact"></small></div></div>
       </div>
-      <div class="wi-bulk" style="margin-bottom:12px">Alle setzen auf:
+      <div class="wi-bulk" style="margin-bottom:12px">Setzen auf:
         <span class="chip-row" id="wiBulk"></span>
       </div>
       <div class="tbl-wrap"><table class="wi-tbl"><thead><tr><th>Offenes Modul</th><th style="text-align:center">Offene benotete ECTS</th><th style="text-align:center">Gewicht</th><th style="text-align:center">Angenommene Note</th></tr></thead><tbody id="wiBody"></tbody></table></div>
@@ -2036,21 +2048,24 @@ function renderWhatIf(){
   const def=sc.current!=null?Math.min(4,Math.max(1,[...GRADE_STEPS].reduce((a,b)=>Math.abs(b-sc.current)<Math.abs(a-sc.current)?b:a))):2.0;
   const body=document.getElementById('wiBody');
   if(!items.length){ body.innerHTML=`<tr><td colspan="4"><div class="empty"><p>Keine offenen benoteten Module.</p></div></td></tr>`; }
-  else body.innerHTML=items.map(({m,rem})=>{ const v=meta.sim[m.id]??def;
-    return `<tr><td><div class="m-name" data-edit="${m.id}">${esc(m.short||m.n)}</div><div class="m-code">Sem. ${esc(m.s)} · ${esc((AREAS[m.a]||{}).l||m.a)}</div></td>
+  else body.innerHTML=items.map(({m,rem})=>{ const raw=meta.sim[m.id], skip=raw==='skip', v=skip?null:(raw??def), run=info(m).state==='current';
+    return `<tr class="${skip?'wi-skip':''}"><td><div class="m-name" data-edit="${m.id}">${esc(m.short||m.n)}</div><div class="m-code">Sem. ${esc(m.s)} · ${esc((AREAS[m.a]||{}).l||m.a)}${run?' · <b class="wi-run">läuft</b>':''}</div></td>
       <td style="text-align:center" class="cr">${fmt1(rem)}</td><td style="text-align:center" class="wt">${k.plannedGraded?fmt1(rem/k.plannedGraded*100):0} %</td>
-      <td style="text-align:center"><select data-wi="${m.id}" aria-label="Angenommene Note ${esc(m.n)}">${GRADE_STEPS.map(s=>`<option value="${s}" ${Math.abs(s-v)<1e-9?'selected':''}>${fmtG(s)}</option>`).join('')}</select></td></tr>`;}).join('');
-  body.querySelectorAll('select[data-wi]').forEach(s=>s.addEventListener('change',()=>{meta.sim[s.dataset.wi]=parseFloat(s.value);saveMeta();renderWhatIf();}));
+      <td style="text-align:center"><select data-wi="${m.id}" aria-label="Angenommene Note ${esc(m.n)}"><option value="skip" ${skip?'selected':''}>– offen lassen</option>${GRADE_STEPS.map(s=>`<option value="${s}" ${!skip&&Math.abs(s-v)<1e-9?'selected':''}>${fmtG(s)}</option>`).join('')}</select></td></tr>`;}).join('');
+  body.querySelectorAll('select[data-wi]').forEach(s=>s.addEventListener('change',()=>{meta.sim[s.dataset.wi]=s.value==='skip'?'skip':parseFloat(s.value);saveMeta();renderWhatIf();}));
   bindEdit(body);
-  let w=k.wsum,c=k.wcr; items.forEach(({m,rem})=>{w+=(meta.sim[m.id]??def)*rem; c+=rem;});
-  const res=c?w/c:null;
+  let w=k.wsum,c=k.wcr,used=0,usedCr=0; items.forEach(({m,rem})=>{ const v=meta.sim[m.id]; if(v==='skip') return; w+=(v??def)*rem; c+=rem; used++; usedCr+=rem; });
+  const res=c?w/c:null, part=used<items.length;
   const big=document.getElementById('wiBig'); big.textContent=res!=null?fmtOff(res):'–'; big.style.color=gradeColor(res);
-  document.getElementById('wiExact').textContent=res!=null?`Endnote · exakt ${fmtExact(res)} · ${classify(res).t}`:'';
+  document.getElementById('wiExact').textContent=res!=null?`${part?`Schnitt mit ${used} von ${items.length} offenen Modulen (${fmt1(usedCr)} ECTS)`:'Endnote'} · exakt ${fmtExact(res)} · ${classify(res).t}`:'';
   const bulk=document.getElementById('wiBulk');
   if(!bulk.dataset.ready){ bulk.dataset.ready=1;
-    bulk.innerHTML=[1.0,1.3,1.7,2.0,2.3,2.7,3.0].map(s=>`<button class="chip" data-b="${s}">${fmtG(s)}</button>`).join('')+`<button class="chip" data-b="trend">Trend</button>`;
+    bulk.innerHTML=[1.0,1.3,1.7,2.0,2.3,2.7,3.0].map(s=>`<button class="chip" data-b="${s}">${fmtG(s)}</button>`).join('')+`<button class="chip" data-b="trend" title="offene Module mit deinem bisherigen Schnitt füllen">Trend</button><button class="chip" data-b="run" title="nur laufende Module durchspielen, alle anderen offen lassen">Nur laufende</button><button class="chip" data-b="skip" title="alle offen lassen – dann einzelne Noten wählen">Alle leeren</button>`;
     bulk.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{ const items=remainingItems();
-      if(b.dataset.b==='trend') items.forEach(({m})=>delete meta.sim[m.id]); else items.forEach(({m})=>meta.sim[m.id]=parseFloat(b.dataset.b));
+      if(b.dataset.b==='trend') items.forEach(({m})=>delete meta.sim[m.id]);
+      else if(b.dataset.b==='skip') items.forEach(({m})=>meta.sim[m.id]='skip');
+      else if(b.dataset.b==='run') items.forEach(({m})=>{ if(info(m).state==='current'){ if(meta.sim[m.id]==='skip') delete meta.sim[m.id]; } else meta.sim[m.id]='skip'; });
+      else items.forEach(({m})=>meta.sim[m.id]=parseFloat(b.dataset.b));
       saveMeta(); renderWhatIf(); }); }
 }
 
