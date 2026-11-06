@@ -11,7 +11,7 @@
 :root{
   --bg:#EEF1F8; --surface:#FFFFFF; --surface-2:#F6F8FC; --surface-3:#E9EEF6;
   --border:#E1E6F0; --border-strong:#CBD3E2;
-  --ink:#141B2C; --muted:#5C6680; --faint:#646D84; --good-ink:#0D7038; --mid-ink:#8F5400; --bad-ink:#A8241A; --info:#2C7BD6; --info-ink:#1F5FB0; --on-good:#fff;
+  --ink:#141B2C; --muted:#5C6680; --faint:#646D84; --good-ink:#0D7038; --mid-ink:#8F5400; --bad-ink:#A8241A; --info:#2C7BD6; --info-ink:#1F5FB0; --on-good:#fff; --work:#1497A0; --work-ink:#0B6670;
   --accent:#5B4BE0; --accent-2:#7C6BF0; --accent-soft:rgba(91,75,224,.10); --accent-line:rgba(91,75,224,.28);
   --good:#16A85A; --mid:#C98510; --warn:#E0772A; --bad:#D63F30;
   --shadow:0 1px 2px rgba(20,27,44,.04),0 8px 24px rgba(20,27,44,.06);
@@ -24,14 +24,14 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#0D1016; --surface:#161B25; --surface-2:#1B212D; --surface-3:#242C3A;
   --border:#28303F; --border-strong:#3A4458;
-  --ink:#EAEEF6; --muted:#98A3B8; --faint:#8A95AA; --good-ink:#5AD597; --mid-ink:#F2B65C; --bad-ink:#FF8577; --info:#4C9BEF; --info-ink:#79B6F7; --on-good:#0D1016;
+  --ink:#EAEEF6; --muted:#98A3B8; --faint:#8A95AA; --good-ink:#5AD597; --mid-ink:#F2B65C; --bad-ink:#FF8577; --info:#4C9BEF; --info-ink:#79B6F7; --on-good:#0D1016; --work:#2CC3CC; --work-ink:#6FDDE3;
   --accent:#8B7CF5; --accent-2:#A396F7; --accent-soft:rgba(139,124,245,.15); --accent-line:rgba(139,124,245,.35);
   --good:#2FC473; --mid:#E5A23A; --warn:#EE8A44; --bad:#F0604F;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0D1016; --surface:#161B25; --surface-2:#1B212D; --surface-3:#242C3A;
   --border:#28303F; --border-strong:#3A4458;
-  --ink:#EAEEF6; --muted:#98A3B8; --faint:#8A95AA; --good-ink:#5AD597; --mid-ink:#F2B65C; --bad-ink:#FF8577; --info:#4C9BEF; --info-ink:#79B6F7; --on-good:#0D1016;
+  --ink:#EAEEF6; --muted:#98A3B8; --faint:#8A95AA; --good-ink:#5AD597; --mid-ink:#F2B65C; --bad-ink:#FF8577; --info:#4C9BEF; --info-ink:#79B6F7; --on-good:#0D1016; --work:#2CC3CC; --work-ink:#6FDDE3;
   --accent:#8B7CF5; --accent-2:#A396F7; --accent-soft:rgba(139,124,245,.15); --accent-line:rgba(139,124,245,.35);
   --good:#2FC473; --mid:#E5A23A; --warn:#EE8A44; --bad:#F0604F;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35); color-scheme:dark}
@@ -455,6 +455,83 @@ details.help .cap{margin-top:4px}
 :root{--accent-fill:#5B4BE0}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--accent-fill:#6553E6}}
 :root[data-theme="dark"]{--accent-fill:#6553E6}
+.nextcard{margin-bottom:16px}.nextcard .list{margin-top:8px}
+
+.tcopy{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);border-radius:99px;padding:3px 10px;font:600 12px var(--body);cursor:pointer}
+.tcopy:hover{border-color:var(--accent);color:var(--accent)}
+@media (pointer:coarse){.tcopy{min-height:36px;padding:6px 12px}}
+
+.sw{background:color-mix(in srgb,var(--work) 16%,transparent);color:var(--work-ink);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--work) 40%,transparent)}
+
+/* Kurs-Einstellungen in Reitern */
+.ktabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border);margin:0 -2px;padding:0 2px}
+.ktabs::-webkit-scrollbar{display:none}
+.ktab{flex:none;display:inline-flex;align-items:center;gap:6px;border:0;background:none;color:var(--muted);font:600 13px var(--body);padding:9px 12px;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;white-space:nowrap}
+.ktab:hover{color:var(--ink)}
+.ktab.on{color:var(--accent);border-bottom-color:var(--accent)}
+.ktab:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:6px}
+.ktab small{font-family:var(--mono);font-size:10.5px;background:var(--surface-3);color:var(--muted);border-radius:99px;padding:0 6px;font-weight:600}
+.ktab.on small{background:var(--accent-soft);color:var(--accent)}
+.kpane{display:flex;flex-direction:column;gap:14px;padding-top:4px}
+.kpane>.ksec:first-child{border-top:0;padding-top:0}
+.kprev{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.kpr{display:grid;grid-template-columns:70px auto 16px auto 1fr;align-items:center;gap:8px;font-size:13px}
+.kpr span{color:var(--muted)}.kpr .ar{color:var(--faint);text-align:center}
+.kpr .pill{justify-self:end;min-height:0;min-width:0;padding:3px 10px;font-size:11.5px}
+@media(max-width:640px){.kpr{grid-template-columns:62px 1fr auto;row-gap:2px}.kpr .ar{display:none}.kpr>span:nth-of-type(3){grid-column:2}.kpr .pill{grid-row:1;grid-column:3}}
+.lnk{border:0;background:none;padding:0;color:var(--accent);font:inherit;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+#semBody .ktabs{margin-bottom:4px}
+@media (pointer:coarse){.ktab{min-height:44px}}
+.ktt{flex-wrap:nowrap;min-width:0}
+.ktt span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ktabs{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
+@media(max-width:640px){
+  .khead{align-items:flex-start}
+  .ktog{grid-template-columns:12px 12px minmax(0,1fr)}
+  .ktt{flex-direction:column;align-items:flex-start;gap:0}
+  .ktt span{max-width:100%;font-size:12px}
+  .ksum{grid-column:3/4}
+}
+
+/* Erscheinen von Blättern */
+.relbox{display:flex;flex-direction:column;gap:10px;border:1px solid var(--border);border-radius:12px;padding:12px 14px}
+.relopts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:700px){.relopts{grid-template-columns:1fr}}
+.relopt{border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;background:var(--surface)}
+.relopt.on{border-color:var(--accent);background:var(--accent-soft)}
+.relopt:not(.on) .relsent{opacity:.6}
+.relpick{display:flex;align-items:center;gap:8px;border:0;background:none;padding:0;color:var(--ink);font:inherit;cursor:pointer;text-align:left}
+.relpick b{font-size:14px}
+.rdot{width:16px;height:16px;border-radius:50%;border:2px solid var(--faint);flex:none;display:grid;place-items:center}
+.relopt.on .rdot{border-color:var(--accent)}.relopt.on .rdot::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.relsent{font-size:13.5px;line-height:1.9}
+.relsent small{display:block;font-size:12px;line-height:1.4;color:var(--muted);margin-top:2px}
+.rnum{display:inline-block;margin:0 3px;vertical-align:middle}.rnum input{width:64px;text-align:center;padding:4px 6px}
+.relrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}
+.relrow .kchk{gap:6px}
+details.relcal>summary{cursor:pointer;font-size:12.5px;color:var(--accent);font-weight:600}
+details.relcal[open]>summary{margin-bottom:8px}
+.kpr em{font-style:normal;color:var(--faint)}
+.relopt{cursor:pointer}
+.pill{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.apbox{border:1px dashed var(--border);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+
+/* Zulassung-Editor */
+.admed{gap:10px}
+.relopts.ch4{grid-template-columns:repeat(2,1fr)}
+.relopts.ch3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:860px){.relopts.ch3{grid-template-columns:1fr}}
+@media(max-width:700px){.relopts.ch4{grid-template-columns:1fr}}
+.rnum{--w:64px}.rnum input{width:var(--w)}
+.srcrow{border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.srcrow.on{border-color:color-mix(in srgb,var(--accent) 55%,var(--border))}
+.srcrow.fixed{background:var(--surface-2)}
+.srchead{display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px}
+.srchead input{width:18px;height:18px;accent-color:var(--accent);margin:0}
+.srcdot{width:18px;height:18px;border-radius:5px;background:var(--accent);flex:none;position:relative}
+.srcdot::after{content:'';position:absolute;left:6px;top:2px;width:4px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.lbl{display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:var(--muted);font-weight:600}
+.relopts{align-items:start}
 </style>
 </head>
 <body>
@@ -466,7 +543,7 @@ details.help .cap{margin-top:4px}
     </div>
     <div class="tools">
       <select class="semsel" id="semSel" aria-label="Semester wählen"></select>
-      <button class="ibtn" id="semBtn" title="Semester bearbeiten: Daten, Pausen, Kurse übernehmen" aria-label="Semester bearbeiten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/><path d="m14.5 13.5 2 2-4.5 4.5H10v-2z"/></svg></button>
+      <button class="ibtn" id="semBtn" title="Einstellungen: Semester, meine Daten, Darstellung" aria-label="Einstellungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
       <button class="ibtn" id="dataBtn" title="Daten: speichern, exportieren, importieren" aria-label="Daten und Backup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></button>
       <button class="ibtn" id="themeBtn" title="Hell / Dunkel" aria-label="Farbschema wechseln"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
     </div>
@@ -506,7 +583,7 @@ details.help .cap{margin-top:4px}
   <div class="acts" style="border-top:1px dashed var(--border);padding-top:12px"><button class="btn dng" id="bReset">Auf Startdaten zurücksetzen</button></div>
 </div></div>
 <div class="ov" id="ovSem"><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="semT">
-  <h3 id="semT">Semester bearbeiten <button class="x" id="semClose" aria-label="Schließen">×</button></h3>
+  <h3 id="semT">Einstellungen <button class="x" id="semClose" aria-label="Schließen">×</button></h3>
   <div id="semBody" style="display:flex;flex-direction:column;gap:12px"></div>
 </div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -541,7 +618,7 @@ const PRISTINE=document.documentElement.outerHTML;   // Vorlage für „HTML mit
 const APP_ID='semesterplaner', KEY='semesterplaner_ws2627_v1';
 const WD=["So","Mo","Di","Mi","Do","Fr","Sa"], WDL=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
 const ST=["offen","läuft","abgegeben","bewertet"];
-const stLabel=s=>s.free&&s.s>=2?'erledigt':s.f?'fertig':ST[s.s];
+const stLabel=s=>s.free&&s.s>=2?'erledigt':s.f?'fertig':s.w?'in Bearbeitung':ST[s.s];
 const subMode=c=>c.sub.mode||(c.sub.none?'none':'graded');   // graded · free (freiwillig, ohne Punkte) · none
 const TYPES=["Vorlesung","Übung","Tutorium","VDP-Stunde","Praktikum","Seminar","Helpdesk","Sonstiges"];
 const COLS=['#8a5cf0','#e0782f','#2c8fd6','#20a065','#d6457f','#b5892e','#2aa3a3','#7d8597','#c0504d'];
@@ -556,7 +633,8 @@ const uid=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 const seedSemester=()=>({...clone(SEM),courses:clone(SEED_COURSES),events:[]});
 let D={app:APP_ID,v:2,savedAt:0,cur:SEM.id,semesters:[seedSemester()],rlRemoved:true,roboNoSheets:true,roboFree:true};
 const keep=new Set();
-let ttDay=null, wMode=(()=>{ try{ return localStorage.getItem('sp_wmode')||(innerWidth>=700?'raster':'liste'); }catch(e){ return 'liste'; } })(), view='heute', filt='alle', showDone=false, grpOpen={}, calOff=0, calSel=null, calSlots=false, kOpen=new Set(), weekOff=0, cdTimer=null, lastExport=0, editSheet=null;
+const KTABS=[['allg','Allgemein'],['termine','Termine'],['blatt','Übungsblätter'],['zul','Zulassung & Bonus'],['klausur','Klausur'],['links','Links & Team'],['zeit','Aufwand']];
+let kTab=(()=>{ try{ return JSON.parse(localStorage.getItem('sp_ktab')||'{}')||{}; }catch(e){ return {}; } })(), setTab='sem', ttDay=null, wMode=(()=>{ try{ return localStorage.getItem('sp_wmode')||(innerWidth>=700?'raster':'liste'); }catch(e){ return 'liste'; } })(), view='heute', filt='alle', showDone=false, grpOpen={}, calOff=0, calSel=null, calSlots=false, kOpen=new Set(), weekOff=0, cdTimer=null, lastExport=0, editSheet=null;
 try{ (JSON.parse(localStorage.getItem('sp_kopen')||'[]')||[]).forEach(x=>kOpen.add(x)); calSlots=localStorage.getItem('sp_calslots')==='1'; }catch(e){}
 const saveKOpen=()=>{ try{ localStorage.setItem('sp_kopen',JSON.stringify([...kOpen])); }catch(e){} };       // gerade geänderte Blätter bleiben in „Abgaben“ sichtbar
 try{ view=localStorage.getItem('sp_view')||'heute'; lastExport=+localStorage.getItem('sp_lastExport')||0; }catch(e){}
@@ -581,6 +659,11 @@ function normalize(x){
     x={app:APP_ID,v:2,savedAt:x.savedAt||0,cur:SEM.id,rlRemoved:true,semesters:[{...clone(SEM),courses:cs,events:ev}]};
   }
   if(!x.roboFree){ x.semesters&&x.semesters.forEach(s=>(s.courses||[]).forEach(c=>{ if(c.id==='robo1'&&c.sub&&(c.sub.none||!c.sub.mode)&&!c.sub.first){ delete c.sub.none; c.sub.mode='free'; if(!c.sub.n) c.sub.n=12; c.sub.note='Freiwillige Übungen – werden nicht bewertet und zählen nicht zur Zulassung.'; } })); x.roboFree=true; }
+  if(!x.apMathe){ x.semesters.forEach(sm=>(sm.courses||[]).forEach(c=>{ if(c.id==='mathe3'&&c.adm&&c.adm.kind==='points'&&!c.adm.ap){ c.adm.ap={on:true,pts:9,slot:'Tutorium'}; if(c.extraGot==null&&c.extraMax==null) c.adm.extra=false; } })); x.apMathe=true; }
+  if(!x.ptsBew){ x.semesters.forEach(sm=>(sm.courses||[]).forEach(c=>Object.values(c.sheets||{}).forEach(st=>{ if(st&&st.s===2&&st.p!=null&&st.p!=='') st.s=3; }))); x.ptsBew=true; }   // Punkte gibt es erst bei „bewertet“
+  if(!x.pi3After){ x.semesters.forEach(sm=>(sm.courses||[]).forEach(c=>{ if(c.id==='pi3'&&c.sub&&!c.sub.relMode){ c.sub.relMode='after'; c.sub.relAfter=1; } })); x.pi3After=true; }
+  if(!x.pi3Len6){ x.semesters.forEach(sm=>(sm.courses||[]).forEach(c=>{ if(c.id==='pi3'&&c.sub&&+c.sub.len===7) c.sub.len=6; })); x.pi3Len6=true; }   // PI 3: neues Blatt erst am Tag nach der Abgabe
+  if(!x.relTimeSet){ x.semesters.forEach(sm=>(sm.courses||[]).forEach(c=>{ if(c.id==='mathe3'&&c.sub&&c.sub.relTime==null) c.sub.relTime='12:00'; })); x.relTimeSet=true; }
   x.roboNoSheets=true;   // ältere Umstellung, durch „freiwillig“ ersetzt
   x.semesters.forEach(s=>{ s.courses=(s.courses||[]).map(normCourse); s.events=Array.isArray(s.events)?s.events:[]; s.breaks=Array.isArray(s.breaks)?s.breaks:[]; });
   if(!x.semesters.some(s=>s.id===x.cur)) x.cur=x.semesters[0].id;
@@ -621,11 +704,12 @@ function phase(sem=S()){ const t=sod(new Date()); if(sem.start&&t<addDays(day0(s
 /* ---------- Ableitungen ---------- */
 function sheets(c){ const s=c.sub; if(!s||subMode(c)==='none'||!s.first) return []; const free=subMode(c)==='free';
   let d=dt(s.first,s.time||'23:59'); if(!d) return [];
-  const n=Math.min(40,Math.max(0,s.n==null||s.n===''?12:+s.n)), iv=Math.max(1,+s.iv||1), len=Math.max(1,+s.len||7), now=new Date(), out=[];
+  const n=Math.min(40,Math.max(0,s.n==null||s.n===''?12:+s.n)), iv=Math.max(1,+s.iv||1), len=Math.max(1,+s.len||7), after=s.relMode==='after', aft=Math.max(0,s.relAfter==null||s.relAfter===''?1:+s.relAfter), now=new Date(), out=[]; let prevDue=null;
   for(let i=1;i<=n;i++){ let g=0; while(inBreak(d)&&g++<6) d=addDays(d,7);
-    const st=c.sheets[i]||{}, ov=st.due?new Date(st.due):null, due=ov&&!isNaN(ov)?ov:new Date(d), relD=sod(addDays(due,-len));
+    const st=c.sheets[i]||{}, ov=st.due?new Date(st.due):null, due=ov&&!isNaN(ov)?ov:new Date(d), relD=(()=>{ const r=after?sod(addDays(prevDue||addDays(due,-7*iv),aft)):sod(addDays(due,-len)), m=/^(\d{1,2}):(\d{2})$/.exec(s.relTime||''); if(m) r.setHours(+m[1],+m[2],0,0); return r; })();
     const manual=st.s!=null, auto=now>=relD&&now<due?1:0;      // ohne eigenen Status: „läuft“ zwischen Erscheinen und Abgabe
-    out.push({c,no:i,due,base:new Date(d),moved:!!ov,skip:!!st.skip,rel:relD,released:now>=relD,s:manual?st.s:auto,manual,f:!free&&!!st.f&&(manual?st.s:auto)<2,p:free?null:st.p,x:free?null:st.x,free});
+    out.push({c,no:i,due,base:new Date(d),moved:!!ov,skip:!!st.skip,rel:relD,released:now>=relD,s:manual?st.s:auto,manual,f:!free&&!!st.f&&(manual?st.s:auto)<2,w:!!st.w&&!st.f&&(manual?st.s:auto)<2,p:free?null:st.p,x:free?null:(st.x!=null&&st.x!==''?st.x:(+s.max>0?+s.max:null)),free});
+    if(!st.skip) prevDue=due;
     d=addDays(d,7*iv); }
   return out; }
 const allSheets=()=>CS().flatMap(sheets).filter(s=>!s.skip).sort((a,b)=>a.due-b.due);
@@ -634,16 +718,21 @@ function slotsOn(d){ if(!inTerm(d)) return [];
 function sessions(c,type){ const sem=S(), s=c.slots.find(x=>x.t===type&&x.d!=null&&x.d!==''); if(!s||!(s.from||sem.start)) return [];
   let d=day0(s.from||sem.start); while(d.getDay()!==+s.d) d=addDays(d,1);
   const out=[], end=sem.end?day0(sem.end):addDays(d,120); while(d<=end){ if(!inBreak(d)) out.push(new Date(d)); d=addDays(d,7); } return out; }
+/* Anwesenheit, die Punkte bringt (z. B. Präsenzblätter im Tutorium) */
+function apOf(c){ const ap=c.adm&&c.adm.ap; if(!ap||!ap.on||c.adm.kind!=='points') return null; const slot=ap.slot||'Tutorium', ses=sessions(c,slot);
+  return {pts:+ap.pts>0?+ap.pts:1, slot, n:+ap.n>0?+ap.n:(ses.length||12), ses}; }
 function admission(c){
   const a=c.adm||{}, sh=sheets(c).filter(s=>!s.skip);
   if(a.kind==='points'){
     const gr=sh.filter(s=>s.x>0&&s.p!=null); let got=gr.reduce((t,s)=>t+(+s.p||0),0), max=gr.reduce((t,s)=>t+(+s.x||0),0);
     if(a.extra&&c.extraMax>0){ got+=+c.extraGot||0; max+=+c.extraMax||0; }
+    const ap=apOf(c); let apY=0,apN=0,apRem=0;
+    if(ap){ const v=Object.entries(c.att||{}).filter(([i])=>+i<=ap.n).map(([,x])=>x); apY=v.filter(x=>x==='y').length; apN=v.filter(x=>x==='n').length; apRem=Math.max(0,ap.n-apY-apN); got+=apY*ap.pts; max+=(apY+apN)*ap.pts; }
     const pct=max?got/max*100:null, tasksOk=(c.tasks||[]).every(t=>t.done);
-    let need=null; const rem=sh.length-gr.length;
-    if(gr.length&&rem>0){ const avg=gr.reduce((t,s)=>t+(+s.x||0),0)/gr.length, total=max+rem*avg; need=((+a.pct/100)*total-got)/(rem*avg)*100; }
-    const onTrack=pct!=null&&pct>=+a.pct, ok=onTrack&&tasksOk&&rem===0&&gr.length>0;
-    return {kind:'points',pct,got,max,ok,onTrack,need,rem,graded:gr.length,tasksOk,label:pct==null?'noch keine Punkte':`${fmt(got)}/${fmt(max)} Pkt. · ${fmt(pct,0)} %`};
+    let need=null; const rem=sh.length-gr.length, avg=+c.sub.max>0?+c.sub.max:gr.length?gr.reduce((t,s)=>t+(+s.x||0),0)/gr.length:0, remMax=rem*avg+(ap?apRem*ap.pts:0);
+    if(remMax>0&&(gr.length||avg>0||ap)){ need=((+a.pct/100)*(max+remMax)-got)/remMax*100; }
+    const onTrack=pct!=null&&pct>=+a.pct, ok=onTrack&&tasksOk&&rem===0&&apRem===0&&(gr.length>0||apY>0);
+    return {kind:'points',pct,got,max,ok,onTrack,need,rem,apRem,apY,apN,ap,graded:gr.length,tasksOk,label:pct==null?'noch keine Punkte':`${fmt(got)}/${fmt(max)} Pkt. · ${fmt(pct,0)} %`};
   }
   if(a.kind==='attendance'){ const v=Object.values(c.att||{}), y=v.filter(x=>x==='y').length, n=v.filter(x=>x==='n').length, left=(+a.of)-(+a.need)-n, tasksOk=(c.tasks||[]).every(t=>t.done);
     return {kind:'attendance',got:y,miss:n,left,ok:y>=+a.need&&tasksOk,tasksOk,lost:left<0,pct:a.of?y/a.of*100:0,label:`${y} von ${a.need} nötigen · ${n} gefehlt`}; }
@@ -718,7 +807,7 @@ const lkA=(l,cls='lk')=>`<a class="${cls}" href="${esc(l.u)}" target="_blank" re
 const teamOf=c=>(c.team||[]).filter(p=>(p.n||'').trim()||(p.e||'').trim()||(p.m||'').trim());
 const teamMail=(c,subj)=>{ const em=teamOf(c).map(p=>(p.e||'').trim()).filter(Boolean); return em.length?`mailto:${em.map(encodeURIComponent).join(',')}${subj?'?subject='+encodeURIComponent(subj):''}`:''; };
 function teamLine(c){ const T=teamOf(c); if(!T.length) return '';
-  return `<div class="tml"><span class="tmi" aria-hidden="true">👥</span>${T.map(p=>`<span class="tmp">${p.e?`<a href="mailto:${esc(p.e.trim())}" title="${esc(p.e)}">${esc(p.n||p.e)}</a>`:esc(p.n||'–')}${p.m?`<small>${esc(p.m)}</small>`:''}</span>`).join('')}</div>`; }
+  return `<div class="tml"><span class="tmi" aria-hidden="true">👥</span>${T.map(p=>`<span class="tmp">${p.e?`<a href="mailto:${esc(p.e.trim())}" title="${esc(p.e)}">${esc(p.n||p.e)}</a>`:esc(p.n||'–')}${p.m?`<small>${esc(p.m)}</small>`:''}</span>`).join('')}<button class="tcopy" data-teamcopy="${c.id}" title="Abgabepartner und dich als Text kopieren (Name; Mail; Mat Nr.)" aria-label="Namen für die Abgabe kopieren">📋 Kopieren</button></div>`; }
 const meOf=()=>{ const m=D.me||{}; return (m.n||m.e||m.m)?m:null; };
 const abgLine=p=>`${(p.n||'').trim()}; ${(p.e||'').trim()}; Mat Nr.: ${(p.m||'').trim()}`;
 const teamText=c=>[...teamOf(c),...(meOf()?[meOf()]:[])].map(abgLine).join('\n');
@@ -727,12 +816,12 @@ const linkChips=c=>{ const L=linksOf(c); return L.length?`<div class="lks">${L.m
 
 const empty=t=>`<div class="empty">${t}</div>`;
 function sheetRow(s,editable){ const now=new Date(), soon=s.s<2&&s.due>now&&s.due-now<48*36e5, k=s.c.id+'|'+s.no;
-  const pts=s.s>=2&&!s.free?`<span class="pts" title="Punkte"><input inputmode="decimal" value="${s.p!=null?String(s.p).replace('.',','):''}" data-pts="${k}|p" aria-label="Erreicht">/<input inputmode="decimal" value="${s.x!=null?String(s.x).replace('.',','):''}" data-pts="${k}|x" aria-label="Maximal"></span>`:'';
-  const when=s.skip?'entfällt':soon?`<span class="soon">noch ${rel(s.due)}</span>`:s.due<now?(s.s<2?'<span class="soon">Frist vorbei</span>':'Frist vorbei'):!s.released?`erscheint ${fD(s.rel)}`:'in '+rel(s.due);
+  const pts=s.s===3&&!s.free?`<span class="pts" title="Punkte"><input inputmode="decimal" value="${s.p!=null?String(s.p).replace('.',','):''}" placeholder="?" data-pts="${k}|p" aria-label="Erreichte Punkte">/<input inputmode="decimal" value="${s.x!=null?String(s.x).replace('.',','):''}" data-pts="${k}|x" aria-label="Maximale Punkte" placeholder="${+s.c.sub.max>0?String(s.c.sub.max).replace('.',','):'max'}"></span>`:'';
+  const when=s.skip?'entfällt':soon?`<span class="soon">noch ${rel(s.due)}</span>`:s.due<now?(s.s<2?'<span class="soon">Frist vorbei</span>':'Frist vorbei'):!s.released?`erscheint ${fD(s.rel)}${s.c.sub.relTime?' '+fT(s.rel):''}`:'in '+rel(s.due);
   const tags=(s.free?'<span class="tg">freiwillig</span>':'')+(s.moved?'<span class="tg">verschoben</span>':'')+(s.s===1&&!s.manual?'<span class="tg">auto</span>':'');
   let h=`<div class="row${s.skip?' skip':''}"><span class="bar" style="background:${s.c.color}"></span><div class="mn"><span class="t">${esc(s.c.short)} · Blatt ${s.no}${tags}</span>
     <span class="s">${fD(s.due)} ${fT(s.due)} · ${when}</span></div>
-    <div class="ra">${s.skip?'':pts}${s.skip?'':`<button class="pill ${s.f?'sf':'s'+s.s}" data-sheet="${k}" title="Klick: Status weiterschalten${s.manual?'':' (ohne Eingabe automatisch)'}">${stLabel(s)}</button>`}${!s.skip&&!s.free&&s.s<2&&s.released&&canCopy(s.c)?`<button class="x go" data-teamcopy="${s.c.id}" title="Namen für die Abgabe kopieren" aria-label="Namen für die Abgabe kopieren">📋</button>`:''}${!s.skip&&subLink(s.c)?`<a class="x go" href="${esc(subLink(s.c).u)}" target="_blank" rel="noopener" title="Öffnen: ${esc(subLink(s.c).l||hostOf(subLink(s.c).u))}" aria-label="Abgabeseite öffnen">↗</a>`:''}${editable?`<button class="x" data-sedit="${k}" title="Termin ändern / streichen" aria-label="Blatt ${s.no} bearbeiten">✎</button>`:''}</div></div>`;
+    <div class="ra">${s.skip?'':pts}${s.skip?'':`<button class="pill ${s.f?'sf':s.w?'sw':'s'+s.s}" data-sheet="${k}" title="Klick: Status weiter · Rechtsklick bzw. lange drücken: einen Schritt zurück${s.manual?'':' (ohne Eingabe automatisch)'}">${stLabel(s)}</button>`}${!s.skip&&!s.free&&s.s<2&&s.released&&canCopy(s.c)?`<button class="x go" data-teamcopy="${s.c.id}" title="Namen für die Abgabe kopieren" aria-label="Namen für die Abgabe kopieren">📋</button>`:''}${!s.skip&&subLink(s.c)?`<a class="x go" href="${esc(subLink(s.c).u)}" target="_blank" rel="noopener" title="Öffnen: ${esc(subLink(s.c).l||hostOf(subLink(s.c).u))}" aria-label="Abgabeseite öffnen">↗</a>`:''}${editable?`<button class="x" data-sedit="${k}" title="Termin ändern / streichen" aria-label="Blatt ${s.no} bearbeiten">✎</button>`:''}</div></div>`;
   if(editable&&editSheet===k){ const v=s.due, val=`${iso(v)}T${fT(v)}`;
     h+=`<div class="sedit"><label>Abgabe<input class="in" type="datetime-local" value="${val}" data-sdue="${k}"></label>
       <label class="kchk"><input type="checkbox" data-sskip="${k}" ${s.skip?'checked':''}>entfällt</label>
@@ -784,10 +873,10 @@ function phaseNotice(){ const ph=phase(), sem=S();
 function vHeute(el){
   if(!CS().length){ el.innerHTML=phaseNotice()+`<div class="card">${empty(`In ${esc(S().label)} sind noch keine Kurse angelegt. <button class="btn pri" data-go="kurse">Kurse anlegen</button>`)}</div>`; return; }
   const now=new Date(), sh=allSheets(), running=sh.filter(s=>s.s===1&&!s.f&&s.due>now), next=sh.find(s=>s.due>now&&s.s<2), od=overdueOpen(), td=todos(), br=breakOf(now);
-  const hero=next?`<div class="hero"><span class="lb">Nächste Abgabe${next.free?' · freiwillig':''}${next.f?' · fertig – nur noch hochladen':''}</span><span class="what">${esc(next.c.short)} · ${next.free?'Übung':'Blatt'} ${next.no}</span><span class="cd" id="cd"></span>
-      <span class="when">${WDL[next.due.getDay()]}, ${next.due.getDate()}.${next.due.getMonth()+1}. um ${fT(next.due)}${next.c.sub.where?' · '+esc(next.c.sub.where.split('(')[0].trim()):''}</span>
-      ${subLink(next.c)?`<a class="herolk" href="${esc(subLink(next.c).u)}" target="_blank" rel="noopener">Zu ${esc(subLink(next.c).l||'Abgabe')} ↗</a>`:''}${!next.free&&canCopy(next.c)?`<button class="herolk" data-teamcopy="${next.c.id}">📋 Namen kopieren</button>`:''}${teamMail(next.c)?`<a class="herolk" href="${esc(teamMail(next.c,`${next.c.short} – Blatt ${next.no}`))}">✉ Team</a>`:''}${running.length>1?`<span class="run">Gerade laufend: ${running.map(s=>esc(s.c.short)+' '+s.no).join(' · ')}</span>`:''}</div>`
-    :`<div class="hero calm"><span class="lb">Nächste Abgabe</span><span class="what">${sh.length?'Alles abgegeben':'Keine Übungsblätter'}</span><span class="when">${sh.length?'Kein offenes Übungsblatt.':'Unter „Kurse“ den Abgabe-Rhythmus eintragen.'}</span></div>`;
+  const todo=sh.filter(s=>s.due>now&&s.s<2&&!s.f), nx=[...todo.filter(s=>s.released).sort((a,b)=>a.due-b.due),...todo.filter(s=>!s.released).sort((a,b)=>a.rel-b.rel||a.due-b.due)].slice(0,3);
+  const fin=sh.filter(s=>s.due>now&&s.f).length;
+  const hero=`<div class="card nextcard"><h2>Als Nächstes</h2><div class="cap">${nx.length?'Noch nicht bearbeitete Blätter – zuerst die laufenden, dann die als Nächstes erscheinenden':'Gerade nichts offen'}${fin?` · ${fin} fertig, nur noch hochladen (unter „Abgaben“)`:''}</div>
+    <div class="list">${nx.length?nx.map(s=>sheetRow(s)).join(''):empty(sh.length?'Alles bearbeitet. 🎉':'Noch keine Übungsblätter – unter „Kurse“ den Abgabe-Rhythmus eintragen.')}</div></div>`;
   const today=slotsOn(now), mon=monday(now), wk=sh.filter(s=>s.due>=mon&&s.due<addDays(mon,7));
   const upcomingEv=S().events.map(e=>({...e,d:dt(e.date,e.time)})).filter(e=>e.d&&e.d>=sod(now)).sort((a,b)=>a.d-b.d).slice(0,6);
   el.innerHTML=phaseNotice()+(od.length?`<div class="notice w"><span>⚠</span><span><b>${od.length} ${od.length===1?'Blatt':'Blätter'} mit abgelaufener Frist</b> ${od.length===1?'ist':'sind'} noch nicht als abgegeben markiert: ${od.slice(0,4).map(s=>esc(s.c.short)+' '+s.no).join(', ')}${od.length>4?' …':''}.</span><button class="btn" data-go="abgaben" style="margin-left:auto">ansehen</button></div>`:'')
@@ -804,8 +893,6 @@ function vHeute(el){
         <form class="mini-in" id="evForm" style="margin-top:10px"><input type="date" id="evDate" required style="width:auto" class="in" aria-label="Datum"><input type="time" id="evTime" class="in" style="width:auto" aria-label="Uhrzeit">
           <input id="evTitle" class="in" placeholder="z. B. Alma-Anmeldung Klausuren" required style="flex:1;min-width:150px;width:auto" aria-label="Titel">
           <select id="evC" class="in" style="width:auto" aria-label="Kurs"><option value="">– Kurs –</option>${CS().map(c=>`<option value="${c.id}">${esc(c.short)}</option>`).join('')}</select><button class="btn pri">+ Termin</button></form></div></div></div>`;
-  if(next){ const f=()=>{ const e=$('cd'); if(!e) return clearInterval(cdTimer); const ms=Math.max(0,next.due-new Date()), d=Math.floor(ms/864e5), h=Math.floor(ms%864e5/36e5), m=Math.floor(ms%36e5/6e4);
-      e.textContent=(d?d+'d ':'')+String(h).padStart(2,'0')+'h '+String(m).padStart(2,'0')+'m'; }; f(); cdTimer=setInterval(f,30000); }
 }
 function weekBase(){ const sem=S(), t=sod(new Date());
   const inside=(!sem.start||t>=addDays(day0(sem.start),-7))&&(!sem.end||t<=addDays(day0(sem.end),7));
@@ -833,7 +920,7 @@ function timetable(base,sh){
     groups.forEach(g=>{ const lanes=[]; g.forEach(o=>{ let l=lanes.findIndex(e=>e<=o.a); if(l<0){ l=lanes.length; lanes.push(0); } lanes[l]=o.b; o.l=l; }); g.forEach(o=>o.n=lanes.length); });
     const due=sh.filter(s=>s.due>=d&&s.due<dn), ex=CS().filter(c=>!c.exam.none&&dt(c.exam.date)&&sod(dt(c.exam.date)).getTime()===t), evs=S().events.filter(e=>dt(e.date)&&sod(dt(e.date)).getTime()===t);
     const top=[...ex.map(c=>`<span class="tte ex" style="--c:${c.color}">Klausur ${esc(c.short)}${c.exam.time?' '+esc(c.exam.time):''}</span>`),
-      ...due.map(s=>`<span class="tte dl${s.s>=2?' done':''}" style="--c:${s.c.color}" title="${esc(stLabel(s))}">${s.s>=2?'✓':s.f?'☑':'⏰'} ${esc(s.c.short)} ${s.no} · ${fT(s.due)}</span>`),
+      ...due.map(s=>`<span class="tte dl${s.s>=2?' done':''}" style="--c:${s.c.color}" title="${esc(stLabel(s))}">${s.s>=2?'✓':s.f?'☑':s.w?'✎':'⏰'} ${esc(s.c.short)} ${s.no} · ${fT(s.due)}</span>`),
       ...evs.map(e=>`<span class="tte ev" style="--c:${(C(e.cid)||{}).color||'var(--accent)'}">${esc(e.title)}</span>`)].join('');
     const blocks=ev.map(o=>`<div class="ttb${o.x.opt?' opt':''}" style="--c:${o.x.c.color};top:${px(o.a)}px;height:${Math.max(22,px(o.b)-px(o.a)-2)}px;left:calc(${o.l/o.n*100}% + 2px);width:calc(${100/o.n}% - 4px)" title="${esc(`${o.x.c.short} · ${o.x.t} · ${o.x.a}–${o.x.b||''}${o.x.r?' · '+o.x.r:''}`)}">
         <b>${esc(o.x.c.short)}</b><span>${esc(o.x.t)}</span>${o.x.r?`<span class="ttr">${esc(o.x.r)}</span>`:''}<span class="ttt">${esc(o.x.a)}${o.x.b?'–'+esc(o.x.b):''}</span></div>`).join('');
@@ -900,7 +987,8 @@ function vAbgaben(el){
   const pre=all.filter(s=>!s.skip&&s.due>=now).sort((a,b)=>a.due-b.due), post=all.filter(s=>!s.skip&&s.due<now).sort((a,b)=>b.due-a.due);
   const P=[
     {t:'Vor der Frist',i:'⏳',kids:[
-      {id:'laufend',t:'Laufend',d:'noch in Arbeit',l:pre.filter(s=>s.s<2&&s.released&&!s.f)},
+      {id:'inarbeit',t:'In Bearbeitung',d:'angefangen',l:pre.filter(s=>s.s<2&&s.w)},
+      {id:'laufend',t:'Laufend',d:'erschienen, noch nicht angefangen',l:pre.filter(s=>s.s<2&&s.released&&!s.f&&!s.w)},
       {id:'fertig',t:'Fertig · noch abgeben',d:'bearbeitet, Abgabe steht aus (z. B. Abgabe öffnet später)',l:pre.filter(s=>s.s<2&&s.f)},
       {id:'abgegeben',t:'Abgegeben · Frist kommt noch',d:'schon erledigt, Abgabe steht noch an',l:pre.filter(s=>s.s>=2)},
       {id:'demnaechst',t:'Noch nicht erschienen',d:'kommende Blätter',l:pre.filter(s=>s.s<2&&!s.released),fold:true}]},
@@ -916,7 +1004,7 @@ function vAbgaben(el){
   const body=P.map(p=>{ const kids=p.kids.filter(g=>g.l.length), n=kids.reduce((t,g)=>t+g.l.length,0); if(!n) return '';
     return `<section class="pgrp"><h2><span>${p.i}</span>${p.t} <span class="tg">${n}</span></h2>${kids.map(sub).join('')}</section>`; }).join('');
   el.innerHTML=phaseNotice()+`<div class="card"><div class="chips">${opts.map(([k,l])=>`<button class="chip ${filt===k?'on':''}" data-f="${esc(k)}">${esc(l)}</button>`).join('')}</div>
-    <details class="help"><summary>ⓘ So funktionieren Status und Gruppen</summary><div class="cap">Blätter stehen automatisch auf „läuft“, sobald sie erschienen sind (Bearbeitungszeit unter „Kurse“). Klick auf den Status: läuft → fertig → abgegeben → bewertet → wieder automatisch. „Fertig“ heißt: bearbeitet, aber noch nicht hochgeladen. Ab „abgegeben“ Punkte eintragen. Freiwillige Übungen: läuft → erledigt, ohne Punkte. ✎ verschiebt oder streicht ein einzelnes Blatt. Gruppen lassen sich auf- und zuklappen.</div></details>
+    <details class="help"><summary>ⓘ So funktionieren Status und Gruppen</summary><div class="cap">Blätter stehen automatisch auf „läuft“, sobald sie erschienen sind (Bearbeitungszeit unter „Kurse“). Klick auf den Status: läuft → in Bearbeitung → fertig → abgegeben → bewertet. Rechtsklick (iPad: lange drücken) schaltet einen Schritt zurück. „Fertig“ heißt: bearbeitet, aber noch nicht hochgeladen. Ab „abgegeben“ Punkte eintragen. Freiwillige Übungen: läuft → in Bearbeitung → erledigt, ohne Punkte. ✎ verschiebt oder streicht ein einzelnes Blatt. Gruppen lassen sich auf- und zuklappen.</div></details>
     ${body||`<div class="list">${empty(CS().some(c=>sheets(c).length)?'Keine Blätter für diese Auswahl.':'Noch keine Übungsblätter – unter „Kurse“ den Abgabe-Rhythmus eintragen.')}</div>`}</div>`;
   el.querySelectorAll('details[data-grp]').forEach(d=>d.addEventListener('toggle',()=>{ grpOpen[d.dataset.grp]=d.open; }));
 }
@@ -927,7 +1015,10 @@ function vZulassung(el){
     if(a.kind==='points'){
       body+=admMeter(c,'Punkte');
       body+=`<dl class="kv"><dt>Bewertete Blätter</dt><dd>${a.graded} von ${sheets(c).filter(s=>!s.skip).length}</dd>
-        ${a.need!=null?`<dt>Ab jetzt nötig</dt><dd>${a.need<=0?'<b class="ok">Zulassung rechnerisch sicher</b>':a.need>100?'<b class="bad">rechnerisch nicht mehr erreichbar</b>':`im Schnitt <b>${fmt(a.need,0)} %</b> auf den restlichen ${a.rem} Blättern`}</dd>`:''}</dl>`;
+        ${a.ap?`<dt>Anwesenheit</dt><dd>${a.apY} von ${a.ap.n} · ${fmt(a.apY*a.ap.pts)} Pkt.</dd>`:''}
+        ${a.need!=null?`<dt>Ab jetzt nötig</dt><dd>${a.need<=0?'<b class="ok">Zulassung rechnerisch sicher</b>':a.need>100?'<b class="bad">rechnerisch nicht mehr erreichbar</b>':`im Schnitt <b>${fmt(a.need,0)} %</b> auf den restlichen ${[a.rem?a.rem+' Blättern':'',a.apRem?a.apRem+' Terminen':''].filter(Boolean).join(' und ')}`}</dd>`:''}</dl>`;
+      if(a.ap) body+=`<div class="klb" style="margin:6px 0 2px">Anwesenheit ${esc(a.ap.slot)} · je ${fmt(a.ap.pts)} Pkt.</div><div class="attend">${Array.from({length:a.ap.n},(_,i)=>{ const v=c.att[i+1]||'', d=a.ap.ses[i]; return `<button class="att ${v}" data-att="${c.id}|${i+1}" title="Klick: anwesend → gefehlt → leer">${i+1}${d?`<small>${d.getDate()}.${d.getMonth()+1}.</small>`:''}</button>`; }).join('')}</div>
+        <div style="font-size:12px;color:var(--muted)">Grün = da gewesen (${fmt(a.ap.pts)} Pkt.), Rot = gefehlt (0 Pkt.), leer = noch offen.${a.ap.ses.length?'':' Tipp: unter „Kurse → Termine“ einen Termin „'+esc(a.ap.slot)+'“ mit Wochentag eintragen, dann stehen hier die Daten.'}</div>`;
       if(r.extra) body+=`<div class="mini-in">${esc(r.extraLabel||'Weitere Punkte')}: <input inputmode="decimal" data-cf="${c.id}|extraGot" value="${c.extraGot??''}" aria-label="erreicht"> / <input inputmode="decimal" data-cf="${c.id}|extraMax" value="${c.extraMax??''}" aria-label="maximal"> Pkt.</div>`;
     } else if(a.kind==='attendance'){
       const ses=sessions(c,r.slot||'Tutorium');
@@ -945,13 +1036,71 @@ function vZulassung(el){
       ${linkChips(c)}${teamLine(c)}${r.text?`<div class="rule">${esc(r.text)}</div>`:''}${body}</div>`; }).join('')}</div>`;
 }
 function inp(c,f,v,type='text',extra=''){ return `<input class="in" type="${type}" data-k="${c.id}|${f}" value="${esc(v??'')}" ${extra}>`; }
+/* ---------- Zulassung & Bonus: als verständliche Bausteine ---------- */
+function choiceCards(c,path,cur,opts){ return `<div class="relopts ch${opts.length}">${opts.map(o=>`<div class="relopt${cur===o.v?' on':''}" data-choice="${c.id}|${path}|${o.v}"><button class="relpick" aria-pressed="${cur===o.v}"><span class="rdot"></span><b>${o.t}</b></button>${o.b?`<div class="relsent">${o.b}</div>`:''}</div>`).join('')}</div>`; }
+const nIn=(c,p,v,w=64,ex='')=>`<span class="rnum" style="--w:${w}px">${inp(c,p,v??'','text','inputmode="decimal" data-n '+ex)}</span>`;
+const tIn=(c,p,v,ph='',w=150)=>`<span class="rnum" style="--w:${w}px">${inp(c,p,v??'','text',`placeholder="${ph}" list="types"`)}</span>`;
+function admEditor(c){ const a=c.adm||{}, b=c.bonus||{}, kind=a.kind||'unknown', bk=b.kind||'none', ap=a.ap||{}, A=admission(c), nSh=sheets(c).filter(x=>!x.skip).length, ses=(apOf(c)||{}).n;
+  const live=A.kind==='points'?`Aktueller Stand: <b>${A.label}</b> · Ziel ${fmt(a.pct)} %`:A.kind==='attendance'?`Aktueller Stand: <b>${A.label}</b>`:'';
+  let h=`<div class="ksec admed"><div class="klb" style="margin:0">Was brauchst du für die Klausurzulassung?</div>
+    ${choiceCards(c,'adm.kind',kind,[
+      {v:'points',t:'Punkte sammeln',b:`Du brauchst ${nIn(c,'adm.pct',a.pct)} % aller erreichbaren Punkte.`},
+      {v:'attendance',t:'Anwesenheit',b:`Du musst bei ${nIn(c,'adm.need',a.need)} von ${nIn(c,'adm.of',a.of,64,'data-rerender')} Terminen ${tIn(c,'adm.slot',a.slot||'Tutorium','Tutorium')} da sein.`},
+      {v:'none',t:'Keine Zulassung',b:'Die Klausur ist ohne Vorleistung möglich.'},
+      {v:'unknown',t:'Noch unklar',b:'Erinnert dich unter „Heute“, die Regel nachzutragen.'}])}
+    ${live?`<div class="cap">${live}</div>`:''}</div>`;
+  if(kind==='points'){
+    const on=(k,v,t,body)=>`<div class="srcrow${v?' on':''}"><label class="srchead"><input type="checkbox" data-k="${c.id}|${k}" data-rerender ${v?'checked':''}><b>${t}</b></label>${v&&body?`<div class="relsent">${body}</div>`:''}</div>`;
+    h+=`<div class="ksec admed"><div class="klb" style="margin:0">Woher kommen die Punkte?</div>
+      <div class="srcrow on fixed"><div class="srchead"><span class="srcdot"></span><b>Übungsblätter</b></div><div class="relsent">${subMode(c)==='graded'?`${nSh} Blätter${+c.sub.max>0?` · je ${fmt(c.sub.max)} Punkte`:''} – Rhythmus und Punktzahl stellst du unter <button class="lnk" data-ktab="${c.id}|blatt">Übungsblätter</button> ein.`:`Dieser Kurs hat keine bewerteten Blätter (<button class="lnk" data-ktab="${c.id}|blatt">ändern</button>).`}</div></div>
+      ${on('adm.ap.on',ap.on,'Anwesenheit bringt Punkte',`Jede Anwesenheit im ${tIn(c,'adm.ap.slot',ap.slot||'Tutorium','Tutorium')} bringt ${nIn(c,'adm.ap.pts',ap.pts,64,'placeholder="9"')} Punkte – bei ${nIn(c,'adm.ap.n',ap.n,64,`placeholder="${ses||'auto'}"`)} Terminen.<small>Z. B. Präsenzblätter. Leer bei „Terminen“ = so oft, wie der Termin im Semester stattfindet. Abhaken wie bei Robotik unter „Zulassung“.</small>`)}
+      ${on('adm.extra',a.extra,'Weitere Punkte (pauschal)',`Bezeichnung ${tIn(c,'adm.extraLabel',a.extraLabel||'','z. B. Testate',220)}<small>Erreichte und maximale Punkte trägst du unter „Zulassung“ als Summe ein.</small>`)}
+    </div>`;
+  }
+  h+=`<div class="ksec admed"><div class="klb" style="margin:0">Zusätzlich Pflicht<button class="btn" data-add="${c.id}|tasks">+ Pflichtaufgabe</button></div>
+    ${(c.tasks||[]).map((t,i)=>`<div class="klink" style="grid-template-columns:1fr 32px">${inp(c,`tasks.${i}.l`,t.l,'text','placeholder="z. B. einmal im Tutorium vorrechnen" aria-label="Pflichtaufgabe"')}<button class="x" data-rm="${c.id}|tasks|${i}" aria-label="Pflichtaufgabe entfernen">×</button></div>`).join('')||'<div class="cap">Einzelne Aufgaben, die zusätzlich erfüllt sein müssen – z. B. „einmal vorrechnen“. Abhaken unter „Zulassung“.</div>'}</div>
+  <div class="ksec admed"><div class="klb" style="margin:0">Gibt es einen Klausurbonus?</div>
+    ${choiceCards(c,'bonus.kind',bk,[
+      {v:'none',t:'Kein Bonus',b:''},
+      {v:'linear',t:'Aus der Übungsquote',b:`Zwischen ${nIn(c,'bonus.from',b.from??60)} % und ${nIn(c,'bonus.to',b.to??100)} % der Punkte steigt der Bonus gleichmäßig bis auf ${nIn(c,'bonus.max',bk==='linear'?b.max??10:10)} % der Klausurpunkte.`},
+      {v:'count',t:'Bonuspunkte sammeln',b:`Bis zu ${nIn(c,'bonus.max',bk==='count'?b.max??5:5)} Bonuspunkte, z. B. fürs Vorrechnen – hochzählen unter „Zulassung“.`}])}
+    ${bk!=='none'?`<label class="lbl">Beschreibung (optional)${inp(c,'bonus.text',b.text||'','text','placeholder="z. B. Bonus gilt nur, wenn die Klausur ohne ihn bestanden ist"')}</label>`:''}</div>
+  <div class="ksec admed"><div class="klb" style="margin:0">Regel als Text<button class="btn" data-admtext="${c.id}" title="Text aus den Einstellungen oben erzeugen">aus Einstellungen erzeugen</button></div>
+    ${inp(c,'adm.text',a.text||'','text','placeholder="So steht die Regel unter „Zulassung“ – z. B. aus den Folien abschreiben"')}</div>`;
+  return h; }
+function admTextAuto(c){ const a=c.adm||{}, b=c.bonus||{}, ap=apOf(c), parts=[];
+  if(a.kind==='points') parts.push(`${fmt(a.pct)} % aller Punkte aus ${['Übungsblättern',ap?`Anwesenheit im ${ap.slot} (je ${fmt(ap.pts)} Pkt.)`:'',a.extra?(a.extraLabel||'weiteren Punkten'):''].filter(Boolean).join(', ').replace(/, ([^,]*)$/,' und $1')}.`);
+  if(a.kind==='attendance') parts.push(`Anwesenheit bei ${a.need} von ${a.of} Terminen (${a.slot||'Tutorium'}).`);
+  if(a.kind==='none') parts.push('Keine Zulassung nötig.');
+  if((c.tasks||[]).length) parts.push('Zusätzlich: '+c.tasks.map(t=>t.l).filter(Boolean).join(', ')+'.');
+  if(b.kind==='linear') parts.push(`Bonus: ${fmt(b.from)}–${fmt(b.to)} % der Punkte bringen linear bis zu ${fmt(b.max)} % Klausurbonus.`);
+  if(b.kind==='count') parts.push(`Bonus: bis zu ${fmt(b.max)} Bonuspunkte.`);
+  return parts.join(' '); }
+/* Wann erscheint ein Blatt? – verständlich als zwei Sätze zur Auswahl */
+function relBlock(c){ const s=c.sub, after=s.relMode==='after', d=(n,w)=>`${n} ${w}${+n===1?'':'e'}`;
+  const opt=(mode,on,title,body)=>`<div class="relopt${on?' on':''}" data-relmode="${c.id}|${mode}"><button class="relpick" aria-pressed="${on}"><span class="rdot"></span><b>${title}</b></button><div class="relsent">${body}</div></div>`;
+  const cand=sheets(c).filter(x=>!x.skip).filter(x=>x.released||x.due>new Date()).slice(0,8);
+  return `<div class="relbox"><div class="klb" style="margin:0">Wann erscheint ein Blatt?</div>
+    <div class="relopts">
+      ${opt('before',!after,'Feste Bearbeitungszeit',`Jedes Blatt erscheint <span class="rnum">${inp(c,'sub.len',s.len??7,'number','min="1" max="60" data-n aria-label="Tage vor der Abgabe"')}</span> Tage vor seiner Abgabe.<small>Passt, wenn Ausgabe und Abgabe immer gleich weit auseinanderliegen – z. B. „Ausgabe Di, Abgabe 9 Tage später“.</small>`)}
+      ${opt('after',after,'Nach der vorigen Abgabe',`Ein neues Blatt erscheint <span class="rnum">${inp(c,'sub.relAfter',s.relAfter??1,'number','min="0" max="30" data-n aria-label="Tage nach der vorigen Abgabe"')}</span> Tag(e) nach Abgabe des vorigen Blatts.<small>0 = gleich am Abgabetag, 1 = am Tag danach. Verschobene Abgaben ziehen das nächste Blatt mit.</small>`)}
+    </div>
+    <div class="relrow"><label class="kchk">um ${inp(c,'sub.relTime',s.relTime||'','time','aria-label="Uhrzeit des Erscheinens"')}</label><span class="cap">Uhrzeit des Erscheinens – leer lassen = ab 0:00 Uhr.</span></div>
+    ${cand.length?`<details class="relcal"><summary>Weißt du, wann ein Blatt wirklich erschienen ist? Dann trage es hier ein – der Rest wird berechnet.</summary>
+      <div class="relrow"><select class="in" id="rc-n-${c.id}" style="width:auto" aria-label="Welches Blatt">${cand.map(x=>`<option value="${x.no}">Blatt ${x.no} (fällig ${fD(x.due)})</option>`).join('')}</select>
+        <span>erschien am</span><input class="in" type="date" id="rc-d-${c.id}" aria-label="Erscheinungsdatum" style="width:auto"><span>um</span><input class="in" type="time" id="rc-t-${c.id}" aria-label="Erscheinungsuhrzeit" style="width:auto">
+        <button class="btn" data-relcal="${c.id}">Übernehmen</button></div></details>`:''}
+  </div>`; }
+function sheetPreview(c){ if(subMode(c)==='none') return ''; const now=new Date(), L=sheets(c).filter(x=>!x.skip&&x.due>now).slice(0,3);
+  if(!L.length) return '<span class="cap">Keine kommenden Blätter – „Erstes Blatt fällig“ und Anzahl prüfen.</span>';
+  return `<div class="klb" style="margin:0 0 4px">So sieht das aus</div>`+L.map(x=>`<div class="kpr"><b>Blatt ${x.no}</b><span>erscheint ${fD(x.rel)}${x.c.sub.relTime?' '+fT(x.rel):''}</span><span class="ar">→</span><span>fällig ${fD(x.due)} ${fT(x.due)} <em>· ${Math.max(0,Math.round((x.due-x.rel)/864e5))} Tage Zeit</em></span><span class="pill ${x.f?'sf':x.w?'sw':'s'+x.s}" style="pointer-events:none">${stLabel(x)}</span></div>`).join(''); }
 const sheetInfo=c=>{ const sh=sheets(c), sk=sh.filter(s=>s.skip).length; return sh.length?`${sh.length-sk} Blätter: ${fD(sh[0].due)} bis ${fD(sh[sh.length-1].due)}${sk?` · ${sk} gestrichen`:''} · Pausen werden übersprungen`:'Datum des ersten Blatts eintragen, dann entstehen die Abgaben automatisch.'; };
 function meCard(){ const m=D.me||{};
   return `<div class="card mecard"><div class="klb" style="margin-bottom:6px">Meine Daten für Abgaben</div>
     <div class="kteam me">${['n','e','m'].map(f=>`<input class="in" data-me="${f}" value="${esc(m[f]||'')}" placeholder="${{n:'Dein Name',e:'Deine E-Mail',m:'Matr.-Nr.'}[f]}" aria-label="${{n:'Dein Name',e:'Deine E-Mail',m:'Deine Matrikelnummer'}[f]}" ${f==='e'?'type="email"':f==='m'?'inputmode="numeric"':''} autocomplete="off">`).join('')}</div>
     <div class="cap" style="margin-top:6px">Gilt für alle Kurse und Semester. „Für Abgabe kopieren“ ergibt: Abgabepartner, darunter du – je Zeile <code>Name; Mail; Mat Nr.: …</code></div></div>`; }
 function vKurse(el){
-  el.innerHTML=phaseNotice()+meCard()+(CS().length?`<div class="ktools"><span class="cap">Klick auf einen Kurs klappt ihn auf.</span><button class="btn" data-kall="1">Alle aufklappen</button><button class="btn" data-kall="0">Alle zuklappen</button></div>`:`<div class="card" style="margin-bottom:16px">${empty(`Noch keine Kurse in ${esc(S().label)}. Lege unten einen an oder übernimm Kurse aus einem anderen Semester (Semester-Einstellungen ⚙).`)}</div>`)
+  el.innerHTML=phaseNotice()+(CS().length?`<div class="ktools"><span class="cap">Klick auf einen Kurs klappt ihn auf.</span><button class="btn" data-kall="1">Alle aufklappen</button><button class="btn" data-kall="0">Alle zuklappen</button></div>`:`<div class="card" style="margin-bottom:16px">${empty(`Noch keine Kurse in ${esc(S().label)}. Lege unten einen an oder übernimm Kurse aus einem anderen Semester (Semester-Einstellungen ⚙).`)}</div>`)
   +CS().map((c,ci)=>{ const s=c.sub, a=c.adm, b=c.bonus||{kind:'none'};
     const slots=c.slots.map((x,i)=>`<div class="kslot cs"><input class="in" list="types" data-k="${c.id}|slots.${i}.t" value="${esc(x.t)}" aria-label="Art">
       <select class="in" data-k="${c.id}|slots.${i}.d" data-n aria-label="Tag"><option value="">Tag</option>${[1,2,3,4,5,6,0].map(d=>`<option value="${d}" ${x.d!=null&&x.d!==''&&+x.d===d?'selected':''}>${WD[d]}</option>`).join('')}</select>
@@ -962,46 +1111,36 @@ function vKurse(el){
       <select class="in" data-tut="${c.id}" style="width:auto"><option value="">– wählen –</option>${c.tutOptions.map((o,i)=>`<option value="${i}" ${c.tutPick==i?'selected':''}>${WD[o[0]]} ${o[1]}–${o[2]} (${esc(o[3])})</option>`).join('')}</select></label>`:'';
     const links=c.links.map((l,i)=>`<div class="klink">${inp(c,`links.${i}.l`,l.l,'text','placeholder="Name" aria-label="Linkname"')}${inp(c,`links.${i}.u`,l.u,'url','placeholder="https://…" aria-label="Adresse"')}${l.u?`<a class="x" href="${esc(l.u)}" target="_blank" rel="noopener" aria-label="Öffnen">↗</a>`:'<span></span>'}<button class="x" data-rm="${c.id}|links|${i}" aria-label="Link entfernen">×</button></div>`).join('');
     const tasks=c.tasks.map((t,i)=>`<div class="klink" style="grid-template-columns:1fr 32px">${inp(c,`tasks.${i}.l`,t.l,'text','placeholder="z. B. Aufgabe im Tutorium vorrechnen" aria-label="Pflichtaufgabe"')}<button class="x" data-rm="${c.id}|tasks|${i}" aria-label="Pflichtaufgabe entfernen">×</button></div>`).join('');
-    const op=kOpen.has(c.id), nSh=sheets(c).filter(x=>!x.skip).length, ex=dt(c.exam.date);
+    const op=kOpen.has(c.id), kt=kTab[c.id]||'allg', nSh=sheets(c).filter(x=>!x.skip).length, ex=dt(c.exam.date);
     const sum=[c.lp?c.lp+' LP':'',c.slots.length?c.slots.length+' Termin'+(c.slots.length>1?'e':''):'',nSh?nSh+' Blätter':(subMode(c)==='none'?'keine Blätter':''),ex?'Klausur '+ex.getDate()+'.'+(ex.getMonth()+1)+'.':''].filter(Boolean).join(' · ');
     return `<div class="card kcard${op?' open':''}" id="k-${c.id}"><div class="khead"><button class="ktog" data-ktog="${c.id}" aria-expanded="${op}"><span class="chev" aria-hidden="true">▸</span><span class="dot" style="background:${c.color}"></span><span class="ktt"><b>${esc(c.short||'Kurs')}</b><span>${esc(c.name||'')}</span></span><span class="ksum">${esc(sum)}${timeIn(c)?' · '+fmtH(timeIn(c)):''}</span></button><button class="x tmini${running(c)?' on':''}" data-${running(c)?'tstop':'tstart'}="${c.id}" title="${running(c)?'Timer stoppen':'Timer starten'}" aria-label="${running(c)?'Timer stoppen':'Timer starten'}">${running(c)?'■':'▶'}</button>
       <button class="x" data-mv="${c.id}|-1" ${ci===0?'disabled':''} title="nach oben" aria-label="Kurs nach oben">↑</button><button class="x" data-mv="${c.id}|1" ${ci===CS().length-1?'disabled':''} title="nach unten" aria-label="Kurs nach unten">↓</button></div>
-      ${op?`<div class="kbody"><div class="zhead"><input type="color" value="${esc(c.color)}" data-k="${c.id}|color" aria-label="Farbe" style="width:28px;height:28px;border:0;background:none;padding:0;cursor:pointer">
-      <div style="flex:1;min-width:180px;display:grid;grid-template-columns:110px 1fr;gap:6px">${inp(c,'short',c.short,'text','aria-label="Kurzname"')}${inp(c,'name',c.name,'text','aria-label="Name"')}</div>
-      </div>
-      ${linkChips(c)}
-      <div class="kgrid"><label>Code${inp(c,'code',c.code)}</label><label>LP${inp(c,'lp',c.lp,'number','data-n')}</label><label class="w2">Dozent*in${inp(c,'lecturer',c.lecturer)}</label></div>
-      <div class="ksec"><div class="klb">Termine<button class="btn" data-add="${c.id}|slots">+ Termin</button></div>${tutPick}${slots||'<div style="font-size:12px;color:var(--muted)">Noch keine Termine.</div>'}</div>
-      <div class="ksec"><div class="klb">Übungsblätter<select class="in" data-k="${c.id}|sub.mode" data-rerender style="width:auto;text-transform:none;letter-spacing:0;font-family:var(--body)" aria-label="Art der Übungsblätter">
+      ${op?`<div class="kbody"><div class="ktabs" role="tablist" aria-label="Kurs-Einstellungen">${KTABS.map(([k,l])=>{ const n=k==="termine"?c.slots.length:k==="blatt"?nSh:k==="links"?c.links.length+teamOf(c).length:0; return `<button class="ktab${kt===k?" on":""}" role="tab" aria-selected="${kt===k}" data-ktab="${c.id}|${k}">${l}${n?`<small>${n}</small>`:""}</button>`; }).join("")}</div>
+      <div class="kpane">${kt==="termine"?`<div class="ksec"><div class="klb">Termine<button class="btn" data-add="${c.id}|slots">+ Termin</button></div>${tutPick}${slots||'<div style="font-size:12px;color:var(--muted)">Noch keine Termine.</div>'}</div>
+      `:kt==="blatt"?`<div class="ksec"><div class="klb">Übungsblätter<select class="in" data-k="${c.id}|sub.mode" data-rerender style="width:auto;text-transform:none;letter-spacing:0;font-family:var(--body)" aria-label="Art der Übungsblätter">
           <option value="graded" ${subMode(c)==='graded'?'selected':''}>bewertet (mit Punkten)</option><option value="free" ${subMode(c)==='free'?'selected':''}>freiwillig, unbewertet</option><option value="none" ${subMode(c)==='none'?'selected':''}>keine Blätter</option></select></div>
         ${subMode(c)==='none'?`<label style="display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:var(--muted);font-weight:600">Hinweis${inp(c,'sub.note',s.note)}</label>`:`<div class="kgrid">
         <label>Erstes Blatt fällig${inp(c,'sub.first',s.first,'date')}</label><label>Uhrzeit${inp(c,'sub.time',s.time||'23:59','time')}</label>
         <label>Rhythmus<select class="in" data-k="${c.id}|sub.iv" data-n><option value="1" ${(+s.iv||1)===1?'selected':''}>jede Woche</option><option value="2" ${+s.iv===2?'selected':''}>alle 2 Wochen</option><option value="3" ${+s.iv===3?'selected':''}>alle 3 Wochen</option></select></label>
-        <label>Anzahl${inp(c,'sub.n',s.n??12,'number','min="0" max="40" data-n')}</label>
-        <label title="So viele Tage vor der Abgabe erscheint das Blatt – solange steht es auf „läuft“">Bearbeitungszeit (Tage)${inp(c,'sub.len',s.len??7,'number','min="1" max="60" data-n')}</label>
+        <label>Anzahl${inp(c,'sub.n',s.n??12,'number','min="0" max="40" data-n')}</label>${subMode(c)==='graded'?`<label title="Wird bei jedem Blatt als Maximalpunktzahl vorausgefüllt – beim einzelnen Blatt weiter änderbar">Punkte pro Blatt${inp(c,'sub.max',s.max??'','text','inputmode="decimal" data-n placeholder="z. B. 20"')}</label>`:''}
         <label class="w2">Wo abgeben${inp(c,'sub.where',s.where)}</label><label>&nbsp;</label><label class="w4">Hinweis${inp(c,'sub.note',s.note)}</label></div>
+        ${relBlock(c)}
+        <div class="kprev" id="kp-${c.id}">${sheetPreview(c)}</div>
         <div id="ki-${c.id}" style="font-size:12px;color:var(--muted)">${sheetInfo(c)} · Einzelne Blätter verschiebst oder streichst du unter „Abgaben“ (✎).${subMode(c)==='free'?' Freiwillige Übungen: ohne Punkte, Status „erledigt“, keine Mahnung bei abgelaufener Frist.':''}</div>`}</div>
-      <div class="ksec"><div class="klb">Zulassung</div><div class="kgrid">
-        <label>Art<select class="in" data-k="${c.id}|adm.kind" data-rerender><option value="points" ${a.kind==='points'?'selected':''}>Punkte-Quote</option><option value="attendance" ${a.kind==='attendance'?'selected':''}>Anwesenheit</option><option value="none" ${a.kind==='none'?'selected':''}>keine</option><option value="unknown" ${a.kind==='unknown'?'selected':''}>noch offen</option></select></label>
-        ${a.kind==='points'?`<label>Nötige Quote %${inp(c,'adm.pct',a.pct,'text','inputmode="decimal" data-n')}</label><label class="kchk"><input type="checkbox" data-k="${c.id}|adm.extra" data-rerender ${a.extra?'checked':''}>Zusatzpunkte</label>${a.extra?`<label>Bezeichnung${inp(c,'adm.extraLabel',a.extraLabel,'text','placeholder="z. B. Präsenzblätter"')}</label>`:'<label></label>'}`
-          :a.kind==='attendance'?`<label>Nötig${inp(c,'adm.need',a.need,'number','data-n')}</label><label>von Terminen${inp(c,'adm.of',a.of,'number','data-n data-rerender')}</label><label>bei Termin-Art${inp(c,'adm.slot',a.slot||'Tutorium','text','list="types"')}</label>`:''}
-        <label class="w4">Regel (Text)${inp(c,'adm.text',a.text)}</label></div>
-        <div class="klb" style="margin-top:4px">Pflichtaufgaben<button class="btn" data-add="${c.id}|tasks">+ Pflichtaufgabe</button></div>${tasks||'<div style="font-size:12px;color:var(--muted)">z. B. „einmal vorrechnen“ – wird unter „Zulassung“ abgehakt.</div>'}</div>
-      <div class="ksec"><div class="klb">Klausurbonus</div><div class="kgrid">
-        <label>Art<select class="in" data-k="${c.id}|bonus.kind" data-rerender><option value="none" ${!b.kind||b.kind==='none'?'selected':''}>kein Bonus</option><option value="linear" ${b.kind==='linear'?'selected':''}>aus Übungsquote</option><option value="count" ${b.kind==='count'?'selected':''}>Punkte sammeln</option></select></label>
-        ${b.kind==='linear'?`<label>ab Quote %${inp(c,'bonus.from',b.from??50,'text','inputmode="decimal" data-n')}</label><label>bis Quote %${inp(c,'bonus.to',b.to??100,'text','inputmode="decimal" data-n')}</label><label>max. Bonus %${inp(c,'bonus.max',b.max??10,'text','inputmode="decimal" data-n')}</label>`
-          :b.kind==='count'?`<label>max. Punkte${inp(c,'bonus.max',b.max??5,'text','inputmode="decimal" data-n')}</label>`:''}
-        ${b.kind&&b.kind!=='none'?`<label class="w4">Beschreibung${inp(c,'bonus.text',b.text)}</label>`:''}</div></div>
-      <div class="ksec"><div class="klb">Klausur</div><div class="kgrid">
+      `:kt==="zul"?`${admEditor(c)}`:kt==="klausur"?`<div class="ksec"><div class="klb">Klausur</div><div class="kgrid">
         <label>Datum${inp(c,'exam.date',c.exam.date,'date')}</label><label>Uhrzeit${inp(c,'exam.time',c.exam.time,'time')}</label><label class="w2">Ort${inp(c,'exam.place',c.exam.place)}</label>
         <label class="kchk"><input type="checkbox" data-k="${c.id}|exam.confirmed" ${c.exam.confirmed?'checked':''}>bestätigt</label><label class="kchk"><input type="checkbox" data-k="${c.id}|exam.alma" ${c.exam.alma?'checked':''}>in Alma angemeldet</label>
         <label class="kchk"><input type="checkbox" data-k="${c.id}|exam.none" ${c.exam.none?'checked':''}>keine Klausur</label>
         <label class="w4">Hinweis${inp(c,'exam.note',c.exam.note)}</label></div></div>
-      <div class="ksec"><div class="klb">Links<button class="btn" data-add="${c.id}|links">+ Link</button></div>${links||'<div style="font-size:12px;color:var(--muted)">Moodle, Kursseite, Forum …</div>'}</div>
-      ${logSection(c)}
+      `:kt==="links"?`<div class="ksec"><div class="klb">Links<button class="btn" data-add="${c.id}|links">+ Link</button></div>${links||'<div style="font-size:12px;color:var(--muted)">Moodle, Kursseite, Forum …</div>'}</div>
       <div class="ksec"><div class="klb">Team / Abgabepartner<span style="display:flex;gap:6px;flex-wrap:wrap">${canCopy(c)?`<button class="btn" data-teamcopy="${c.id}" title="Abgabepartner und dich als Text kopieren">📋 Für Abgabe kopieren</button>`:''}${teamOf(c).length?`${teamMail(c)?`<a class="btn" href="${esc(teamMail(c,c.short))}">✉ Mail an Team</a>`:''}`:''}<button class="btn" data-add="${c.id}|team">+ Person</button></span></div>
-        ${(c.team||[]).map((p,i)=>`<div class="kteam">${inp(c,`team.${i}.n`,p.n,'text','placeholder="Name" aria-label="Name" autocomplete="off"')}${inp(c,`team.${i}.e`,p.e,'email','placeholder="E-Mail" aria-label="E-Mail" autocomplete="off"')}${inp(c,`team.${i}.m`,p.m,'text','placeholder="Matr.-Nr." inputmode="numeric" aria-label="Matrikelnummer" autocomplete="off"')}${p.e?`<a class="x go" href="mailto:${esc(p.e)}" title="E-Mail schreiben" aria-label="E-Mail schreiben">✉</a>`:'<span></span>'}<button class="x" data-rm="${c.id}|team|${i}" aria-label="Person entfernen">×</button></div>`).join('')||'<div style="font-size:12px;color:var(--muted)">Abgabepartner oder Gruppe – Name, E-Mail, Matrikelnummer.</div>'}</div>
+        ${(c.team||[]).map((p,i)=>`<div class="kteam">${inp(c,`team.${i}.n`,p.n,'text','placeholder="Name" aria-label="Name" autocomplete="off"')}${inp(c,`team.${i}.e`,p.e,'email','placeholder="E-Mail" aria-label="E-Mail" autocomplete="off"')}${inp(c,`team.${i}.m`,p.m,'text','placeholder="Matr.-Nr." inputmode="numeric" aria-label="Matrikelnummer" autocomplete="off"')}${p.e?`<a class="x go" href="mailto:${esc(p.e)}" title="E-Mail schreiben" aria-label="E-Mail schreiben">✉</a>`:'<span></span>'}<button class="x" data-rm="${c.id}|team|${i}" aria-label="Person entfernen">×</button></div>`).join('')||'<div style="font-size:12px;color:var(--muted)">Abgabepartner oder Gruppe – Name, E-Mail, Matrikelnummer.</div>'}${meOf()?'':`<div class="cap">Deine eigenen Daten für den Kopier-Knopf: <button class="lnk" data-opensettings="me">Einstellungen → Meine Daten</button></div>`}</div>
+      `:kt==="zeit"?`${logSection(c)}`:`<div class="zhead"><input type="color" value="${esc(c.color)}" data-k="${c.id}|color" aria-label="Farbe" style="width:28px;height:28px;border:0;background:none;padding:0;cursor:pointer">
+      <div style="flex:1;min-width:180px;display:grid;grid-template-columns:110px 1fr;gap:6px">${inp(c,'short',c.short,'text','aria-label="Kurzname"')}${inp(c,'name',c.name,'text','aria-label="Name"')}</div>
+      </div>
+      <div class="kgrid"><label>Code${inp(c,'code',c.code)}</label><label>LP${inp(c,'lp',c.lp,'number','data-n')}</label><label class="w2">Dozent*in${inp(c,'lecturer',c.lecturer)}</label></div>
       <div class="ksec"><div class="klb">Notizen</div><textarea class="in" data-k="${c.id}|notes" aria-label="Notizen">${esc(c.notes||'')}</textarea></div>
+      `}</div>
       <div style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap"><button class="btn" data-dupc="${c.id}">Duplizieren</button><button class="btn dng" data-delc="${c.id}">Kurs entfernen</button></div></div>`:linkChips(c)+teamLine(c)}</div>`; }).join('')
   +`<div style="display:flex;justify-content:center;margin-top:16px"><button class="btn pri" id="addCourse">+ Kurs hinzufügen</button></div><datalist id="types">${TYPES.map(t=>`<option value="${t}">`).join('')}</datalist>`;
 }
@@ -1020,8 +1159,17 @@ function copyCourses(fromId){ const src=D.semesters.find(s=>s.id===fromId); if(!
   src.courses.forEach(c=>{ const k=normCourse(clone(c)); k.id=uid('k'); k.sheets={}; k.att={}; k.extraGot=null; k.extraMax=null; k.tasks=(k.tasks||[]).map(t=>({...t,done:false}));
     if(k.bonus&&k.bonus.kind==='count') k.bonus.got=0; k.exam={note:''}; k.sub={...k.sub,first:''}; k.slots=k.slots.map(x=>({...x,from:''})); delete k.tutPick; k.team=[]; k.log=[]; S().courses.push(k); });
   save(); render(); renderSemDlg(); toast(`${src.courses.length} Kurse übernommen – Abgabedaten und Klausuren neu eintragen`); }
-function renderSemDlg(isNew){ const s=S();
-  $('semBody').innerHTML=`${isNew?'<p>Neues Semester angelegt. Daten sind Vorschläge – bitte an die echte Vorlesungszeit anpassen.</p>':''}
+function renderSemDlg(isNew){ const s=S(); if(isNew) setTab='sem';
+  const tabs=`<div class="ktabs" role="tablist" aria-label="Einstellungen">${[['sem','Semester'],['me','Meine Daten'],['look','Darstellung']].map(([k,l])=>`<button class="ktab${setTab===k?' on':''}" role="tab" aria-selected="${setTab===k}" data-settab="${k}">${l}</button>`).join('')}</div>`;
+  const th=(()=>{ try{ return localStorage.getItem('sp_theme')||'system'; }catch(e){ return 'system'; } })();
+  if(setTab==='me'){ const m=D.me||{}; $('semBody').innerHTML=tabs+`<p>Für den „📋 Kopieren“-Knopf bei Abgaben: Abgabepartner, darunter du – je Zeile <code>Name; Mail; Mat Nr.: …</code>. Gilt für alle Kurse und Semester.</p>
+      <div class="kgrid"><label class="w4">Name<input class="in" data-me="n" value="${esc(m.n||'')}" autocomplete="off"></label><label class="w3">E-Mail<input class="in" type="email" data-me="e" value="${esc(m.e||'')}" autocomplete="off"></label><label>Matr.-Nr.<input class="in" inputmode="numeric" data-me="m" value="${esc(m.m||'')}" autocomplete="off"></label></div>
+      <div class="acts" style="justify-content:flex-end"><button class="btn pri" id="semDone">Fertig</button></div>`; return; }
+  if(setTab==='look'){ $('semBody').innerHTML=tabs+`<div class="klb">Farbschema</div><div class="chips">${[['system','wie System'],['light','Hell'],['dark','Dunkel']].map(([k,l])=>`<button class="chip ${th===k?'on':''}" data-theme-set="${k}">${l}</button>`).join('')}</div>
+      <div class="klb">Woche – Standardansicht</div><div class="chips">${[['raster','Stundenplan'],['liste','Liste']].map(([k,l])=>`<button class="chip ${wMode===k?'on':''}" data-wdef="${k}">${l}</button>`).join('')}</div>
+      <p style="font-size:12px">Diese Einstellungen gelten nur auf diesem Gerät.</p>
+      <div class="acts" style="justify-content:flex-end"><button class="btn pri" id="semDone">Fertig</button></div>`; return; }
+  $('semBody').innerHTML=tabs+`${isNew?'<p>Neues Semester angelegt. Daten sind Vorschläge – bitte an die echte Vorlesungszeit anpassen.</p>':''}
     <div class="kgrid"><label class="w2">Bezeichnung<input class="in" data-sem="label" value="${esc(s.label||'')}"></label><label>Fachsemester<input class="in" type="number" min="1" max="20" data-sem="nr" value="${esc(s.nr??'')}"></label><label></label>
       <label class="w2">Vorlesungsbeginn<input class="in" type="date" data-sem="start" value="${esc(s.start||'')}"></label><label class="w2">Vorlesungsende<input class="in" type="date" data-sem="end" value="${esc(s.end||'')}"></label></div>
     <div class="klb">Vorlesungsfreie Zeiten<button class="btn" data-semadd>+ Pause</button></div>
@@ -1035,8 +1183,49 @@ function hideSem(){ $('ovSem').classList.remove('show'); }
 function setPath(o,p,v){ const k=p.split('.'); let x=o; for(let i=0;i<k.length-1;i++){ if(x[k[i]]==null) x[k[i]]=/^\d+$/.test(k[i+1])?[]:{}; x=x[k[i]]; } x[k[k.length-1]]=v; }
 function go(v){ view=v; keep.clear(); editSheet=null; try{localStorage.setItem('sp_view',v);}catch(e){} render(); window.scrollTo(0,0); }
 const sheetOf=k=>{ const [id,no]=k.split('|'), c=C(id); return {c,no,st:(c.sheets[no]=c.sheets[no]||{})}; };
+/* Status einen Schritt zurück: Rechtsklick, auf Touch-Geräten lange drücken */
+function sheetBack(k){ const {c,no,st}=sheetOf(k), cur=sheets(c).find(s=>String(s.no)===String(no)); if(!cur) return; keep.add(k);
+  const auto=()=>{ delete st.s; delete st.f; delete st.w; };
+  if(cur.free){ if(cur.s>=2){ delete st.s; st.w=true; st.s=1; } else if(cur.w) auto(); else return toast('Schon im Ausgangsstatus'); }
+  else if(cur.s===3) st.s=2;                                   // bewertet → abgegeben (Punkte bleiben)
+  else if(cur.s===2){ st.s=1; st.f=true; delete st.w; }        // abgegeben → fertig
+  else if(cur.f){ delete st.f; st.w=true; st.s=1; }            // fertig → in Bearbeitung
+  else if(cur.w||cur.manual) auto();                           // in Bearbeitung → automatisch (läuft/offen)
+  else return toast('Schon im Ausgangsstatus');
+  save(); render(); }
+document.addEventListener('contextmenu',e=>{ const t=e.target.closest('[data-sheet]'); if(!t) return; e.preventDefault(); sheetBack(t.dataset.sheet); });
+let lpT=null, lpDone=false;
+document.addEventListener('pointerdown',e=>{ const t=e.target.closest('[data-sheet]'); if(!t||e.pointerType==='mouse') return; lpDone=false; clearTimeout(lpT);
+  lpT=setTimeout(()=>{ lpDone=true; if(navigator.vibrate) try{navigator.vibrate(15);}catch(_){} sheetBack(t.dataset.sheet); },550); });
+['pointerup','pointercancel','pointerleave','scroll'].forEach(ev=>document.addEventListener(ev,()=>clearTimeout(lpT),true));
+document.addEventListener('click',e=>{ if(lpDone&&e.target.closest('[data-sheet]')){ lpDone=false; e.preventDefault(); e.stopImmediatePropagation(); } },true);
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-ttday],[data-tstart],[data-tstop],[data-logadd],[data-logrm],[data-teamcopy],[data-wmode],[data-ktog],[data-kall],[data-cal],[data-calm],[data-v],[data-go],[data-sheet],[data-sedit],[data-sreset],[data-f],[data-wk],[data-edit],[data-add],[data-rm],[data-delc],[data-dupc],[data-mv],[data-att],[data-bonus],[data-delev],[data-semadd],[data-semrm],#addCourse,#semCopy,#semDel,#semDone'); if(!t) return;
+  const t=e.target.closest('[data-choice],[data-admtext],[data-relmode],[data-relcal],[data-opensettings],[data-ktab],[data-settab],[data-theme-set],[data-wdef],[data-ttday],[data-tstart],[data-tstop],[data-logadd],[data-logrm],[data-teamcopy],[data-wmode],[data-ktog],[data-kall],[data-cal],[data-calm],[data-v],[data-go],[data-sheet],[data-sedit],[data-sreset],[data-f],[data-wk],[data-edit],[data-add],[data-rm],[data-delc],[data-dupc],[data-mv],[data-att],[data-bonus],[data-delev],[data-semadd],[data-semrm],#addCourse,#semCopy,#semDel,#semDone'); if(!t) return;
+  if(t.dataset.choice){ const [id,p,v]=t.dataset.choice.split('|'), c=C(id), cur=p.split('.').reduce((o,k)=>o&&o[k],c);
+    if(cur===v||(p==='adm.kind'&&!cur&&v==='unknown')||(p==='bonus.kind'&&!cur&&v==='none')){ return; }
+    if(e.target.closest('input')){ /* Tippen in eine andere Karte: erst Karte wählen, Feld behält Fokus */ }
+    if(p==='bonus.kind'&&c.bonus){ if(c.bonus.kind==='linear') c.bonus._linMax=c.bonus.max; if(c.bonus.kind==='count') c.bonus._cntMax=c.bonus.max; }
+    setPath(c,p,v);
+    if(p==='bonus.kind'){ if(v==='linear') c.bonus.max=c.bonus._linMax??10; if(v==='count') c.bonus.max=c.bonus._cntMax??5; }
+    if(p==='adm.kind'&&v==='attendance'){ c.adm.need=c.adm.need??9; c.adm.of=c.adm.of??12; c.adm.slot=c.adm.slot||'Tutorium'; }
+    if(p==='adm.kind'&&v==='points'&&c.adm.pct==null) c.adm.pct=50;
+    if(p==='bonus.kind'){ c.bonus=c.bonus||{}; if(v==='linear'){ c.bonus.from=c.bonus.from??60; c.bonus.to=c.bonus.to??100; c.bonus.max=c.bonus.max??10; } if(v==='count'){ c.bonus.max=c.bonus.max??5; c.bonus.got=c.bonus.got??0; } }
+    save(); const f=e.target.closest('input')?e.target.closest('input').dataset.k:null; render(); if(f){ const el=document.querySelector(`[data-k="${f}"]`); if(el) el.focus(); } return; }
+  if(t.dataset.admtext){ const c=C(t.dataset.admtext); c.adm.text=admTextAuto(c); save(); render(); return toast('Regeltext erzeugt – du kannst ihn noch anpassen'); }
+  if(t.dataset.relmode){ const [id,m]=t.dataset.relmode.split('|'), c=C(id);
+    if(e.target.closest('input')){ if(c.sub.relMode!==m&&!(m==='before'&&!c.sub.relMode)){ c.sub.relMode=m; save(); t.parentElement.querySelectorAll('.relopt').forEach(x=>x.classList.toggle('on',x===t)); const pv=$('kp-'+id); if(pv) pv.innerHTML=sheetPreview(c); } else if(m==='before'&&c.sub.relMode==='after'){} return; }
+    c.sub.relMode=m; if(m==='after'&&c.sub.relAfter==null) c.sub.relAfter=1; save(); return render(); }
+  if(t.dataset.relcal){ const id=t.dataset.relcal, c=C(id), no=+$('rc-n-'+id).value, d=$('rc-d-'+id).value, tm=$('rc-t-'+id).value; const sh=sheets(c).filter(x=>!x.skip), x=sh.find(y=>y.no===no);
+    if(!x||!d) return toast('Blatt und Datum wählen'); const rel=day0(d); if(rel>sod(x.due)) return toast('Das Datum liegt nach der Abgabe');
+    const prev=sh.filter(y=>y.no<no).pop(); c.sub.relTime=tm||''; const lenDays=Math.round((sod(x.due)-rel)/864e5);
+    if(c.sub.relMode==='after'&&prev){ c.sub.relAfter=Math.max(0,Math.round((rel-sod(prev.due))/864e5)); toast(`Übernommen: erscheint ${c.sub.relAfter} Tag(e) nach der vorigen Abgabe${tm?' um '+tm:''}`); }
+    else { c.sub.relMode='before'; c.sub.len=Math.max(1,lenDays); toast(`Übernommen: erscheint ${c.sub.len} Tage vor der Abgabe${tm?' um '+tm:''}`); }
+    save(); return render(); }
+  if(t.dataset.opensettings){ setTab=t.dataset.opensettings; return showSem(false); }
+  if(t.dataset.ktab){ const [id,k]=t.dataset.ktab.split('|'); kTab[id]=k; try{localStorage.setItem('sp_ktab',JSON.stringify(kTab));}catch(_){} return render(); }
+  if(t.dataset.settab){ setTab=t.dataset.settab; return renderSemDlg(); }
+  if(t.dataset.themeSet){ const v=t.dataset.themeSet; if(v==='system'){ document.documentElement.removeAttribute('data-theme'); try{localStorage.removeItem('sp_theme');}catch(_){} } else setTheme(v); return renderSemDlg(); }
+  if(t.dataset.wdef){ wMode=t.dataset.wdef; try{localStorage.setItem('sp_wmode',wMode);}catch(_){} render(); return renderSemDlg(); }
   if(t.dataset.ttday){ ttDay=+t.dataset.ttday; return render(); }
   if(t.dataset.tstart) return timerStart(t.dataset.tstart);
   if(t.dataset.tstop) return timerStop();
@@ -1054,12 +1243,14 @@ document.addEventListener('click',e=>{
   if(t.dataset.v) return go(t.dataset.v);
   if(t.dataset.go) return go(t.dataset.go);
   if(t.dataset.sheet){ const k=t.dataset.sheet, {c,no,st}=sheetOf(k), cur=sheets(c).find(s=>String(s.no)===String(no)); keep.add(k);
-    if(cur&&cur.free){ if(st.s>=2) delete st.s; else st.s=2; }            // freiwillig: läuft → erledigt → automatisch
-    else if(st.s===3){ delete st.s; delete st.f; }                          // nach „bewertet“ wieder automatisch
-    else if(cur&&cur.f){ delete st.f; st.s=2; }                             // fertig → abgegeben
-    else if(cur&&cur.s===1){ st.f=true; st.s=1; }                           // läuft → fertig bearbeitet
-    else { delete st.f; st.s=Math.min(3,(cur?cur.s:0)+1); }
-    save(); return render(); }
+    if(cur&&cur.free){                                                      // freiwillig: läuft → in Bearbeitung → erledigt (Ende)
+      if(cur.s>=2) return toast('Schon im Endstatus – Rechtsklick bzw. lange drücken geht zurück'); else if(cur.w){ delete st.w; st.s=2; } else if(cur.s===1){ st.w=true; st.s=1; } else st.s=2; }
+    else if(st.s===3) return toast('Schon im Endstatus – Rechtsklick bzw. lange drücken geht zurück');   // „bewertet“ ist das Ende
+    else if(cur&&cur.f){ delete st.f; delete st.w; st.s=2; }                // fertig → abgegeben
+    else if(cur&&cur.w){ delete st.w; st.f=true; st.s=1; }                  // in Bearbeitung → fertig
+    else if(cur&&cur.s===1){ st.w=true; st.s=1; }                           // läuft → in Bearbeitung
+    else { delete st.f; delete st.w; st.s=Math.min(3,(cur?cur.s:0)+1); }
+    save(); render(); if(st.s===3){ const pi=document.querySelector(`[data-pts="${k}|p"]`); if(pi) pi.focus(); } return; }
   if(t.dataset.sedit){ editSheet=editSheet===t.dataset.sedit?null:t.dataset.sedit; keep.add(t.dataset.sedit); return render(); }
   if(t.dataset.sreset){ const {st}=sheetOf(t.dataset.sreset); delete st.due; delete st.s; delete st.skip; save(); toast('Blatt zurückgesetzt'); return render(); }
   if(t.dataset.f){ filt=t.dataset.f; return render(); }
@@ -1111,6 +1302,7 @@ document.addEventListener('change',e=>{
     if(p==='bonus.kind'){ c.bonus=c.bonus||{}; if(v==='linear'){ c.bonus.from=c.bonus.from??60; c.bonus.to=c.bonus.to??100; c.bonus.max=c.bonus.max??10; } if(v==='count'){ c.bonus.max=c.bonus.max??5; c.bonus.got=c.bonus.got??0; } }
     save();
     if(el.dataset.rerender!==undefined) return render();
+    if(/^sub\./.test(p)){ const pv=$('kp-'+c.id); if(pv) pv.innerHTML=sheetPreview(c); }
     if(/^sub\./.test(p)){ const box=$('ki-'+c.id); if(box) box.textContent=sheetInfo(c)+' · Einzelne Blätter verschiebst oder streichst du unter „Abgaben“ (✎).'; }
   }
 });
