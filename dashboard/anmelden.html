@@ -1,0 +1,87 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#5B4BE0"><title>Anmelden · {{TITLE}}</title><link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="icon" type="image/png" sizes="64x64" href="/icons/uni-64.png"><link rel="apple-touch-icon" href="/icons/uni-180.png">
+<script>try{var t=localStorage.getItem('launcher_theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
+<style>
+:root{--bg:#EEF1F8;--card:#fff;--card2:#F6F8FC;--card3:#E9EEF6;--ink:#141B2C;--muted:#5C6680;--border:#E1E6F0;--accent:#5B4BE0;--bad:#A8241A;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0D1016;--card:#161B25;--card2:#1B212D;--card3:#242C3A;--ink:#EAEEF6;--muted:#98A3B8;--border:#28303F;--accent:#8B7CF5;--bad:#FF8577;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0D1016;--card:#161B25;--card2:#1B212D;--card3:#242C3A;--ink:#EAEEF6;--muted:#98A3B8;--border:#28303F;--accent:#8B7CF5;--bad:#FF8577;color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh;display:grid;place-items:center;padding:max(24px,env(safe-area-inset-top)) 16px 24px;-webkit-font-smoothing:antialiased}
+.card{width:100%;max-width:420px;background:var(--card);border:1px solid var(--border);border-radius:22px;padding:24px;display:flex;flex-direction:column;gap:16px;box-shadow:0 8px 24px rgba(20,27,44,.08)}
+h1{font-family:"Space Grotesk",Inter,sans-serif;font-size:23px;letter-spacing:-.3px}
+p{color:var(--muted);font-size:14px}
+.note{background:color-mix(in srgb,var(--bad) 10%,var(--card));color:var(--ink);border-radius:12px;padding:10px 12px;font-size:13.5px}
+.av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:16px;flex:none}
+.pp{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.pp button{display:flex;align-items:center;gap:12px;min-height:60px;padding:10px 12px;border-radius:14px;border:1.5px solid var(--border);background:var(--card2);color:var(--ink);font:inherit;font-weight:600;cursor:pointer;text-align:left}
+.pp button:hover{border-color:var(--accent)}
+.pp button[aria-current="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--card))}
+.pp .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pp svg{width:16px;height:16px;color:var(--muted);flex:none}
+.who{display:flex;align-items:center;gap:12px}.who b{font-family:"Space Grotesk",Inter,sans-serif;font-size:19px}
+input{width:100%;padding:13px;border:1px solid var(--border);border-radius:12px;background:var(--card2);color:var(--ink);font:inherit;font-size:18px;letter-spacing:.1em;text-align:center}
+input:focus{outline:none;border-color:var(--accent)}
+.card.lockm{background:transparent;border-color:transparent;box-shadow:none;align-items:center;gap:0;padding:8px 0}
+.lockm .who{flex-direction:column;gap:10px}.lockm .who .av{width:64px;height:64px;font-size:26px}
+.lockm .ttl{font-size:17px;font-weight:600;margin-top:14px;text-align:center}
+.lockm .bk{margin-top:22px;background:none;border:0;color:var(--muted);font:600 15px Inter,sans-serif;min-height:44px;cursor:pointer}
+@media(max-height:640px){.lockm .who .av{width:48px;height:48px;font-size:20px}}
+.lockm #pph{width:100%;margin-top:14px}
+.btn{min-height:46px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--ink);font:inherit;font-weight:700;cursor:pointer;padding:0 16px}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn:disabled{opacity:.6}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row .btn{flex:1}
+.err{color:var(--bad);font-size:13.5px;font-weight:600;min-height:1.2em;text-align:center}
+.lk{color:var(--muted);font-size:13px;text-align:center}
+a{color:var(--accent);font-weight:600;text-decoration:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style></head><body>
+<main class="card" id="c" aria-live="polite"></main>
+<script src="/pinpad.js"></script>
+<script>
+var ROLE={{ROLE}}, PERS={{PERSONEN}}, Q=new URLSearchParams(location.search), z=Q.get('z')||'/', sel=null, pin='';
+if(!/^\/(?!\/)/.test(z)) z='/';
+var LOCK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-label="mit PIN"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+function $(i){ return document.getElementById(i); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function P(id){ return PERS.filter(function(p){ return p.id===id; })[0]; }
+function av(p){ return '<span class="av" style="background:'+esc(p.farbe||'#7D8597')+'">'+esc((p.name||'?').charAt(0).toUpperCase())+'</span>'; }
+function done(pid){ try{ localStorage.setItem('pd_person',pid||''); }catch(e){} location.replace(z+(z.indexOf('#')<0?location.hash:'')); }   // #… (z. B. #ean= vom Kurzbefehl) bleibt erhalten
+function post(url,body){ return fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{}),credentials:'same-origin'}); }
+function pick(){ var me=P(ROLE.pid); sel=null; $('c').className='card';
+  $('c').innerHTML='<h1>Wer bist du?</h1>'
+    +(Q.get('kein')&&me?'<div class="note"><b>'+esc(me.name)+'</b> hat keinen Zugriff auf diese Seite. Melde dich als andere Person an oder geh <a href="/">zum Dashboard</a>.</div>':'')
+    +'<p>Das Gerät merkt sich die Anmeldung. Personen mit Schloss brauchen ihre PIN bzw. ihr Passwort – nur einmal pro Gerät.</p>'
+    +'<div class="pp">'+PERS.map(function(p){ return '<button data-p="'+esc(p.id)+'" aria-current="'+(p.id===ROLE.pid)+'">'+av(p)+'<span class="nm">'+esc(p.name)+'</span>'+(ROLE.lock[p.id]&&!ROLE.open?LOCK:'')+'</button>'; }).join('')+'</div>'
+    +(me&&!Q.get('kein')?'<div class="row"><button class="btn" id="out">Abmelden</button><button class="btn pri" id="go">Weiter als '+esc(me.name)+'</button></div>':''); }
+function plen(){ return (ROLE.plen||{})[sel.id]||0; }
+function askPin(p){ sel=p; var c=$('c'); c.className='card lockm';
+  c.innerHTML='<div class="who">'+av(p)+'</div><div id="pph"></div><button class="bk" id="back">Andere Person</button>';
+  PinPad($('pph'),{title:'PIN für '+p.name+' eingeben',len:plen(),onCancel:pick,onDone:function(pin){
+    return post('/api/anmelden',{pid:p.id,pw:pin}).then(function(r){ if(r.ok){ done(p.id); return true; } return r.status===429?'Zu viele Versuche – bitte 15 Minuten warten.':'Falsche PIN'; },
+      function(){ return 'Pi nicht erreichbar.'; }); }}); }
+function ask(p){ sel=p; pin=''; var k=ROLE.lock[p.id]; if(k==='pin') return askPin(p); $('c').className='card';
+  $('c').innerHTML='<div class="who">'+av(p)+'<b>'+esc(p.name)+'</b></div><p>Passwort eingeben</p>'
+    +'<form id="f"><input type="text" name="username" autocomplete="username" value="'+esc(p.id)+'" hidden>'
+    +'<input id="pw" type="password" autocomplete="current-password" aria-label="Passwort"></form>'
+    +'<button class="btn pri" id="ok">Anmelden</button>'
+    +'<div class="err" id="err" role="alert"></div><button class="btn" id="back">Zurück</button>';
+  setTimeout(function(){ $('pw').focus(); },40); }
+function login(){ var b=document.querySelector('.ok,#ok'); if(b) b.disabled=true; $('err').textContent='';
+  post('/api/anmelden',{pid:sel.id,pw:$('pw').value}).then(function(r){ if(r.ok) return done(sel.id); if(b) b.disabled=false; $('pw').value='';
+    $('err').textContent=r.status===429?'Zu viele Versuche – bitte 15 Minuten warten.':'Passwort stimmt nicht.'; })
+  .catch(function(){ if(b) b.disabled=false; $('err').textContent='Pi nicht erreichbar.'; }); }
+document.addEventListener('click',function(e){ var t=e.target.closest('button'); if(!t) return;
+  if(t.dataset.p){ var p=P(t.dataset.p); if(p.id===ROLE.pid&&!Q.get('kein')) return done(p.id);
+    if(ROLE.lock[p.id]&&!ROLE.open) return ask(p);
+    post('/api/anmelden',{pid:p.id}).then(function(r){ if(r.ok) done(p.id); }); return; }
+  if(t.id==='go') return done(ROLE.pid);
+  if(t.id==='out') return post('/api/abmelden').then(function(){ ROLE.pid=null; try{ localStorage.setItem('pd_person',''); }catch(_){} pick(); });
+  if(t.id==='back') return pick();
+  if(t.id==='ok') return login();
+});
+document.addEventListener('submit',function(e){ e.preventDefault(); login(); });
+pick();
+</script></body></html>
