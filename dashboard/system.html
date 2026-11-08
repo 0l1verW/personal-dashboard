@@ -1,0 +1,160 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#5B4BE0"><title>System &amp; Sicherung · {{TITLE}}</title><link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="icon" type="image/png" sizes="64x64" href="/icons/uni-64.png"><link rel="apple-touch-icon" href="/icons/uni-180.png">
+<script>try{var t=localStorage.getItem('launcher_theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
+<style>
+:root{--bg:#EEF1F8;--card:#fff;--card2:#F6F8FC;--card3:#E9EEF6;--ink:#141B2C;--muted:#5C6680;--faint:#646D84;--border:#E1E6F0;--border2:#CBD3E2;--accent:#5B4BE0;--good:#0D7038;--good-bg:#16A85A;--bad:#A8241A;--bad-bg:#D63F30;--warn:#8F5400;--warn-bg:#D99318;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0D1016;--card:#161B25;--card2:#1B212D;--card3:#242C3A;--ink:#EAEEF6;--muted:#98A3B8;--faint:#8A95AA;--border:#28303F;--border2:#3A4458;--accent:#8B7CF5;--good:#5AD597;--good-bg:#2FC473;--bad:#FF8577;--bad-bg:#F0604F;--warn:#F2B65C;--warn-bg:#E5A23A;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0D1016;--card:#161B25;--card2:#1B212D;--card3:#242C3A;--ink:#EAEEF6;--muted:#98A3B8;--faint:#8A95AA;--border:#28303F;--border2:#3A4458;--accent:#8B7CF5;--good:#5AD597;--good-bg:#2FC473;--bad:#FF8577;--bad-bg:#F0604F;--warn:#F2B65C;--warn-bg:#E5A23A;color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+main{max-width:860px;margin:0 auto;padding:max(24px,env(safe-area-inset-top)) 16px 60px;display:flex;flex-direction:column;gap:16px}
+header{display:flex;align-items:center;gap:12px}
+h1{font-family:"Space Grotesk",Inter,sans-serif;font-size:26px;letter-spacing:-.4px;flex:1}
+h2{font-family:"Space Grotesk",Inter,sans-serif;font-size:18px;display:flex;align-items:center;gap:10px}
+h2 small{font:500 12.5px Inter,sans-serif;color:var(--muted);margin-left:auto}
+.back{display:inline-flex;align-items:center;gap:6px;height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--ink);text-decoration:none;font-weight:600;font-size:14px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.hw{display:flex;flex-direction:column;gap:8px}
+.h{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;font-size:14px;background:var(--card2)}
+.h i{width:9px;height:9px;border-radius:50%;flex:none;margin-top:6px;background:var(--muted)}
+.h.rot{background:color-mix(in srgb,var(--bad-bg) 13%,var(--card))}.h.rot i{background:var(--bad-bg)}
+.h.gelb{background:color-mix(in srgb,var(--warn-bg) 14%,var(--card))}.h.gelb i{background:var(--warn-bg)}
+.h.ok{background:color-mix(in srgb,var(--good-bg) 12%,var(--card))}.h.ok i{background:var(--good-bg)}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.st{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.st .l{font:600 11.5px Inter,sans-serif;letter-spacing:.5px;text-transform:uppercase;color:var(--muted)}
+.st b{font:700 22px "JetBrains Mono",ui-monospace,monospace;letter-spacing:-.5px}
+.st .s{font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
+.st.ok b{color:var(--good)}.st.gelb b{color:var(--warn)}.st.rot b{color:var(--bad)}
+.bar{height:6px;border-radius:3px;background:var(--card3);overflow:hidden;margin-top:2px}.bar i{display:block;height:100%;border-radius:3px;background:var(--accent)}
+.st.gelb .bar i{background:var(--warn-bg)}.st.rot .bar i{background:var(--bad-bg)}
+.tl{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--muted)}.tl span{display:inline-flex;align-items:center;gap:6px}.tl i{width:8px;height:8px;border-radius:50%}
+.last{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.last .big{display:flex;flex-direction:column;flex:1;min-width:200px}
+.last .big b{font-size:17px}.last .big span{font-size:13px;color:var(--muted)}
+.btn{min-height:44px;padding:9px 14px;border-radius:11px;border:1px solid var(--border2);background:var(--card);cursor:pointer;font-weight:600;font-size:14px;text-decoration:none;color:var(--ink);display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}.btn.pri:hover{color:#fff;filter:brightness(1.08)}
+.btn.dng:hover{border-color:var(--bad-bg);color:var(--bad)}
+.btn.sm{min-height:36px;padding:6px 11px;font-size:13px}
+.btn:disabled{opacity:.6;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.lt{font:600 11.5px Inter,sans-serif;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--border);background:var(--card2);cursor:pointer;text-align:left;width:100%}
+.opt[aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--card))}
+.opt .rd{width:18px;height:18px;border-radius:50%;border:2px solid var(--border2);flex:none;display:grid;place-items:center}
+.opt[aria-pressed="true"] .rd{border-color:var(--accent)}.opt[aria-pressed="true"] .rd::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.opt b{font-weight:600}.opt span.s{font-size:12.5px;color:var(--muted);margin-left:auto;text-align:right}
+.hint{font-size:13px;color:var(--muted)}
+.hint code,.code{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;background:var(--card2);border:1px solid var(--border);padding:8px 10px;border-radius:10px;display:block;word-break:break-all;margin-top:6px;color:var(--ink)}
+.sw{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-weight:600}
+.sw input{appearance:none;width:46px;height:28px;border-radius:99px;background:var(--card3);border:1px solid var(--border2);position:relative;cursor:pointer;transition:background .15s;flex:none}
+.sw input::after{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .15s}
+.sw input:checked{background:var(--accent);border-color:var(--accent)}.sw input:checked::after{left:20px}
+input[type=time]{padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--card2);min-height:40px}
+.list{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.li{display:flex;align-items:center;gap:10px;padding:8px 10px;flex-wrap:wrap}
+.li+.li{border-top:1px solid var(--border)}
+.li .w{flex:1;min-width:160px;display:flex;flex-direction:column}
+.li .w b{font-weight:600;font-size:14px}.li .w span{font-size:12px;color:var(--muted)}
+.tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--card3);color:var(--muted)}
+.tag.usb{background:color-mix(in srgb,var(--good-bg) 15%,transparent);color:var(--good)}
+.tag.vor{background:color-mix(in srgb,var(--warn-bg) 16%,transparent);color:var(--warn)}
+.empty{font-size:13.5px;color:var(--muted);padding:12px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--card);padding:10px 14px;border-radius:12px;font-size:14px;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none;max-width:calc(100vw - 24px);text-align:center}
+.toast.show{opacity:1}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:520px){.opt{flex-wrap:wrap}.opt span.s{margin-left:30px;text-align:left;width:100%}h1{font-size:22px}.card{padding:14px}.stats{grid-template-columns:1fr 1fr}.st b{font-size:19px}}
+</style></head><body>
+<main>
+  <header><a class="back" href="/">← Dashboard</a><h1>System &amp; Sicherung</h1></header>
+  <div class="hw" id="hw"></div>
+  <section class="card" aria-labelledby="h1z"><h2 id="h1z">Zustand des Pi <small id="zt"></small></h2><div class="stats" id="stats"></div><div class="tl" id="tools"></div></section>
+  <section class="card" aria-labelledby="h2s"><h2 id="h2s">Sicherung</h2>
+    <div class="last" id="last"></div>
+    <div class="row"><button class="btn pri" id="now">Jetzt sichern</button><a class="btn" id="dl" href="/api/system_download">Herunterladen (.zip)</a></div>
+    <p class="hint">Gesichert wird alles: alle Tools, Personen, Rechte, PINs/Passwörter, Kurzinfos und Kalender-Abos. Die heruntergeladene Datei kannst du z. B. in iCloud oder auf dem PC ablegen.</p>
+  </section>
+  <section class="card" aria-labelledby="h3o"><h2 id="h3o">Wohin und wann</h2>
+    <div class="opts" id="ziele" role="radiogroup" aria-label="Sicherungsziel"></div>
+    <div id="usbhint"></div>
+    <div class="row"><label class="sw"><input type="checkbox" id="auto"> Jede Nacht automatisch</label><span class="hint">um</span><input type="time" id="uhr" aria-label="Uhrzeit"></div>
+  </section>
+  <section class="card" aria-labelledby="h4l"><h2 id="h4l">Vorhandene Sicherungen <small id="cnt"></small></h2>
+    <div class="list" id="list"></div>
+    <div id="restore"></div>
+  </section>
+</main>
+<input type="file" id="file" accept=".zip,application/zip" hidden>
+<div class="toast" id="toast" role="status"></div>
+<script>
+var D=null, busy=false;
+function $(i){ return document.getElementById(i); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function toast(m,ms){ var t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(function(){ t.classList.remove('show'); },ms||2800); }
+function req(m,u,b,ct){ return fetch(u,{method:m,headers:{'Content-Type':ct||'application/json'},body:b,credentials:'same-origin'}); }
+function fB(n){ if(n==null) return '–'; var u=['B','KB','MB','GB','TB'], i=0; while(n>=1024&&i<4){ n/=1024; i++; } return (i?n.toFixed(n<10?1:0):n)+' '+u[i]; }
+function fDur(s){ if(s==null) return '–'; var d=Math.floor(s/86400), h=Math.floor(s%86400/3600), m=Math.floor(s%3600/60); return d?d+' T '+h+' Std':h?h+' Std '+m+' Min':m+' Min'; }
+function fWhen(ts){ if(!ts) return '–'; var d=new Date(ts), now=new Date(), t=d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+  var k=function(x){ return x.toDateString(); }, y=new Date(now); y.setDate(now.getDate()-1);
+  return (k(d)===k(now)?'heute':k(d)===k(y)?'gestern':d.toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'numeric',year:d.getFullYear()!==now.getFullYear()?'numeric':undefined}))+', '+t; }
+function st(l,v,s,ton,pct){ return '<div class="st '+(ton||'')+'"><span class="l">'+l+'</span><b>'+v+'</b>'+(pct!=null?'<div class="bar"><i style="width:'+Math.max(2,Math.min(100,pct))+'%"></i></div>':'')+(s?'<span class="s">'+s+'</span>':'')+'</div>'; }
+function drawZustand(){ var z=D.zustand, H=D.hinweise;
+  $('hw').innerHTML=H.filter(function(h){ return h.ton!=='info'; }).map(function(h){ return '<div class="h '+h.ton+'"><i></i><span>'+esc(h.text)+'</span></div>'; }).join('')
+    || '<div class="h ok"><i></i><span>Alles in Ordnung.</span></div>';
+  $('zt').textContent=z.modell.replace(/ Rev [\d.]+$/,'')+' · '+z.host;
+  var t=z.temp, sd=z.sd, sdU=sd.gesamt?(1-sd.frei/sd.gesamt)*100:0, ram=z.ram, ramU=ram&&ram.gesamt?(1-ram.frei/ram.gesamt)*100:null, s=z.strom;
+  var ld=z.last?Math.round(z.last[0]/(z.kerne||1)*100):null;
+  $('stats').innerHTML=
+     st('Temperatur',t==null?'–':t.toFixed(0)+' °C',t==null?'nicht verfügbar':t>=80?'zu heiß':t>=70?'warm':'normal',t==null?'':t>=80?'rot':t>=70?'gelb':'ok')
+    +st('SD-Karte',fB(sd.frei)+' frei','von '+fB(sd.gesamt),sdU>95?'rot':sdU>85?'gelb':'',sdU)
+    +(ram?st('Arbeitsspeicher',fB(ram.frei)+' frei','von '+fB(ram.gesamt),ramU>90?'gelb':'',ramU):'')
+    +(ld!=null?st('Auslastung',ld+' %','Durchschnitt der letzten Minute',ld>90?'gelb':'',ld):'')
+    +st('Stromversorgung',!s?'–':s.unterspannung?'Zu schwach':s.war_unterspannung?'Schwankend':'In Ordnung',!s?'nur auf dem Pi messbar':s.gedrosselt?'Pi drosselt gerade':s.war_gedrosselt?'war zeitweise gedrosselt':'keine Unterspannung',!s?'':s.unterspannung?'rot':s.war_unterspannung?'gelb':'ok')
+    +st('Läuft seit',fDur(z.laufzeit),'Dashboard-Dienst: '+fDur(Math.round((z.jetzt-z.seit)/1000)))
+    +st('Daten',fB(z.daten.groesse),'+ '+fB(z.daten.tagessicherungen)+' Tages-Sicherungen je Tool');
+  $('tools').innerHTML=z.tools.map(function(x){ return '<span><i style="background:'+esc(x.farbe||'#7D8597')+'"></i>'+esc(x.titel)+': '+(x.geaendert?'zuletzt '+esc(fWhen(x.geaendert)):'noch keine Daten')+'</span>'; }).join(''); }
+function drawSich(){ var S=D.sicherung, L=S.letzte;
+  $('last').innerHTML='<div class="big"><span>Letzte Komplettsicherung</span>'+(L?(L.ok?'<b>'+esc(fWhen(L.ts))+'</b><span>'+(L.ort==='usb'?'auf dem USB-Stick':'auf der SD-Karte')+' · '+fB(L.groesse)+' · '+L.dateien+' Dateien'+(L.grund==='manuell'?' · von Hand':'')+'</span>':'<b style="color:var(--bad)">fehlgeschlagen</b><span>'+esc(fWhen(L.ts)+' – '+(L.fehler||''))+'</span>'):'<b>noch keine</b><span>'+S.dateien+' Dateien warten auf die erste Sicherung</span>')+'</div>';
+  var Z=[{pfad:'',name:'SD-Karte im Pi',s:'immer vorhanden – hilft nicht, wenn die Karte kaputtgeht'}].concat(S.ziele.map(function(u){ return {pfad:u.pfad,name:'USB: '+u.name,s:fB(u.frei)+' frei von '+fB(u.gesamt)}; }));
+  if(S.ziel&&!S.ziele.some(function(u){ return u.pfad===S.ziel; })) Z.push({pfad:S.ziel,name:'USB: '+S.ziel.split('/').pop(),s:'nicht eingesteckt – solange auf die SD-Karte',miss:1});
+  $('ziele').innerHTML=Z.map(function(x){ return '<button class="opt" role="radio" data-ziel="'+esc(x.pfad)+'" aria-pressed="'+(S.ziel===x.pfad)+'" aria-checked="'+(S.ziel===x.pfad)+'"'+(x.miss?' disabled':'')+'><span class="rd"></span><b>'+esc(x.name)+'</b><span class="s">'+esc(x.s)+'</span></button>'; }).join('');
+  $('usbhint').innerHTML=S.ziele.length?'':'<p class="hint">Kein USB-Stick gefunden. Stick einstecken – auf dem Pi-Desktop wird er automatisch eingebunden. Bei Raspberry Pi OS <b>Lite</b> einmalig auf dem Pi (Stick mit Namen <b>SICHERUNG</b>, FAT/exFAT):'
+    +'<span class="code">sudo mkdir -p /mnt/usb && echo "LABEL=SICHERUNG /mnt/usb auto defaults,nofail,uid=$(id -u),gid=$(id -g) 0 0" | sudo tee -a /etc/fstab && sudo systemctl daemon-reload && sudo mount -a</span></p>';
+  if(document.activeElement!==$('uhr')) $('uhr').value=S.uhrzeit; $('auto').checked=!!S.auto;
+  $('cnt').textContent=S.liste.length?S.liste.length+' Stück':'';
+  $('list').innerHTML=S.liste.length?S.liste.map(function(x){ var vor=/-vorher\.zip$/.test(x.name), man=/-manuell\.zip$/.test(x.name);
+      return '<div class="li"><div class="w"><b>'+esc(fWhen(x.ts))+'</b><span>'+fB(x.groesse)+(vor?' · Stand vor einer Wiederherstellung':man?' · von Hand':'')+'</span></div>'
+        +'<span class="tag'+(x.ort==='usb'?' usb':'')+'">'+(x.ort==='usb'?'USB':'SD')+'</span>'+(vor?'<span class="tag vor">vorher</span>':'')
+        +'<a class="btn sm" href="/api/system_datei?ort='+x.ort+'&name='+encodeURIComponent(x.name)+'" aria-label="Herunterladen">↓</a>'
+        +(D.besitzer?'<button class="btn sm dng" data-rest="'+esc(x.name)+'" data-ort="'+x.ort+'">Zurückspielen</button>':'')+'</div>'; }).join('')
+    :'<div class="empty">Noch keine Sicherung vorhanden.</div>';
+  $('restore').innerHTML=D.besitzer?'<div class="row"><button class="btn" id="up">Aus Datei zurückspielen …</button><span class="hint">z. B. eine heruntergeladene .zip</span></div>'
+    :'<p class="hint">Zurückspielen darf nur der Besitzer.</p>'; }
+function load(){ return req('GET','/api/system?t='+Date.now()).then(function(r){ if(r.status===403){ location.href='/anmelden?z=/system&kein=1'; throw 0; } return r.json(); })
+  .then(function(x){ D=x; drawZustand(); drawSich(); }); }
+function setCfg(o){ return req('POST','/api/system_einstellung',JSON.stringify(o)).then(function(r){ if(!r.ok) return r.json().then(function(x){ toast(x.error||'Fehler'); }); return load(); }); }
+function restore(body,ct,label){
+  if(!confirm('„'+label+'“ zurückspielen?\n\nDer jetzige Stand aller Tools, Personen und PINs wird durch die Sicherung ersetzt. Der aktuelle Stand wird vorher automatisch gesichert. Alle Geräte laden beim nächsten Öffnen den zurückgespielten Stand.')) return;
+  busy=true; toast('Wird zurückgespielt …',10000);
+  return body.then(function(b){ return req('POST',b.url,b.data,ct); }).then(function(r){ return r.json().then(function(x){ busy=false;
+      if(!r.ok){ toast(x.error||'Fehler',5000); return; }
+      toast('Zurückgespielt ('+x.dateien+' Dateien). Vorheriger Stand gesichert.',5000); return load(); }); })
+    .catch(function(){ busy=false; toast('Pi nicht erreichbar',4000); }); }
+document.addEventListener('click',function(e){ var t=e.target.closest('button'); if(!t||t.disabled) return; var d=t.dataset;
+  if(t.id==='now'){ t.disabled=true; t.textContent='Sichert …'; return req('POST','/api/system_sichern','{}').then(function(r){ return r.json(); }).then(function(x){ t.disabled=false; t.textContent='Jetzt sichern';
+      toast(x.ok?'Gesichert – '+fB(x.groesse)+(x.ort==='usb'?' auf dem USB-Stick':' auf der SD-Karte'):'Fehlgeschlagen: '+(x.fehler||''),4000); return load(); }).catch(function(){ t.disabled=false; t.textContent='Jetzt sichern'; toast('Pi nicht erreichbar'); }); }
+  if(d.ziel!=null) return setCfg({ziel:d.ziel});
+  if(d.rest) return restore(Promise.resolve({url:'/api/system_zurueck?ort='+d.ort+'&name='+encodeURIComponent(d.rest),data:'{}'}),'application/json','Sicherung vom '+fWhen((D.sicherung.liste.filter(function(x){ return x.name===d.rest; })[0]||{}).ts));
+  if(t.id==='up') return $('file').click();
+});
+$('auto').addEventListener('change',function(){ setCfg({auto:this.checked}); });
+$('uhr').addEventListener('change',function(){ if(this.value) setCfg({uhrzeit:this.value}); });
+$('file').addEventListener('change',function(){ var f=this.files[0]; if(!f) return; this.value='';
+  restore(f.arrayBuffer().then(function(b){ return {url:'/api/system_zurueck',data:b}; }),'application/zip',f.name); });
+load(); setInterval(function(){ if(!busy&&document.visibilityState==='visible') req('GET','/api/system?t='+Date.now()).then(function(r){ return r.ok?r.json():null; }).then(function(x){ if(x){ D=x; drawZustand(); drawSich(); } }).catch(function(){}); },30000);
+</script></body></html>
