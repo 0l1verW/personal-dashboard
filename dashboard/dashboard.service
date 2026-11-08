@@ -1,5 +1,5 @@
 [Unit]
-Description=Uni-Apps (Semesterplaner + Notencockpit) mit Sync
+Description=Personal Dashboard (Planer, Noten, Aufgaben, Ernährung) mit Sync
 After=network-online.target
 Wants=network-online.target
 
