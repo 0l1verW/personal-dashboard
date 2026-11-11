@@ -10,3 +10,8 @@ Was in welcher Runde dazukam. Die Runden ab dem 11.11.2026 sind hier beschrieben
 - Update-Seite unter `/system`: Programm-ZIP einspielen, Selbsttest, Rückweg über Programmsicherung.
 - Health-Import vom iPhone-Kurzbefehl (aktive kcal, Gewicht) in die Ernährung.
 - Tests: `seed.py`, `test_rework.py` (375/768/1280, hell/dunkel).
+
+## Runde 4 – Tracker-Ergänzungen und Haushaltsbuch (12.11.2026)
+- Ernährung: „Was passt noch?“, Wochenkonto, Bauchumfang.
+- Neues Tool **Haushaltsbuch**: Buchungen per Schnellzeile („12,50 Rewe“), Kategorien nach 50/30/20, Fixkosten buchen sich selbst, Auswertung und Monatsplan, Kachel „frei im Monat“.
+- Tests: `test_haushalt.py`, `test_essen3.py`.
