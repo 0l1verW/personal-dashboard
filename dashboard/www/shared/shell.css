@@ -1,0 +1,94 @@
+/* Gemeinsame Schicht für alle Tools auf dem Pi.
+   Der Server hängt diese Datei hinter die eigenen Styles jedes Tools (vor </head>), shell.js setzt html[data-app].
+   Die Tool-Dateien bleiben unverändert und funktionieren ohne diese Datei weiter (lokal, Artefakt).
+   Regeln: nur angleichen, was zwischen den Tools auseinanderläuft – nichts, was ein Tool selbst je Breite umstellt. */
+
+/* ---------- 1. Neutrale Farben: eine Quelle für alle Tools (Akzentfarbe bleibt je Tool) ---------- */
+html[data-app]{
+  --bg:#EEF1F8; --surface:#FFFFFF; --surface-2:#F6F8FC; --surface-3:#E9EEF6; --border:#E1E6F0; --border-strong:#CBD3E2;
+  --ink:#141B2C; --muted:#5C6680; --faint:#646D84; --good-ink:#0D7038; --mid-ink:#8F5400; --bad-ink:#A8241A;
+  --shadow:0 1px 2px rgba(20,27,44,.04),0 8px 24px rgba(20,27,44,.06)}
+@media (prefers-color-scheme:dark){html[data-app]:not([data-theme="light"]){
+  --bg:#0D1016; --surface:#161B25; --surface-2:#1B212D; --surface-3:#242C3A; --border:#28303F; --border-strong:#3A4458;
+  --ink:#EAEEF6; --muted:#98A3B8; --faint:#8A95AA; --good-ink:#5AD597; --mid-ink:#F2B65C; --bad-ink:#FF8577;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35)}}
+html[data-app][data-theme="dark"]{
+  --bg:#0D1016; --surface:#161B25; --surface-2:#1B212D; --surface-3:#242C3A; --border:#28303F; --border-strong:#3A4458;
+  --ink:#EAEEF6; --muted:#98A3B8; --faint:#8A95AA; --good-ink:#5AD597; --mid-ink:#F2B65C; --bad-ink:#FF8577;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35)}
+
+/* ---------- 2. Notencockpit: Blau wie Kachel und Icon (vorher Lila wie der Planer) ---------- */
+html[data-app="noten"]{--accent:#2F5FB3; --accent-2:#4C7FD6; --accent-fill:#2F5FB3; --accent-soft:rgba(47,95,179,.10); --accent-line:rgba(47,95,179,.26)}
+html[data-app="noten"][data-theme="dark"]{--accent:#86ABF3; --accent-2:#A3C0F7; --accent-fill:#3A6BC4; --accent-soft:rgba(134,171,243,.15); --accent-line:rgba(134,171,243,.34)}
+
+/* ---------- 3. Kopf: gleiche Breite, gleiche Größen, eine Zeile für den Untertitel ---------- */
+html[data-app] .app{max-width:1080px}
+html[data-app] .brand{flex:1 1 0;min-width:160px}
+@media(min-width:641px){html[data-app] .app{padding-left:20px;padding-right:20px}}
+html[data-app] .brand>div:not(.glyph){min-width:0}
+html[data-app] .brand h1{font-size:20px;font-weight:700;letter-spacing:-.3px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html[data-app] .brand .sub{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+html[data-app] .brand .glyph{width:42px;height:42px;border-radius:12px;font-size:17px}
+html[data-app] header .ibtn,html[data-app] header .btn.icon{width:40px;height:40px;min-width:40px;padding:0;border-radius:11px;display:inline-grid;place-items:center}
+html[data-app] header .ibtn svg,html[data-app] header .btn.icon svg{width:18px;height:18px}
+html[data-app] header .who{height:40px}
+html[data-app] header .pdhome{text-decoration:none;color:var(--ink);border:1px solid var(--border-strong);background:var(--surface);cursor:pointer}
+html[data-app] header .pdhome:hover{border-color:var(--accent);color:var(--accent)}
+@media (pointer:coarse){
+  html[data-app] header .ibtn,html[data-app] header .btn.icon{width:44px;height:44px;min-width:44px}
+  html[data-app] header .who{height:44px}}
+/* Handy: aktiver Reiter überall gleich (nur Farbe, keine Fläche) */
+@media(max-width:640px){
+  html[data-app="aufgaben"] .nav button[aria-current="page"]{background:none}
+  html[data-app="planer"] .tools .semsel{flex:1 1 0;min-width:0}
+  html[data-app="noten"] .tools{flex-wrap:nowrap;width:100%}
+  html[data-app="noten"] .tools .btn:not(.icon){margin-right:auto}
+  html[data-app] header .pdhome{flex:none}}
+/* Home-Knopf neben dem Titel (Planer, Cockpit) */
+html[data-app] header>.pdhome{flex:none;margin-left:auto}
+html[data-app="planer"] .top>.brand,html[data-app="noten"] .topbar>.brand{margin-right:0}
+
+/* ---------- 4. Ernährung ---------- */
+/* Handy/Tablet hochkant: erst Ring, dann die Zeitleiste, danach Wasser · Sport · Gewicht · Ziel */
+@media(max-width:860px){
+  html[data-app="essen"] .dayhead+.grid>.s12{order:1}
+  html[data-app="essen"] .dayhead+.grid>.s7{order:2}
+  html[data-app="essen"] .dayhead+.grid>.s12~.s12{order:3}}
+/* PC: Ring und Makros in der hohen Karte mittig statt oben mit leerer Fläche darunter */
+@media(min-width:861px){
+  html[data-app="essen"] .dayhead+.grid>.s5{display:flex;flex-direction:column;justify-content:center}}
+html[data-app="essen"] .mb .vl small,html[data-app="essen"] .mi .vl small{font-size:11px}
+
+/* ---------- 5. Notencockpit: Kleinigkeiten ---------- */
+html[data-app="noten"] .vp-tot small{font-size:10.5px}
+/* Studienplan am Handy: rechter Rand blendet aus – zeigt, dass es seitlich weitergeht */
+@media(max-width:860px){
+  html[data-app="noten"] .vp-scroll{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent)}}
+
+/* ---------- 6. Dialoge: überall gleich (Abdunklung, Ecken, Kopf, Schließen-Knopf); am Handy als Blatt von unten ---------- */
+html[data-app] .ov,html[data-app] .overlay{background:rgba(10,13,20,.5);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+html[data-app] .ov>.dlg,html[data-app] .overlay>.modal{border-radius:20px;box-shadow:0 2px 6px rgba(0,0,0,.12),0 24px 64px rgba(10,13,20,.28)}
+html[data-app] .dlg h3,html[data-app] .dlg .dh h3,html[data-app] .modal-h h3{font-family:var(--disp);font-size:18px;font-weight:700;letter-spacing:-.2px}
+html[data-app] .dlg h3>.x,html[data-app] .dlg .dh>.x,html[data-app] .modal-h>.mini{width:40px;height:40px;border-radius:11px;flex:none;display:grid;place-items:center;font-size:18px}
+html[data-app] .modal-h>.mini svg{width:18px;height:18px;stroke-width:2}
+html[data-app="planer"] .ov>.dlg{max-width:560px}
+html[data-app="essen"] .ov{align-items:center}
+@media (pointer:coarse){html[data-app] .dlg h3>.x,html[data-app] .dlg .dh>.x,html[data-app] .modal-h>.mini{width:44px;height:44px}}
+@media(max-width:640px){
+  html[data-app]:not([data-app="essen"]) .ov,html[data-app] .overlay{align-items:flex-end;padding:0}
+  html[data-app]:not([data-app="essen"]) .ov>.dlg,html[data-app] .overlay>.modal{max-width:none;width:100%;border-radius:20px 20px 0 0;border-left:0;border-right:0;border-bottom:0;
+    max-height:92vh;max-height:92dvh;padding-bottom:max(16px,env(safe-area-inset-bottom))}
+  html[data-app="planer"] .ov>.dlg{padding-bottom:max(20px,env(safe-area-inset-bottom))}
+  html[data-app="aufgaben"] .ov>.dlg{padding-bottom:env(safe-area-inset-bottom)}}
+@media(max-width:640px) and (prefers-reduced-motion:no-preference){
+  html[data-app]:not([data-app="essen"]) .ov.show>.dlg,html[data-app] .overlay.show>.modal{animation:pdsheet .22s cubic-bezier(.2,.8,.2,1)}}
+@keyframes pdsheet{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+
+/* ---------- 7. Notencockpit: Linien in Blau (Analyse) und Druckblatt in Blau ---------- */
+html[data-app="noten"] svg [stroke="#5B4BE0"]{stroke:var(--accent)}
+@media print{
+  html[data-app="noten"] #printSheet{--accent:#2F5FB3;--accent-soft:rgba(47,95,179,.10)}
+  html[data-app="noten"] #printSheet .ph{border-bottom-color:#2F5FB3}
+  html[data-app="noten"] #printSheet .pbar i,html[data-app="noten"] #printSheet .pbar b{background:#2F5FB3}
+  html[data-app="noten"] #printSheet .pc.now .pch{color:#2F5FB3;border-bottom-color:#2F5FB3}
+  html[data-app="noten"] #printSheet [stroke="#5B4BE0"]{stroke:#2F5FB3}}
