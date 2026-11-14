@@ -15,3 +15,9 @@ Was in welcher Runde dazukam. Die Runden ab dem 11.11.2026 sind hier beschrieben
 - Ernährung: „Was passt noch?“, Wochenkonto, Bauchumfang.
 - Neues Tool **Haushaltsbuch**: Buchungen per Schnellzeile („12,50 Rewe“), Kategorien nach 50/30/20, Fixkosten buchen sich selbst, Auswertung und Monatsplan, Kachel „frei im Monat“.
 - Tests: `test_haushalt.py`, `test_essen3.py`.
+
+## Runde 5 – Ernährung: Eingabe am Handy (14.11.2026)
+- Schnell- und Foto-Einträge lassen sich wieder bearbeiten (Menge optional, Umrechnen erst bei gültigem Bezug).
+- Fokus bleibt beim Weitertippen erhalten: neu gezeichnet wird erst, wenn kein Feld mehr aktiv ist.
+- Hinweis „Code unvollständig“ beim Foto-Code nur noch einmal je Eingabe.
+- Test: `test_eingabe_handy.py`.
