@@ -32,3 +32,9 @@ Was in welcher Runde dazukam. Die Runden ab dem 11.11.2026 sind hier beschrieben
 - Vorlagen, Satz- und Pausen-Timer, kg/Wdh., Notizen, Fortschritt (Bestgewicht, Volumen, 1RM, Bestwert-Hinweis).
 - Kachel mit Start-Knöpfen je Vorlage, Auffrischen im Hintergrund.
 - Test: `test_schritt3.py` (Chromium und WebKit).
+
+## Runde 6b – Lebensmittel-Formular am Handy (20.11.2026)
+- Formular „Neues Lebensmittel“ scrollt am Handy wieder (Nährwert-Tabelle wurde gequetscht).
+- Neu angelegtes Lebensmittel erscheint direkt in der Trefferliste.
+- Eigene Lebensmittel lassen sich aus „Eintragen“ und aus einem Eintrag heraus bearbeiten.
+- Test: `test_lebensmittel_bearbeiten.py`.
