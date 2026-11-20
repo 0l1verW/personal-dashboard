@@ -1,0 +1,22 @@
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/></svg></div>
+      <div><h1>Training</h1><div class="sub" id="sub"></div></div>
+    </div>
+    <a class="ibtn" href="/" id="homeBtn" title="Zum Dashboard" aria-label="Zum Dashboard" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg></a>
+    <button class="ibtn" id="dataBtn" title="Daten sichern" aria-label="Daten und Backup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></button>
+    <button class="ibtn" id="themeBtn" title="Hell / Dunkel" aria-label="Farbschema wechseln"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+  </header>
+  <nav class="nav" aria-label="Ansichten">
+    <button data-v="start"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/></svg>Training</button>
+    <button data-v="verlauf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Verlauf</button>
+    <button data-v="fortschritt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>Fortschritt</button>
+    <button data-v="uebungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>Übungen</button>
+  </nav>
+  <main id="main"></main>
+  <div class="foot"><span id="saved"></span> · Daten bleiben auf diesem Gerät<span id="piFoot"></span></div>
+</div>
+<div class="ov" id="ov"><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgT" id="dlg"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<input type="file" id="impFile" accept=".json,application/json" class="sr" tabindex="-1">
