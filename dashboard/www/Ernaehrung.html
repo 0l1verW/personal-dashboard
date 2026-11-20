@@ -143,7 +143,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 .dlg{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow);width:100%;max-width:600px;max-height:calc(100vh - 48px);max-height:calc(100dvh - 48px);display:flex;flex-direction:column;overflow:hidden}
 .dlg .dh{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);flex:none}
 .dlg .dh h3{font-family:var(--disp);font-size:17px;margin-right:auto;min-width:0}
-.dlg .db{padding:14px 16px;overflow:auto;display:flex;flex-direction:column;gap:12px;flex:1;min-height:0}
+.dlg .db{padding:14px 16px;overflow:auto;display:flex;flex-direction:column;gap:12px;flex:1;min-height:0;-webkit-overflow-scrolling:touch}
+.dlg .db>*{flex-shrink:0}   /* nichts im Blatt zusammenquetschen (Nährwert-Tabelle, Trefferliste haben overflow:hidden) – stattdessen scrollt das Blatt */
 .dlg .df{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--surface-2);flex:none;padding-bottom:max(12px,env(safe-area-inset-bottom))}
 @media(max-width:640px){.ov{padding:0}.dlg{max-width:none;max-height:none;height:100%;height:100dvh;border-radius:0;border:0}}
 .when{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted);flex-wrap:wrap}
@@ -236,6 +237,48 @@ body:has(.ov.show) .toast{bottom:auto;top:max(16px,env(safe-area-inset-top));tra
 .srow{display:flex;gap:8px;align-items:center}.srow>.srch,.srow>.in{flex:1;min-width:0}
 .srow .ibtn{width:42px;height:42px;flex:none}.srow .x svg,.srow .ibtn svg{width:18px;height:18px}
 .srow .x:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Runde 3: gesättigte Fettsäuren, Bilanz, Makro-Stile, Health-Import */
+.mb.sub .ml{padding-left:10px;font-weight:500}
+.mb .vl.bad{color:var(--bad-ink);font-weight:700}
+.mbc{font-size:11.5px;color:var(--muted);line-height:1.4}
+.xl{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12.5px;color:var(--muted);margin-top:2px}.xl b{color:var(--ink);font-family:var(--mono);font-weight:600}
+.kpis.k6{grid-template-columns:repeat(6,minmax(0,1fr))}
+@media(max-width:980px){.kpis.k6{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:560px){.kpis.k6{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi.bad b{color:var(--bad-ink)}
+.opts.o4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:900px){.opts.o4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){.opts.o4{grid-template-columns:1fr}}
+.note.warn{border-color:var(--mid-ink);color:var(--ink)}
+.conf{height:6px;border-radius:4px;background:var(--surface-3);overflow:hidden;margin:8px 0 4px}.conf i{display:block;height:100%;background:var(--accent)}
+.bl{border-top:1px solid var(--border);padding-top:12px}.bl .big2{font-family:var(--mono);font-size:22px;font-weight:700}
+.bchip.off{opacity:.55;text-decoration:line-through}
+.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:10px;font-size:13.5px;line-height:1.55}
+.steps code,.note code{font-family:var(--mono);font-size:12px;background:var(--surface-3);border-radius:4px;padding:1px 5px}
+.urlbox{display:flex;gap:8px;align-items:center;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:8px 10px}
+.urlbox code{flex:1;min-width:0;font-family:var(--mono);font-size:12px;overflow-wrap:anywhere}
+/* Runde 4 */
+.wk{display:flex;flex-direction:column;gap:1px;font-size:12.5px;color:var(--muted);border-left:3px solid var(--accent);padding:2px 0 2px 10px}.wk b{color:var(--ink);font-size:13px}
+.wk.neg{border-left-color:var(--mid-ink)}
+/* Runde 6: Mikro-Karte – Grundwerte immer sichtbar, Vitamine & Mineralstoffe eingeklappt */
+.mbas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}
+@media(max-width:760px){.mbas{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.mba{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:9px 11px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.mba span{font-size:12px;color:var(--muted);font-weight:600}
+.mba b{font-family:var(--mono);font-size:17px;font-weight:700;white-space:nowrap}.mba b small{font-size:11.5px;color:var(--muted);font-weight:500}
+.mba em{font-style:normal;font-size:11.5px;color:var(--muted)}
+.mba.ok b{color:var(--good-ink)}.mba.bad b{color:var(--bad-ink)}
+.mtog{display:flex;align-items:center;gap:10px;width:100%;margin-top:12px;padding:10px 12px;min-height:44px;border:1px solid var(--border);border-radius:12px;background:var(--surface);cursor:pointer;text-align:left;font-weight:600;font-size:13.5px}
+.mtog:hover{border-color:var(--accent)}
+.mtog .mt{margin-right:auto}
+.mtog .ms{font-size:12px;font-weight:500;color:var(--muted)}
+.mtog svg{width:16px;height:16px;flex:none;transition:transform .15s;color:var(--muted)}
+.mtog[aria-expanded="true"] svg{transform:rotate(180deg)}
+.mikro .note{margin-top:10px}
+/* Runde 6b: eigene Lebensmittel aus dem Eintragen-Blatt und aus einem Eintrag heraus bearbeiten */
+.amt .row .sp{flex:1}
+.fref{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}.fref span{flex:1;min-width:160px}
 </style>
 </head>
 <body>
@@ -384,6 +427,7 @@ const r1=v=>Math.round((+v||0)*10)/10;
 const fmt=(v,d=0)=>v==null||isNaN(v)?'–':(+v).toLocaleString('de-DE',{minimumFractionDigits:0,maximumFractionDigits:d});
 const NUT=['kcal','p','kh','f','bal','zucker','salz'];
 const NL={kcal:'Energie',p:'Eiweiß',kh:'Kohlenhydrate',f:'Fett',bal:'Ballaststoffe',zucker:'davon Zucker',salz:'Salz'};
+const NLX={...NL,sfa:'davon gesättigt'};
 const NC={p:'var(--p)',kh:'var(--kh)',f:'var(--f)',bal:'var(--bal)'};
 /* Mikronährstoffe (Werte aus dem BLS 4.0). Referenz: D-A-CH-Referenzwerte (DGE/ÖGE/SGE), 3. Aufl. 2025, Erwachsene 25–65.
    [Name, Einheit, Referenz männlich, Referenz weiblich, Fußnote] – s = Schätzwert, d = gilt ohne Eigenbildung über Sonnenlicht, z = abhängig vom Phytat */
@@ -409,23 +453,23 @@ function fDay(k){ const d=kDate(k), t=today(); const rel=k===t?'Heute':k===kAdd(
 const fDur=min=>{ min=Math.max(0,Math.round(min)); const h=Math.floor(min/60); return h?`${h} h ${String(min%60).padStart(2,'0')} min`:`${min} min`; };
 
 /* ---------- Zustand ---------- */
-const DEFSET=()=>({upd:0,ziele:{kcal:2500,p:140,kh:300,f:80,bal:30,wasser:2500},profil:{sex:'',alter:null,cm:null,akt:1.55},
-  phase:{art:'halten',tempo:0.25,ab:today()},phasen:[],fasten:{on:false,h:16},checkin:null,mikro:false,sport:1});   // sport: Anteil der Sport-Kalorien, der aufs Tagesziel kommt (1 | 0.5 | 0)
+const DEFSET=()=>({upd:0,ziele:{kcal:2500,p:140,kh:300,f:80,bal:30,wasser:2500,sfa:0},profil:{sex:'',alter:null,cm:null,akt:1.55},   // sfa: Obergrenze in g, 0 = automatisch 10 % der Kalorien
+  phase:{art:'halten',tempo:0.25,ab:today(),zielKg:null},phasen:[],fasten:{on:false,h:16},checkin:null,mikro:false,sport:1,makro:{stil:'ausgewogen',pkg:null}});   // sport: Anteil der Sport-Kalorien, der aufs Tagesziel kommt (1 | 0.5 | 0)
 let fq='', D, view='heute', day=today(), sheet=null, openBlk=null, rng=7, foodTab='eigen', lastTheme=null;
-function normalize(x){
+function normalize(x){ TD=null;
   x=x&&typeof x==='object'&&!Array.isArray(x)?x:{};
-  ['log','foods','recipes','weight','water','burn'].forEach(c=>{ if(!x[c]||typeof x[c]!=='object'||Array.isArray(x[c])) x[c]={}; });
+  ['log','foods','recipes','weight','water','burn','mass'].forEach(c=>{ if(!x[c]||typeof x[c]!=='object'||Array.isArray(x[c])) x[c]={}; });
   const d=DEFSET(); x.set=x.set&&typeof x.set==='object'?x.set:d;
   Object.keys(d).forEach(k=>{ if(x.set[k]==null) x.set[k]=d[k]; else if(d[k]&&typeof d[k]==='object'&&!Array.isArray(d[k])) Object.keys(d[k]).forEach(j=>{ if(x.set[k][j]===undefined) x.set[k][j]=d[k][j]; }); });
   x.app=APP; x.v=1; x.savedAt=+x.savedAt||0; return x; }
 function load(){ let x=null; try{ x=JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){} D=normalize(x); }
-let sumT=null;
+let sumT=null, TD=null;   // TD: Zwischenspeicher für den Bedarf
 function save(){ D.savedAt=Date.now(); try{ localStorage.setItem(KEY,JSON.stringify(D)); }catch(e){ toast('Speichern im Browser nicht möglich'); }
   clearTimeout(sumT); sumT=setTimeout(pushSum,1200); stamp(); }
 const live=c=>Object.values(D[c]).filter(x=>x&&!x.del);
-function put(c,it){ it.upd=Date.now(); D[c][it.id]=it; return it; }
-function rm(c,id){ if(D[c][id]) D[c][id]={id,upd:Date.now(),del:true}; }
-function setS(fn){ fn(D.set); D.set.upd=Date.now(); save(); }
+function put(c,it){ it.upd=Date.now(); D[c][it.id]=it; TD=null; return it; }
+function rm(c,id){ TD=null; if(D[c][id]) D[c][id]={id,upd:Date.now(),del:true}; }
+function setS(fn){ TD=null; fn(D.set); D.set.upd=Date.now(); save(); }
 const G=()=>D.set.ziele;
 
 /* ---------- Lebensmittel ---------- */
@@ -470,8 +514,15 @@ const waterOn=k=>live('water').filter(w=>w.datum===k);
 const drinkMl=k=>entriesOn(k).filter(e=>e.fl&&!(e.n&&+e.n.alk>0)).reduce((t,e)=>t+(+e.g||0),0);   // Getränke ohne Alkohol zählen zum Trinken
 /* Sport/Garmin: verbrannte (aktive) Kalorien je Tag; erhöhen das Tagesziel um den eingestellten Anteil */
 const burnOn=k=>live('burn').filter(b=>b.datum===k).sort((a,b)=>a.upd-b.upd);
-const burnSum=k=>burnOn(k).reduce((t,b)=>t+(+b.kcal||0),0);
+const dayBurn=L=>{ const T=L.filter(b=>b.tag); return (T.length?T:L).reduce((t,b)=>t+(+b.kcal||0),0); };   // Tageswert der Uhr (tag) ersetzt Einzel-Einträge – nichts zählt doppelt
+const burnSum=k=>dayBurn(burnOn(k));
 const budget=k=>Math.round(G().kcal+burnSum(k)*(+D.set.sport||0));
+/* Gesättigte Fettsäuren: Summe und Anteil des Fetts, für den ein Wert vorliegt (fehlt er, zählt er nicht als 0).
+   Ältere Einträge ohne Angabe werden aus dem Lebensmittel nachgerechnet, sobald es einen Wert hat. */
+function sfaOf(L){ let v=0, fk=0, ft=0; L.forEach(e=>{ const n=e.n||{}, f=+n.f||0; let s=n.sfa!=null?+n.sfa:null;
+    if(s==null&&e.ref&&e.g>0){ const fd=food(e.ref); if(fd&&fd.je100&&fd.je100.sfa!=null) s=fd.je100.sfa*e.g/100; }
+    ft+=f; if(s!=null){ v+=s; fk+=f; } }); return {v:r1(v),cov:ft>0?fk/ft:1,ft}; }
+const sfaMax=()=>+G().sfa>0?+G().sfa:Math.round(G().kcal*0.1/9);
 const waterSum=k=>waterOn(k).reduce((t,w)=>t+(+w.ml||0),0)+drinkMl(k);
 function addEntries(items,k,zeit){ items.forEach(it=>put('log',{id:uid('e'),datum:k,zeit,ref:it.ref||null,name:it.name,g:r1(it.g),n:it.n,quelle:it.quelle||'',...(it.fl?{fl:1}:{})})); USE=null; save(); }
 function suggestions(k){ const ref=k===today()?hm2min(nowHM()):12*60, since=kAdd(k,-30), have=new Set(entriesOn(k).map(e=>e.ref)), c={};
@@ -485,14 +536,41 @@ function weights(){ return live('weight').filter(w=>+w.kg>0).sort((a,b)=>a.datum
 function trend(){ const W=weights(); let t=null, prev=null; return W.map(w=>{ if(t==null) t=+w.kg; else { const dd=Math.max(1,kDiff(w.datum,prev)); const a=1-Math.pow(0.9,dd); t=t+a*(+w.kg-t); } prev=w.datum; return {datum:w.datum,kg:+w.kg,t:r1(t*10)/10}; }); }
 function trendAt(T,k){ let v=null; T.forEach(x=>{ if(x.datum<=k) v=x.t; }); return v; }
 function lastKg(){ const W=weights(); return W.length?+W[W.length-1].kg:null; }
-function mifflin(){ const p=D.set.profil, kg=lastKg(); if(!p.sex||!(+p.alter>0)||!(+p.cm>0)||!kg) return null;
-  return Math.round((10*kg+6.25*+p.cm-5*+p.alter+(p.sex==='m'?5:-161))*(+p.akt||1.55)); }
-function tdee(){ const T=trend(), end=kAdd(today(),-1), start=kAdd(end,-20), days=[]; for(let k=start;k<=end;k=kAdd(k,1)) days.push(k);
-  const logged=days.filter(k=>entriesOn(k).length);
-  const tS=trendAt(T,start), tE=trendAt(T,end), nW=weights().filter(w=>w.datum>=start&&w.datum<=end).length;
-  if(logged.length<10||tS==null||tE==null||nW<4) return {v:null,logged:logged.length,nW,need:'Für die Schätzung brauche ich in den letzten 3 Wochen mindestens 10 erfasste Tage und 4 Gewichtswerte.'};
-  const avg=logged.reduce((t,k)=>t+sumN(entriesOn(k)).kcal,0)/logged.length;
-  return {v:Math.round((avg-(tE-tS)*7700/21)/10)*10,avg:Math.round(avg),delta:r1(tE-tS),logged:logged.length,nW}; }
+/* ---------- Bedarf ----------
+   Bedarf = Grundbedarf (Ruhe + Alltag) + Sport. Der Grundbedarf kommt erst aus der Formel (Profil) und wird dann aus den
+   eigenen Daten gemessen: Ø gegessen − Gewichtsänderung × 7700 kcal/kg, über 4 Wochen. Angerechnete Sport-Kalorien werden
+   vorher abgezogen, damit Sport nicht doppelt zählt (einmal im Bedarf, einmal als Zuschlag aufs Tagesziel). */
+const SPF=()=>+D.set.sport||0;
+function bmr(){ const p=D.set.profil, kg=lastKg(); if(!p.sex||!(+p.alter>0)||!(+p.cm>0)||!kg) return null; return Math.round(10*kg+6.25*+p.cm-5*+p.alter+(p.sex==='m'?5:-161)); }
+const tagBurn=(a,b)=>live('burn').some(x=>x.tag&&x.datum>=a&&x.datum<=b);
+const uhrTag=()=>!!SPF()&&tagBurn(kAdd(today(),-14),today());   // die Uhr liefert den ganzen Tag → Alltagsbewegung steckt schon in den Sport-Kalorien
+function mifflin(){ const b=bmr(); if(!b) return null; return Math.round(b*(uhrTag()?1.1:(+D.set.profil.akt||1.55))); }
+const minKcal=()=>{ const b=bmr(); return b?b*0.6:900; };   // darunter gilt ein Tag als unvollständig erfasst
+function tdee(){ if(TD&&TD.s===D.savedAt&&TD.d===today()) return TD.r; const r=tdeeCalc(); TD={s:D.savedAt,d:today(),r}; return r; }
+function tdeeCalc(){ const N=28, end=kAdd(today(),-1), start=kAdd(end,-(N-1)), f=SPF(), form=mifflin(), minK=minKcal(), by={}, B={};
+  live('log').forEach(e=>{ if(e.datum>=start&&e.datum<=end) by[e.datum]=(by[e.datum]||0)+(+((e.n||{}).kcal)||0); });
+  live('burn').forEach(x=>{ if(x.datum>=start&&x.datum<=end) (B[x.datum]=B[x.datum]||[]).push(x); });
+  const full=Object.keys(by).filter(k=>by[k]>=minK), part=Object.keys(by).length-full.length;
+  const W=weights().filter(w=>w.datum>=start&&w.datum<=end), span=W.length?kDiff(W[W.length-1].datum,W[0].datum):0;
+  const bd=Object.keys(B), td=bd.filter(k=>B[k].some(x=>x.tag));   // mit Tageswerten der Uhr: Schnitt über diese Tage, sonst über alle 28 (kein Eintrag = kein Sport)
+  const sport=!f||!bd.length?0:f*(td.length?td.reduce((t,k)=>t+dayBurn(B[k]),0)/td.length:bd.reduce((t,k)=>t+dayBurn(B[k]),0)/N);
+  const o={v:form?Math.round((form+sport)/10)*10:null,base:form,sport:Math.round(sport),logged:full.length,part,nW:W.length,src:form?'Formel':null,c:0};
+  const fehlt='Für eine Messung aus deinen eigenen Daten brauche ich in den letzten 4 Wochen mindestens 10 vollständig erfasste Tage und 4 Gewichtswerte über mindestens 10 Tage.';
+  if(full.length<10||W.length<4||span<10){ o.need=fehlt; return o; }
+  const avg=full.reduce((t,k)=>t+by[k],0)/full.length, xs=W.map(w=>kDiff(w.datum,start)), n=W.length, mx=xs.reduce((a,b)=>a+b,0)/n, my=W.reduce((a,w)=>a+ +w.kg,0)/n;
+  let sxy=0, sxx=0; W.forEach((w,i)=>{ sxy+=(xs[i]-mx)*(+w.kg-my); sxx+=(xs[i]-mx)*(xs[i]-mx); });
+  const slope=sxx?sxy/sxx:0, roh=avg-slope*7700, ref=form?form+sport:null;   // Ausgleichsgerade durch alle Messungen statt nur Anfang und Ende
+  if(roh<1000||roh>6000||(ref&&(roh<ref*0.6||roh>ref*1.6))){ o.need='Essen und Gewichtsverlauf passen noch nicht zusammen (gemessen wären es '+fmt(Math.round(roh/10)*10)+' kcal) – vermutlich fehlen Einträge. Bis dahin gilt der Startwert.'; return o; }
+  const c=Math.min(1,full.length/21)*Math.min(1,span/21), v=ref?c*roh+(1-c)*ref:roh;   // bis 3 Wochen Daten da sind, mit der Formel mischen
+  return Object.assign(o,{v:Math.round(v/10)*10,base:Math.round((v-sport)/10)*10,avg:Math.round(avg),wk:slope*7,c:ref?c:1,roh:Math.round(roh/10)*10,src:!ref||c>=.99?'gemessen':'gemessen + Formel'}); }
+const needOn=k=>{ const b=tdee().base; return b?Math.round(b+burnSum(k)*SPF()):null; };
+/* Bilanz der letzten n Tage (nur vollständig erfasste): Ø gegessen − Bedarf, dazu die Änderung des Gewichtstrends */
+function bilanz(n){ const b=tdee().base; if(!b) return null; const end=kAdd(today(),-1), minK=minKcal(); let s=0, c=0;
+  for(let i=0;i<n;i++){ const k=kAdd(end,-i), kc=sumN(entriesOn(k)).kcal; if(kc<minK) continue; s+=kc-(b+burnSum(k)*SPF()); c++; }
+  if(!c) return null; const T=trend(), from=kAdd(end,-n), a=trendAt(T,end), z=trendAt(T,from), wIn=weights().some(w=>w.datum>from&&w.datum<=end);
+  return {d:Math.round(s/c),n:c,kg:wIn&&a!=null&&z!=null?a-z:null}; }
+function prognose(){ const ph=D.set.phase, z=+ph.zielKg, T=trend(), t=T.length?T[T.length-1].t:null, tp=+ph.tempo; if(!z||t==null||!tp||ph.art==='halten') return null;
+  const diff=ph.art==='ab'?t-z:z-t; if(diff<=0) return {done:true}; const w=diff/tp; return {w,datum:kAdd(today(),Math.round(w*7))}; }
 /* Phase → kcal-Verschiebung pro Tag (7700 kcal ≈ 1 kg) */
 const phDelta=(art,tempo)=>art==='aufbau'?Math.round((+tempo||0)*7700/7):art==='ab'?-Math.round((+tempo||0)*7700/7):0;
 /* Phase/Tempo geändert: Kalorienziel um die Differenz verschieben, Eiweiß & Fett bleiben, Kohlenhydrate gleichen aus */
@@ -504,38 +582,95 @@ function phaseSwitch(s,art){ const P=s.phasen=s.phasen||[], cur=s.phase, t0=+cur
   const last=P[P.length-1];
   if(last&&last.art===art&&now-t0<864e5){ P.pop(); s.phase={art,tempo:last.tempo!=null?last.tempo:art==='ab'?0.5:0.25,ab:last.ab,ts:last.ts||kDate(last.ab).getTime()}; return; }
   s.phase={art,tempo:art==='ab'?0.5:0.25,ab:today(),ts:now}; }
-function recommend(){ const t=tdee(), base=t.v||mifflin(); if(!base) return null; const ph=D.set.phase, tempo=Math.max(0,+ph.tempo||0);
-  const delta=ph.art==='aufbau'?tempo*7700/7:ph.art==='ab'?-tempo*7700/7:0, kcal=Math.round((base+delta)/10)*10, kg=lastKg()||70;
-  const p=Math.round(kg*(ph.art==='ab'?2.0:1.8)), f=Math.round(kg*0.9), kh=Math.max(0,Math.round((kcal-p*4-f*9)/4));
-  return {base,src:t.v?'gemessen':'Formel',kcal,p,f,kh,bal:30}; }
+/* Wochenkonto (Mo–So): Tagesziel − gegessen, summiert über die abgeschlossenen, vollständig erfassten Tage der Woche.
+   „heute“ = Tagesziel plus das Konto gleichmäßig auf die restlichen Tage verteilt. */
+const weekStart=k=>kAdd(k,-((kDate(k).getDay()+6)%7));
+function wochenkonto(k){ if(k>today()) return null; const ws=weekStart(k), minK=minKcal(); let s=0, n=0;
+  for(let d=ws;d<k;d=kAdd(d,1)){ const kc=sumN(entriesOn(d)).kcal; if(kc<minK) continue; s+=budget(d)-kc; n++; }
+  const rest=kDiff(kAdd(ws,6),k)+1; return {s:Math.round(s),n,rest,heute:Math.round(budget(k)+s/rest)}; }
+/* „Was passt noch?“: aus dem, was oft gegessen wird (mind. 2×), die Portionen, die Rest-Kalorien und fehlendes Eiweiß am besten treffen */
+function wasPasst(k){ const E=entriesOn(k), t=sumN(E), g=G(), R=budget(k)-t.kcal, P=Math.max(0,g.p-t.p); if(R<120) return null;
+  const u=usage(), sLeft=sfaMax()-sfaOf(E).v, had=new Set(E.map(e=>e.ref)), C=[];
+  Object.keys(u).forEach(ref=>{ const f=food(ref), x=u[ref]; if(!f||!f.je100||!(f.je100.kcal>0)||x.n<2||+f.je100.alk>0) return;
+    let gr=+x.g>0?+x.g:defG(f), n=scale(f.je100,gr);
+    if(n.kcal>R){ const fac=R/n.kcal; if(fac<0.5) return; gr=Math.max(5,Math.round(gr*fac/5)*5); n=scale(f.je100,gr); }   // etwas kleinere Portion, aber nicht weniger als die Hälfte
+    if(!(n.kcal>=40)) return;
+    const p=+n.p||0, s=n.sfa!=null?+n.sfa:0; let sc=Math.min(8,x.n)*0.4-(had.has(ref)?2:0);
+    if(P>=10) sc+=Math.min(p,P)/P*10+Math.min(p/n.kcal*100,12)*0.5; else sc+=(+n.bal||0)*0.4-Math.abs(R-n.kcal)/R*3;
+    if(sLeft<=0) sc-=s*1.5; else if(s>sLeft) sc-=s-sLeft;
+    C.push({ref,g:gr,n,name:f.name,fl:isFl(f),sc}); });
+  return {R:Math.round(R),P:Math.round(P),L:C.sort((a,b)=>b.sc-a.sc).slice(0,4)}; }
+/* Bauchumfang (Sammlung „mass“, ein Wert je Tag) */
+const bauch=()=>live('mass').filter(m=>+m.bauch>0).sort((a,b)=>a.datum.localeCompare(b.datum));
+function bauchDelta(days){ const B=bauch(); if(B.length<2) return null; const last=B[B.length-1], from=kAdd(last.datum,-days), prev=B.filter(b=>b.datum<=from).pop()||B[0];
+  return prev===last?null:{cm:r1(last.bauch-prev.bauch),tage:kDiff(last.datum,prev.datum),last}; }
+/* Makro-Stile: Eiweiß in g je kg [Aufbau, Halten, Abnehmen], Fett als Anteil der Kalorien, Kohlenhydrate = Rest.
+   Eiweiß nach ISSN-Positionspapier 2026 (1,2–1,6 g/kg allgemein · 1,6–2,2 mit Krafttraining · im Defizit bei Trainierten 1,9–3,2);
+   Fett ~30 % der Energie, gesättigte Fettsäuren höchstens 10 %, Ballaststoffe mind. 30 g (DGE-Referenzwerte). */
+const STIL={ausgewogen:{t:'Ausgewogen',d:'Eiweiß moderat, Fett 30 % – nah an den DGE-Richtwerten',p:[1.6,1.4,1.6],f:.30},
+  kraft:{t:'Kraft & Muskeln',d:'Viel Eiweiß, Fett 25 %, der Rest Kohlenhydrate',p:[1.8,1.8,2.2],f:.25},
+  ausdauer:{t:'Ausdauer',d:'Kohlenhydrate betont, Fett 22 %',p:[1.6,1.4,1.8],f:.22},
+  lowcarb:{t:'Weniger Kohlenhydrate',d:'Fett 40 %, Eiweiß hoch',p:[1.8,1.6,2.0],f:.40}};
+const stilK=()=>STIL[(D.set.makro||{}).stil]?D.set.makro.stil:'ausgewogen';
+const pStd=()=>STIL[stilK()].p[{aufbau:0,halten:1,ab:2}[D.set.phase.art]??1];
+function recommend(){ const t=tdee(), base=t.base; if(!base) return null; const ph=D.set.phase, delta=phDelta(ph.art,ph.tempo), kcal=Math.max(1000,Math.round((base+delta)/10)*10), kg=lastKg()||70;
+  const s=STIL[stilK()], pk=+(D.set.makro||{}).pkg>0?+D.set.makro.pkg:pStd(), p=Math.round(kg*pk), f=Math.max(Math.round(kg*0.6),Math.round(kcal*s.f/9)), kh=Math.max(0,Math.round((kcal-p*4-f*9)/4));
+  const need=base+t.sport, W=[], b=bmr();
+  if(ph.art==='ab'){ if(-delta>need*0.25) W.push(`Das Defizit ist größer als ein Viertel deines Bedarfs – das kostet eher Muskeln und Durchhaltevermögen.`);
+    if(+ph.tempo>kg*0.01) W.push('Mehr als 1 % des Körpergewichts pro Woche ist sehr zügig.');
+    if(b&&kcal<b) W.push(`Das Ziel läge unter deinem Grundumsatz (${fmt(b)} kcal).`); }
+  if(kh<50&&stilK()!=='lowcarb') W.push('Für Kohlenhydrate bleibt kaum etwas übrig – Tempo oder Eiweiß etwas senken.');
+  return {base,src:t.src,kcal,p,f,kh,bal:30,sfa:Math.round(kcal*0.1/9),pk,fpc:Math.round(f*9/kcal*100),warn:W,delta,need:Math.round(need)}; }
 
-/* ---------- Mikronährstoffe ---------- */
+/* ---------- Mikronährstoffe ----------
+   Karte „Mikronährstoffe“: Ballaststoffe, Zucker, Salz und gesättigte Fettsäuren stehen immer da (Ø pro Tag).
+   Vitamine und Mineralstoffe sind eingeklappt und erscheinen erst, wenn im Bezugszeitraum (Tag: die Woche bis zu diesem Tag,
+   Verlauf: der gewählte Zeitraum) für mindestens 70 % der Kalorien Werte vorliegen – sonst wären die Summen viel zu niedrig. */
+const MIKRO_MIN=0.7, SALZ_MAX=6;   // Salz: DGE-Orientierungswert höchstens 6 g am Tag
+let mikAuf=(()=>{ try{ return localStorage.getItem('essen_mikro_auf')==='1'; }catch(e){ return false; } })();   // aufgeklappt? nur auf diesem Gerät
 function refOf(k){ const m=MI[k], p=D.set.profil; if(k==='fe'&&p.sex==='w'&&+p.alter>=51) return 14; return p.sex==='m'?m[2]:p.sex==='w'?m[3]:Math.max(m[2],m[3]); }
 function micDays(ks){ const o={}; let kcal=0; MX.forEach(k=>o[k]={v:0,kc:0});
   ks.forEach(k=>entriesOn(k).forEach(e=>{ const n=e.n||{}, kc=+n.kcal||0; kcal+=kc; MX.forEach(m=>{ if(n[m]!=null){ o[m].v+=+n[m]; o[m].kc+=kc; } }); }));
   return {o,kcal,n:ks.length}; }
+/* Anteil der Kalorien mit Vitamin- und Mineralstoffwerten (Median über die 18 Werte); null = nichts eingetragen */
+function mikCov(ks){ const M=micDays(ks); if(!M.kcal) return null; const c=MIK.map(k=>M.o[k].kc/M.kcal).sort((a,b)=>a-b); return c[Math.floor(c.length/2)]; }
+const woche=k=>Array.from({length:7},(_,i)=>kAdd(k,i-6));
 const FN={s:['S','Schätzwert'],d:['D','gilt ohne Eigenbildung über Sonnenlicht'],z:['Z','abhängig vom Phytat (Vollkorn, Hülsenfrüchte)']};
-function microCard(ks,title,cap){ const M=micDays(ks), n=Math.max(1,M.n), sex=D.set.profil.sex;
+const CHEV='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+function microCard(ks,title,cap,bezug,bezugTxt){ const M=micDays(ks), n=Math.max(1,M.n), sex=D.set.profil.sex, g=G();
   if(!M.kcal) return `<div class="card s12"><h2>${title}</h2><div class="empty">Noch keine Einträge mit Kalorien.</div></div>`;
+  /* immer sichtbar: Ballaststoffe, Zucker, Salz, gesättigte Fettsäuren */
+  const E=ks.flatMap(k=>entriesOn(k)), t=sumN(E), sf=sfaOf(E), smax=sfaMax(), bal=t.bal/n, zu=t.zucker/n, sa=t.salz/n, sv=sf.cov>=.5?sf.v/n:null;
+  const box=(l,v,ref,ton,em)=>`<div class="mba${ton?' '+ton:''}"><span>${l}</span><b>${v}${ref?` <small>${ref}</small>`:''}</b>${em?`<em>${em}</em>`:''}</div>`;
+  const basis=`<div class="mbas">${box('Ballaststoffe',fmt(bal,1)+' g','/ '+fmt(g.bal)+' g',bal>=g.bal?'ok':'')}${box('Zucker',fmt(zu,1)+' g','','')}
+    ${box('Salz',fmt(sa,1)+' g','/ max. '+SALZ_MAX+' g',sa>SALZ_MAX?'bad':'')}${box('Gesättigte Fette',sv!=null?fmt(sv,1)+' g':'–','/ max. '+fmt(smax)+' g',sv!=null&&sv>smax?'bad':'',sf.cov<.8&&sf.ft>0?`Wert für ${Math.round(sf.cov*100)} % des Fetts`:'')}</div>`;
+  /* Vitamine und Mineralstoffe: nur bei genug Daten im Bezugszeitraum */
+  const bz=bezug||ks, cov=mikCov(bz), genug=cov!=null&&cov>=MIKRO_MIN, bzT=bezugTxt||'im Zeitraum';
   const covs=MIK.map(k=>M.o[k].kc/M.kcal).sort((a,b)=>a-b), cm=covs[Math.floor(covs.length/2)];
-  const row=k=>{ const m=MI[k], x=M.o[k], cov=x.kc/M.kcal, v=x.v/n, ref=refOf(k), pc=v/ref*100;
-    return `<div class="mi${cov<.5?' low':''}"><span class="ml">${m[0]}${m[4]?`<sup title="${FN[m[4]][1]}">${FN[m[4]][0]}</sup>`:''}</span><span class="tr" role="img" aria-label="${Math.round(pc)} % der Referenz"><i style="width:${Math.min(100,pc)}%"></i></span>
-      <span class="vl">${cov?fmt(v,v<10?1:0):'–'} <small>/ ${fmt(ref,1)} ${m[1]}</small></span><span class="cv">${Math.abs(cov-cm)<.1?'':cov?`Daten für ${Math.round(cov*100)} % der kcal`:'keine Daten'}</span></div>`; };
-  const xv=k=>{ const x=M.o[k]; return x.kc/M.kcal>=.5?x.v/n:null; }, sfa=xv('sfa'), o3=xv('o3'), alk=xv('alk'), kd=M.kcal/n;
-  return `<div class="card s12"><h2>${title}<span class="cap">${cap}</span></h2>
-    ${cm<.95?`<div class="note" style="margin-top:10px">Für etwa ${Math.round(cm*100)} % deiner Kalorien liegen Vitamin- und Mineralstoffwerte vor – der Rest (z. B. Schnell-Einträge, eigene Lebensmittel ohne Angaben) fehlt in den Summen, die echten Werte liegen also eher höher.</div>`:''}
-    <div class="mis">${MIK.map(row).join('')}</div>
-    <div class="xs">${sfa!=null?`<span>Gesättigte Fettsäuren <b>${fmt(sfa,1)} g</b> (${fmt(sfa*9/kd*100)} % der kcal · Empfehlung unter 10 %)</span>`:''}${o3!=null?`<span>Omega-3 <b>${fmt(o3,1)} g</b></span>`:''}${alk?`<span>Alkohol <b>${fmt(alk,1)} g</b></span>`:''}</div>
-    <p class="src">Balken = Anteil am Referenzwert (D-A-CH-Referenzwerte DGE/ÖGE/SGE, 3. Aufl. 2025, Erwachsene 25–65${sex?', '+(sex==='m'?'männlich':'weiblich'):' – Geschlecht im Profil wählen, bis dahin gilt jeweils der höhere Wert'}). Referenzwerte sind eine Orientierung für Gruppen, kein persönlicher Bedarf – ein einzelner Tag darunter heißt nicht Mangel.
-      Fehlt ein Wert in den Daten, zählt er nicht als 0: „Daten für … %“ zeigt, für welchen Anteil deiner Kalorien ein Wert vorliegt (Schnell-Einträge und eigene Lebensmittel haben meist keine Mikros).
-      ${Object.values(FN).map(f=>f[0]+' = '+f[1]).join(' · ')}.<br>Nährwerte: ${BLS_SRC}</p></div>`; }
+  const row=k=>{ const m=MI[k], x=M.o[k], cv=x.kc/M.kcal, v=x.v/n, ref=refOf(k), pc=v/ref*100;
+    return `<div class="mi${cv<.5?' low':''}"><span class="ml">${m[0]}${m[4]?`<sup title="${FN[m[4]][1]}">${FN[m[4]][0]}</sup>`:''}</span><span class="tr" role="img" aria-label="${Math.round(pc)} % der Referenz"><i style="width:${Math.min(100,pc)}%"></i></span>
+      <span class="vl">${cv?fmt(v,v<10?1:0):'–'} <small>/ ${fmt(ref,1)} ${m[1]}</small></span><span class="cv">${Math.abs(cv-cm)<.1?'':cv?`Daten für ${Math.round(cv*100)} % der kcal`:'keine Daten'}</span></div>`; };
+  const xv=k=>{ const x=M.o[k]; return x.kc/M.kcal>=.5?x.v/n:null; }, o3=xv('o3'), alk=xv('alk');
+  const tog=`<button class="mtog" data-mikauf="1" aria-expanded="${mikAuf}"><span class="mt">Vitamine &amp; Mineralstoffe</span><span class="ms">${genug?`Daten für ${Math.round(cov*100)} % der kcal`:'zu wenig Daten'}</span>${CHEV}</button>`;
+  const auf=!mikAuf?'':genug?`${cm<.95?`<div class="note">Für etwa ${Math.round(cm*100)} % deiner Kalorien liegen Vitamin- und Mineralstoffwerte vor – der Rest fehlt in den Summen, die echten Werte liegen also eher etwas höher.</div>`:''}
+      <div class="mis">${MIK.map(row).join('')}</div>
+      ${o3!=null||alk?`<div class="xs">${o3!=null?`<span>Omega-3 <b>${fmt(o3,1)} g</b></span>`:''}${alk?`<span>Alkohol <b>${fmt(alk,1)} g</b></span>`:''}</div>`:''}
+      <p class="src">Balken = Anteil am Referenzwert (D-A-CH-Referenzwerte DGE/ÖGE/SGE, 3. Aufl. 2025, Erwachsene 25–65${sex?', '+(sex==='m'?'männlich':'weiblich'):' – Geschlecht im Profil wählen, bis dahin gilt jeweils der höhere Wert'}). Referenzwerte sind eine Orientierung für Gruppen, kein persönlicher Bedarf – ein einzelner Tag darunter heißt nicht Mangel.
+        Fehlt ein Wert in den Daten, zählt er nicht als 0. ${Object.values(FN).map(f=>f[0]+' = '+f[1]).join(' · ')}.<br>Nährwerte: ${BLS_SRC}</p>`
+    :`<div class="note">${cov==null?'Noch keine Einträge':`Nur für <b>${Math.round(cov*100)} %</b> deiner Kalorien ${bzT}`} liegen Vitamin- und Mineralstoffwerte vor. Sie erscheinen ab <b>70 %</b> – sonst wären die Summen viel zu niedrig und würden einen Mangel vortäuschen.
+      Werte haben Lebensmittel aus der Grundliste und dem BLS; Schnell-Einträge, Foto-Schätzungen und Packungswerte meist nicht.</div>`;
+  return `<div class="card s12 mikro"><h2>${title}<span class="cap">${cap}</span></h2>${basis}${tog}${auf}</div>`; }
 
 /* ---------- Bausteine ---------- */
 function ringSVG(v,max,px,col){ const p=max>0?Math.min(1,v/max):0, R=42, C=2*Math.PI*R;
   return `<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="${R}" fill="none" stroke="var(--surface-3)" stroke-width="9"/><circle cx="50" cy="50" r="${R}" fill="none" stroke="${col||'var(--accent)'}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${(C*p).toFixed(1)} ${C.toFixed(1)}"/></svg>`; }
 function mbar(k,v,goal){ const p=goal>0?Math.min(100,v/goal*100):0;
   return `<div class="mb"><span class="ml">${NL[k]}</span><span class="tr"><i style="width:${p}%;background:${NC[k]}"></i></span><span class="vl">${fmt(v)} <small>/ ${fmt(goal)} g</small></span></div>`; }
+function sbar(sf,max){ const o=sf.v>max, p=max>0?Math.min(100,sf.v/max*100):0;
+  return `<div class="mb sub"><span class="ml">davon gesättigt</span><span class="tr"><i style="width:${p}%;background:${o?'var(--bad-ink)':NC.f};opacity:${o?1:.55}"></i></span><span class="vl${o?' bad':''}">${fmt(sf.v,1)} <small>/ max. ${fmt(max)} g</small></span></div>${sf.cov<.8?`<div class="mbc">Gesättigte Fettsäuren sind nur für ${Math.round(sf.cov*100)} % des Fetts bekannt – der echte Wert liegt eher höher.</div>`:''}`; }
+const sgn=(v,d=0)=>(v>0?'+':v<0?'−':'')+fmt(Math.abs(v),d);
 const nLine=n=>[['p','P'],['kh','KH'],['f','F']].filter(([k])=>n[k]!=null).map(([k,l])=>`<i>${l} ${fmt(n[k],1)}</i>`).join('');
+
 
 
 /* ---------- Ansichten ---------- */
@@ -546,6 +681,9 @@ function render(){
   stamp(); }
 function vHeute(el){
   const E=entriesOn(day), t=sumN(E), g=G(), isT=day===today(), fd=fDay(day), bk=burnSum(day), bud=budget(day), over=t.kcal-bud;
+  const sf=sfaOf(E), smax=sfaMax(), nd=needOn(day), plan=phDelta(D.set.phase.art,D.set.phase.tempo), bil=nd&&E.length?Math.round(t.kcal-nd):null, pg=prognose(), BO=burnOn(day), tagB=BO.some(b=>b.tag);
+  const PM=Object.values(E.reduce((o,e)=>{ const h=(e.zeit||'12:00').slice(0,2); o[h]=(o[h]||0)+(+((e.n||{}).p)||0); return o; },{})).filter(v=>v>=20).length;
+  const wko=wochenkonto(day), wp=isT&&E.length?wasPasst(day):null, bc=D.mass['m'+day], bd=bauchDelta(28);
   const wml=waterSum(day), wk=D.weight['w'+day], T=trend(), tr=T.length?T[T.length-1]:null, tr7=trendAt(T,kAdd(today(),-7));
   let fast='';
   if(D.set.fasten.on){ const all=live('log').map(e=>kDate(e.datum).getTime()+(hm2min(e.zeit)||0)*6e4).filter(x=>x<=Date.now()).sort((a,b)=>b-a), lastT=all[0];
@@ -553,29 +691,32 @@ function vHeute(el){
     const since=lastT?(Date.now()-lastT)/6e4:null, goal=(+D.set.fasten.h||16)*60;
     fast=`<div class="mini"><div class="h"><span>Fasten ${D.set.fasten.h}:${win}</span></div>${isT&&since!=null?`<b class="v">${fDur(since)}</b><div class="fbar"><i style="width:${Math.min(100,since/goal*100)}%"></i></div><span class="cap">seit der letzten Mahlzeit${since>=goal?' · Ziel erreicht':''}</span>`:''}${first?`<span class="cap">Essensfenster ${esc(first)}–${endW}</span>`:''}</div>`; }
   else { const M=new Set(E.filter(e=>!e.fl).map(e=>(e.zeit||'12:00').slice(0,2))).size;   // Mahlzeit = ein Block in der Zeitleiste (gleiche Stunde), reine Getränke zählen nicht
-    fast=`<div class="mini"><div class="h"><span>Mahlzeiten</span></div><b class="v">${M}</b><span class="cap">${E.length?`${E.length} ${E.length===1?'Eintrag':'Einträge'} · ${M===1?'um '+esc(E[0].zeit):esc(E[0].zeit)+' bis '+esc(E[E.length-1].zeit)}`:'noch nichts eingetragen'}</span></div>`; }
+    fast=`<div class="mini"><div class="h"><span>Mahlzeiten</span></div><b class="v">${M}</b><span class="cap">${E.length?`${E.length} ${E.length===1?'Eintrag':'Einträge'} · ${M===1?'um '+esc(E[0].zeit):esc(E[0].zeit)+' bis '+esc(E[E.length-1].zeit)}`:'noch nichts eingetragen'}</span>${E.length?`<span class="cap">${PM} von 3 eiweißreichen Mahlzeiten (ab 20 g)</span>`:''}</div>`; }
   const sug=suggestions(day);
   el.innerHTML=`<div class="dayhead"><button class="ibtn" data-day="-1" aria-label="Vorheriger Tag">‹</button><div class="dt">${fd.t}<small>${fd.s||'&nbsp;'}</small></div>
       ${isT?'':'<button class="btn sm" data-day="0">Heute</button>'}<button class="ibtn" data-day="1" aria-label="Nächster Tag">›</button><button class="btn pri" data-add="">+ Eintragen</button></div>
     <div class="grid">
       <div class="card s5"><div class="sum"><div class="ring">${ringSVG(t.kcal,bud)}<div class="rl"><b>${fmt(t.kcal)}</b><span>von ${fmt(bud)} kcal</span><span>${over>0?`${fmt(over)} darüber`:`${fmt(-over)} übrig`}</span>${bud!==g.kcal?`<span class="sp">inkl. ${fmt(bud-g.kcal)} Sport</span>`:''}</div></div>
-        <div class="macros">${mbar('p',t.p,g.p)}${mbar('kh',t.kh,g.kh)}${mbar('f',t.f,g.f)}${mbar('bal',t.bal,g.bal)}</div></div></div>
+        <div class="macros">${mbar('p',t.p,g.p)}${mbar('kh',t.kh,g.kh)}${mbar('f',t.f,g.f)}${sf.ft>0?sbar(sf,smax):''}${mbar('bal',t.bal,g.bal)}
+          ${E.length?`<div class="xl"><span>Zucker <b>${fmt(t.zucker)} g</b></span><span>Salz <b>${fmt(t.salz,1)} g</b></span>${bil!=null?`<span>Bilanz${isT?' bisher':''} <b>${sgn(bil)} kcal</b> bei ${fmt(nd)} Bedarf${plan?' · Plan '+sgn(plan):''}</span>`:''}</div>`:''}
+          ${wko&&wko.n&&Math.abs(wko.s)>=50?`<div class="wk${wko.s<0?' neg':''}"><b>Wochenkonto ${wko.s>0?fmt(wko.s)+' kcal gut':fmt(-wko.s)+' kcal im Minus'}</b><span>aus ${wko.n} ${wko.n===1?'Tag':'Tagen'} dieser Woche${isT?` · gleichmäßig verteilt wären es heute ${fmt(wko.heute)} kcal`:''}</span></div>`:''}</div></div></div>
       <div class="card s7"><div class="tiles">
         <div class="mini"><div class="h"><span>Wasser</span><span class="mono">${fmt(wml/1000,2)} / ${fmt(g.wasser/1000,1)} l</span></div><div class="wbar"><i style="width:${Math.min(100,wml/(g.wasser||1)*100)}%"></i></div>
           <div class="acts"><button class="btn sm" data-water="250" title="Glas">+ 250</button><button class="btn sm" data-water="500" title="Flasche">+ 500</button><button class="btn sm" data-water="750">+ 750</button><span class="wcus"><input class="in mono" id="wIn" inputmode="numeric" placeholder="ml" aria-label="Eigene Menge in ml"><button class="btn sm" data-water="x" aria-label="Eigene Menge hinzufügen">+</button></span>${waterOn(day).length?'<button class="btn sm" data-water="-1" aria-label="Letztes Wasser entfernen">−</button>':''}</div>${drinkMl(day)?`<span class="cap">davon ${fmt(drinkMl(day))} ml aus Getränken</span>`:''}</div>
         ${fast}
         <div class="mini w2"><div class="h"><span>Sport · verbrannt</span><span class="mono">${bk?fmt(bk)+' kcal':''}</span></div>
           <div class="acts" style="align-items:center"><input class="in mono" id="bIn" inputmode="numeric" placeholder="kcal" style="width:84px" aria-label="Verbrannte Kalorien"><input class="in" id="bNm" placeholder="z. B. Laufen" style="width:140px" aria-label="Aktivität (optional)"><button class="btn sm" data-burn="1">+ hinzufügen</button></div>
-          ${burnOn(day).length?`<div class="chips">${burnOn(day).map(b=>`<span class="bchip">${esc(b.name||'Sport')} <b>${fmt(b.kcal)}</b><button class="x" data-burnrm="${b.id}" aria-label="${esc(b.name||'Sport')} entfernen">×</button></span>`).join('')}</div>`:''}
-          <span class="cap">Aus Garmin Connect die <b>aktiven</b> Kalorien eintragen (nicht „Gesamt“ – der Grundumsatz steckt schon im Ziel).${+D.set.sport?(+D.set.sport<1?' Zählt zur Hälfte zum Tagesziel.':' Wird zum Tagesziel addiert.'):' Wird nicht aufs Ziel angerechnet.'}</span></div>
+          ${BO.length?`<div class="chips">${BO.map(b=>`<span class="bchip${tagB&&!b.tag?' off':''}">${b.tag?'Garmin · ganzer Tag':esc(b.name||'Sport')} <b>${fmt(b.kcal)}</b><button class="x" data-burnrm="${b.id}" aria-label="${esc(b.name||'Sport')} entfernen">×</button></span>`).join('')}</div>`:''}
+          <span class="cap">${tagB?'Tageswert aus Garmin / Apple Health (alle aktiven Kalorien). Einzelne Einträge zählen an diesem Tag nicht zusätzlich.':'Aus Garmin Connect die <b>aktiven</b> Kalorien eintragen (nicht „Gesamt“ – der Grundumsatz steckt schon im Ziel). Automatisch geht es über „Ziele → Sport“.'}${+D.set.sport?(+D.set.sport<1?' Zählt zur Hälfte zum Tagesziel.':' Wird zum Tagesziel addiert.'):' Wird nicht aufs Ziel angerechnet.'}</span></div>
         <div class="mini"><div class="h"><span>Gewicht ${isT?'heute':'am '+kDate(day).getDate()+'.'}</span>${tr?`<span class="mono">Trend ${fmt(tr.t,1)}</span>`:''}</div>
-          <div class="acts" style="align-items:center"><input class="in mono" style="width:96px" inputmode="decimal" id="kgIn" placeholder="kg" value="${wk&&!wk.del?String(wk.kg).replace('.',','):''}" aria-label="Gewicht in kg"><span class="cap">kg</span></div>
-          <span class="cap">${tr&&tr7!=null?`${tr.t-tr7>=0?'+':''}${fmt(tr.t-tr7,1)} kg in 7 Tagen (Trend)`:'morgens nüchtern wiegen'}</span></div>
-        <div class="mini"><div class="h"><span>Ziel</span></div><b class="v" style="font-size:16px">${{aufbau:'Aufbau',halten:'Halten',ab:'Abnehmen'}[D.set.phase.art]}</b><span class="cap">${D.set.phase.art==='halten'?'Gewicht halten':`${fmt(D.set.phase.tempo,2)} kg pro Woche`}</span><button class="btn sm" data-v="ziele" style="align-self:flex-start">ändern</button></div>
+          <div class="acts" style="align-items:center"><input class="in mono" style="width:96px" inputmode="decimal" id="kgIn" placeholder="kg" value="${wk&&!wk.del?String(wk.kg).replace('.',','):''}" aria-label="Gewicht in kg"><span class="cap">kg</span><input class="in mono" style="width:84px" inputmode="decimal" id="bcIn" placeholder="cm" value="${bc&&!bc.del?String(bc.bauch).replace('.',','):''}" aria-label="Bauchumfang in cm"><span class="cap">cm Bauch</span></div>
+          <span class="cap">${tr&&tr7!=null?`${tr.t-tr7>=0?'+':''}${fmt(tr.t-tr7,1)} kg in 7 Tagen (Trend)`:'morgens nüchtern wiegen'}${bd?` · Bauch ${sgn(bd.cm,1)} cm in ${bd.tage} Tagen`:''}</span></div>
+        <div class="mini"><div class="h"><span>Ziel</span></div><b class="v" style="font-size:16px">${{aufbau:'Aufbau',halten:'Halten',ab:'Abnehmen'}[D.set.phase.art]}</b><span class="cap">${D.set.phase.art==='halten'?'Gewicht halten':`${fmt(D.set.phase.tempo,2)} kg pro Woche`}${pg&&!pg.done?` · ${fmt(D.set.phase.zielKg,1)} kg etwa am ${kDate(pg.datum).toLocaleDateString('de-DE',{day:'numeric',month:'short'})}`:pg?' · Zielgewicht erreicht':''}</span><button class="btn sm" data-v="ziele" style="align-self:flex-start">ändern</button></div>
       </div></div>
       ${sug.length?`<div class="card s12"><h2>${isT?'Um diese Zeit isst du oft':'Oft gegessen'}</h2><div class="sugg" style="margin-top:10px">${sug.map(s=>{ const f=food(s.ref), n=scale(f.je100,s.g); return `<button class="sg" data-sugg="${esc(s.ref)}|${s.g}"><b>+ ${esc(f.name)}</b><span>${fmt(s.g)} ${unitOf(f)} · ${fmt(n.kcal)} kcal</span></button>`; }).join('')}</div></div>`:''}
+      ${wp&&wp.L.length?`<div class="card s12"><h2>Was passt noch?<span class="cap">noch ${fmt(wp.R)} kcal · ${wp.P>=10?fmt(wp.P)+' g Eiweiß offen':'Eiweiß erreicht'}</span></h2><div class="sugg" style="margin-top:10px">${wp.L.map(s=>`<button class="sg" data-sugg="${esc(s.ref)}|${s.g}"><b>+ ${esc(s.name)}</b><span>${fmt(s.g)} ${s.fl?'ml':'g'} · ${fmt(s.n.kcal)} kcal · ${fmt(s.n.p)} g Eiweiß</span></button>`).join('')}</div><p class="cap" style="margin-top:8px">Aus dem, was du öfter isst – vorn steht, was ${wp.P>=10?'das fehlende Eiweiß am besten deckt':'die restlichen Kalorien am besten trifft'}, ohne die Grenze für gesättigte Fettsäuren zu reißen.</p></div>`:''}
       <div class="card s12"><h2>Zeitleiste<span class="cap">${E.length} ${E.length===1?'Eintrag':'Einträge'}</span></h2><div class="tl" style="margin-top:12px">${timeline(E,isT)}</div></div>
-      ${D.set.mikro&&E.length?microCard([day],'Mikronährstoffe',isT?'heute bisher':fd.s):''}
+      ${D.set.mikro&&E.length?microCard([day],'Mikronährstoffe',isT?'heute bisher':fd.s,woche(day),'in der Woche bis zu diesem Tag'):''}
     </div>`;
 }
 function timeline(E,isT){ const by={}; E.forEach(e=>{ const h=(e.zeit||'12:00').slice(0,2); (by[h]=by[h]||[]).push(e); });
@@ -607,21 +748,28 @@ function vVerlauf(el){
       +TW.map(x=>`<circle cx="${X(x.datum)}" cy="${Y(x.kg)}" r="3.5" fill="var(--muted)" opacity=".55"><title>${kDate(x.datum).toLocaleDateString('de-DE')}: ${fmt(x.kg,1)} kg</title></circle>`).join('')
       +`<path d="${TW.map((x,i)=>(i?'L':'M')+X(x.datum).toFixed(1)+' '+Y(x.t).toFixed(1)).join(' ')}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>`
       +`<text x="${pl}" y="${H-8}" font-size="11" fill="var(--faint)" font-family="var(--mono)">${kDate(from).getDate()}.${kDate(from).getMonth()+1}.</text><text x="${W-pr}" y="${H-8}" text-anchor="end" font-size="11" fill="var(--faint)" font-family="var(--mono)">heute</text>`; }
-  const td=tdee(), rec=recommend(), ci=D.set.checkin, due=!ci||kDiff(today(),ci.datum)>=7;
+  const bdV=bauchDelta(28), T4=trendAt(T,kAdd(end,-28)), dkg=T4!=null&&T.length?T[T.length-1].t-T4:null;
+  const td=tdee(), rec=recommend(), ci=D.set.checkin, due=!ci||kDiff(today(),ci.datum)>=7, bl=bilanz(7), plan=phDelta(D.set.phase.art,D.set.phase.tempo);
+  const SF=L.length?sfaOf(L.flatMap(x=>entriesOn(x.k))):null, sfd=SF&&SF.cov>=.5?SF.v/L.length:null, sfp=sfd!=null&&avg('kcal')?sfd*9/avg('kcal')*100:null;
   el.innerHTML=`<div class="chips" style="margin-bottom:14px">${[7,30,90].map(n=>`<button class="chip${rng===n?' on':''}" data-rng="${n}">${n} Tage</button>`).join('')}</div>
    <div class="grid">
     <div class="card s12"><h2>Kalorien<span class="cap">Strich = Ziel · heute hell</span></h2><svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Kalorien pro Tag">${svg}</svg>
-      <div class="kpis" style="margin-top:10px"><div class="kpi"><b>${fmt(avg('kcal'))}</b><span>Ø kcal pro Tag</span></div><div class="kpi"><b>${fmt(avg('p'))} g</b><span>Ø Eiweiß</span></div><div class="kpi"><b>${fmt(avg('kh'))} g</b><span>Ø Kohlenhydrate</span></div><div class="kpi"><b>${fmt(avg('f'))} g</b><span>Ø Fett</span></div></div>
+      <div class="kpis k6" style="margin-top:10px"><div class="kpi"><b>${fmt(avg('kcal'))}</b><span>Ø kcal pro Tag</span></div><div class="kpi"><b>${fmt(avg('p'))} g</b><span>Ø Eiweiß</span></div><div class="kpi"><b>${fmt(avg('kh'))} g</b><span>Ø Kohlenhydrate</span></div><div class="kpi"><b>${fmt(avg('f'))} g</b><span>Ø Fett</span></div><div class="kpi${sfp>10?' bad':''}"><b>${sfd!=null?fmt(sfd,1)+' g':'–'}</b><span>Ø gesättigt${sfp!=null?` · ${fmt(sfp)} % der kcal`:''}</span></div><div class="kpi"><b>${fmt(avg('bal'))} g</b><span>Ø Ballaststoffe</span></div></div>
       <p class="cap" style="margin-top:8px">Durchschnitt über ${L.length} erfasste Tage (ohne heute). Einzelne Tage über oder unter dem Ziel sind normal – der Schnitt zählt.</p></div>
-    <div class="card s7"><h2>Gewicht<span class="cap">Punkte: Messung · Linie: Trend</span></h2>${wsvg?`<svg class="chart" viewBox="0 0 ${W2} ${H2}" role="img" aria-label="Gewichtsverlauf">${wsvg}</svg>`:'<div class="empty">Noch zu wenige Messungen. Trag dein Gewicht unter „Tag“ ein – am besten morgens.</div>'}</div>
-    <div class="card s5 stack"><h2>Bedarf & Check-in</h2>
-      ${td.v?`<div><div class="cap">Geschätzter Tagesbedarf</div><div style="font-family:var(--mono);font-size:28px;font-weight:700">${fmt(td.v)} kcal</div><div class="cap">aus ${td.logged} erfassten Tagen (Ø ${fmt(td.avg)} kcal) und Trend ${td.delta>=0?'+':''}${fmt(td.delta,1)} kg in 3 Wochen</div></div>`
-        :`<div class="note">${esc(td.need)} Bisher: ${td.logged} Tage, ${td.nW} Messungen.${mifflin()?` Bis dahin rechne ich mit der Formel aus deinem Profil: <b>${fmt(mifflin())} kcal</b>.`:' Bis dahin brauche ich dein Profil unter „Ziele“ für einen Startwert.'}</div>`}
+    <div class="card s7"><h2>Gewicht<span class="cap">Punkte: Messung · Linie: Trend</span></h2>${wsvg?`<svg class="chart" viewBox="0 0 ${W2} ${H2}" role="img" aria-label="Gewichtsverlauf">${wsvg}</svg>`:'<div class="empty">Noch zu wenige Messungen. Trag dein Gewicht unter „Tag“ ein – am besten morgens.</div>'}
+      ${bdV?`<p class="cap" style="margin-top:8px">Bauchumfang <b style="color:var(--ink)">${fmt(bdV.last.bauch,1)} cm</b> · ${sgn(bdV.cm,1)} cm in ${bdV.tage} Tagen.${dkg!=null&&Math.abs(dkg)<0.4&&bdV.cm<=-1?' Die Waage steht, der Bauch wird schmaler – das spricht für weniger Fett bei gleichem Gewicht.':''}</p>`:'<p class="cap" style="margin-top:8px">Tipp: einmal pro Woche den Bauchumfang auf Nabelhöhe messen (unter „Tag“). Er zeigt Fortschritt auch dann, wenn die Waage steht.</p>'}</div>
+    <div class="card s5 stack"><h2>Bedarf & Bilanz</h2>
+      ${td.v?`<div><div class="cap">Dein Tagesbedarf · ${td.src==='Formel'?'Startwert aus dem Profil':td.src}</div><div style="font-family:var(--mono);font-size:28px;font-weight:700">${fmt(td.v)} kcal</div>
+        <div class="cap">${td.sport?`${fmt(td.base)} ohne Sport + Ø ${fmt(td.sport)} Sport. `:''}${td.roh?`Aus ${td.logged} vollständig erfassten Tagen (Ø ${fmt(td.avg)} kcal) und ${sgn(td.wk,2)} kg pro Woche auf der Waage.`:''}</div>
+        ${td.roh&&td.c<.99?`<div class="conf" role="img" aria-label="Sicherheit ${Math.round(td.c*100)} %"><i style="width:${Math.round(td.c*100)}%"></i></div><div class="cap">Zu ${Math.round(td.c*100)} % gemessen, der Rest ist noch Formel – nach 3 Wochen mit Einträgen und Gewicht zählt nur noch die Messung.</div>`:''}</div>`:''}
+      ${td.need?`<div class="note">${esc(td.need)} Bisher: ${td.logged} ${td.logged===1?'Tag':'Tage'}${td.part?` (dazu ${td.part} unvollständige)`:''}, ${td.nW} Messungen.${td.v?'':' Für einen Startwert brauche ich dein Profil unter „Ziele“ und ein Gewicht.'}</div>`:''}
+      ${bl?`<div class="bl"><div class="cap">Bilanz der letzten 7 Tage · ${bl.n} vollständig erfasst</div><div class="big2">${sgn(bl.d)} kcal pro Tag</div>
+        <div class="cap">${plan?`Plan ${sgn(plan)}. `:''}Das entspricht rechnerisch ${sgn(bl.d*7/7700,2)} kg pro Woche${bl.kg!=null?` – die Waage zeigt im Trend ${sgn(bl.kg,1)} kg`:''}.</div></div>`:''}
       ${rec?`<div class="ci"><div class="cap">${due?'<b>Wöchentlicher Check-in</b> · ':''}Vorschlag für „${{aufbau:'Aufbau',halten:'Halten',ab:'Abnehmen'}[D.set.phase.art]}“ (Basis: ${rec.src})</div><div class="big">${fmt(rec.kcal)} kcal</div>
-        <div class="cap">Eiweiß ${rec.p} g · Kohlenhydrate ${rec.kh} g · Fett ${rec.f} g</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" data-apply="1">Übernehmen</button><button class="btn" data-keep="1">Ziele behalten</button></div>
+        <div class="cap">Eiweiß ${rec.p} g · Kohlenhydrate ${rec.kh} g · Fett ${rec.f} g${SPF()?' · an Tagen ohne Sport, Sport kommt obendrauf':''}</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" data-apply="1">Übernehmen</button><button class="btn" data-keep="1">Ziele behalten</button></div>
         ${ci?`<div class="cap">Letzter Check-in: ${kDate(ci.datum).toLocaleDateString('de-DE')} (${esc(ci.was)})</div>`:''}</div>`:''}
-      <p class="cap">Der Bedarf ist eine Schätzung aus deinen eigenen Daten. Je vollständiger du einträgst, desto genauer wird er.</p></div>
-    ${L.length?microCard(L.map(x=>x.k),'Mikronährstoffe',`Ø pro Tag · ${L.length} erfasste ${L.length===1?'Tag':'Tage'}`):''}
+      <p class="cap">Der Bedarf ist eine Schätzung aus deinen eigenen Daten. Tage mit sehr wenig Einträgen gelten als unvollständig und zählen nicht mit.</p></div>
+    ${L.length?microCard(L.map(x=>x.k),'Mikronährstoffe',`Ø pro Tag · ${L.length} erfasste ${L.length===1?'Tag':'Tage'}`,null,rng===7?'in dieser Woche':'in diesem Zeitraum'):''}
    </div>`;
 }
 function vFoods(el){
@@ -639,36 +787,52 @@ function vFoods(el){
 }
 function blsList(){ const R=search(fq,'bls',100);
   return R.length?`<div class="lst">${R.map(f=>`<button class="li lib" data-finfo="${f.id}"><div><div class="n">${esc(f.name)}</div><div class="s">${fmt(f.je100.kcal)} kcal · P ${fmt(f.je100.p,1)} · KH ${fmt(f.je100.kh,1)} · F ${fmt(f.je100.f,1)} je 100 g</div></div><span class="cap">Nährwerte ›</span></button>`).join('')}</div>`:'<div class="empty">Nichts gefunden.</div>'; }
-function vZiele(el){ const s=D.set, p=s.profil, g=s.ziele, rec=recommend();
+function vZiele(el){ const s=D.set, p=s.profil, g=s.ziele, rec=recommend(), td=tdee(), kg=lastKg(), ph=s.phase, pd=phDelta(ph.art,ph.tempo), pg=prognose(), mk=s.makro||{}, st=stilK(), ab=ph.art==='ab';
   const sel=(k,v,opts)=>`<select class="in" data-prof="${k}" style="width:auto;display:inline-block">${opts.map(([a,b])=>`<option value="${a}"${String(v)===String(a)?' selected':''}>${b}</option>`).join('')}</select>`;
+  const dz=v=>String(v).replace('.',','), PHN={aufbau:'Aufbau',halten:'Halten',ab:'Abnehmen'}, mk4=g.p*4+g.kh*4+g.f*9;
+  const tps=kg?(ab?[0.25,0.5,0.75,1]:[0.1,0.25,0.5]).map(pc=>{ const v=Math.max(0.05,Math.round(kg*pc/5)/20); return `<button class="chip${Math.abs(v-ph.tempo)<.02?' on':''}" data-tp="${v}">${dz(pc)} % · ${fmt(v,2)} kg</button>`; }).join(''):'';
   el.innerHTML=`<div class="grid">
-    <div class="card s12 stack"><h2>Phase</h2><div class="opts">${[['aufbau','Aufbau','Muskeln aufbauen, leichter Überschuss'],['halten','Halten','Gewicht stabil halten'],['ab','Abnehmen','Fett verlieren, leichtes Defizit']].map(([k,t,d])=>`<button class="opt${s.phase.art===k?' on':''}" data-phase="${k}" aria-pressed="${s.phase.art===k}"><b>${t}</b><span>${d}</span></button>`).join('')}</div>
-      ${s.phase.art!=='halten'?`<div class="sent">Tempo: <input class="in" data-tempo="1" inputmode="decimal" value="${String(s.phase.tempo).replace('.',',')}" aria-label="Tempo in kg pro Woche"> kg pro Woche <span class="cap">(${s.phase.art==='aufbau'?'üblich 0,1–0,25':'üblich 0,25–0,75'} · seit ${kDate(s.phase.ab).toLocaleDateString('de-DE')})</span></div>`:`<div class="cap">seit ${kDate(s.phase.ab).toLocaleDateString('de-DE')}</div>`}
-      <div class="cap">„Seit“ = Start der aktuellen Phase. Ein Wechsel kommt erst in den Verlauf, wenn die Phase mindestens 24 Stunden lief – kurz hin- und herschalten ändert das Datum nicht.</div>
-      <div class="cap">Phase oder Tempo ändern passt das Kalorienziel direkt an (${s.phase.art==='halten'?'kein Zu- oder Abschlag':`${phDelta(s.phase.art,s.phase.tempo)>0?'+':''}${fmt(phDelta(s.phase.art,s.phase.tempo))} kcal pro Tag`}) – Eiweiß und Fett bleiben, die Kohlenhydrate gleichen aus. Aktuell: <b>${fmt(g.kcal)} kcal</b>.</div></div>
+    <div class="card s12 stack"><h2>Phase</h2><div class="opts">${[['aufbau','Aufbau','Muskeln aufbauen, leichter Überschuss'],['halten','Halten','Gewicht stabil halten'],['ab','Abnehmen','Fett verlieren, Defizit']].map(([k,t,d])=>`<button class="opt${ph.art===k?' on':''}" data-phase="${k}" aria-pressed="${ph.art===k}"><b>${t}</b><span>${d}</span></button>`).join('')}</div>
+      ${ph.art!=='halten'?`<div class="sent">Tempo: <input class="in" data-tempo="1" inputmode="decimal" value="${dz(ph.tempo)}" aria-label="Tempo in kg pro Woche"> kg pro Woche</div>
+        ${tps?`<div class="chips">${tps}<span class="cap" style="align-self:center">vom Körpergewicht pro Woche</span></div>`:''}
+        <div class="cap">${ab?'Gängig sind 0,5–1 % pro Woche. Je schlanker du schon bist, desto langsamer – das schont die Muskeln.':'Für den Aufbau reichen 0,1–0,25 % pro Woche, mehr wird vor allem Fett.'}</div>
+        <div class="sent">Zielgewicht: <input class="in" data-zielkg="1" inputmode="decimal" value="${ph.zielKg?dz(ph.zielKg):''}" placeholder="–" aria-label="Zielgewicht in kg"> kg <span class="cap">${pg?(pg.done?'– erreicht.':`– bei diesem Tempo etwa am ${kDate(pg.datum).toLocaleDateString('de-DE')} (${fmt(pg.w)} Wochen)`):'(optional, für die Prognose)'}</span></div>`:''}
+      <div class="note">${pd?`${pd<0?'Defizit':'Überschuss'} <b>${fmt(Math.abs(pd))} kcal pro Tag</b>${td.v?` – das sind ${Math.round(Math.abs(pd)/td.v*100)} % deines Bedarfs (${fmt(td.v)} kcal)`:''}. `:'Kein Zu- oder Abschlag. '}Phase oder Tempo ändern verschiebt das Kalorienziel sofort; Eiweiß und Fett bleiben, die Kohlenhydrate gleichen aus. Aktuell: <b>${fmt(g.kcal)} kcal</b>${SPF()?' an Tagen ohne Sport':''}.</div>
+      ${rec&&rec.warn.length?`<div class="note warn">${rec.warn.map(esc).join(' ')}</div>`:''}
+      <div class="cap">Seit ${kDate(ph.ab).toLocaleDateString('de-DE')}. Ein Wechsel kommt erst in den Verlauf, wenn die Phase mindestens 24 Stunden lief – kurz hin- und herschalten ändert das Datum nicht.</div></div>
+    <div class="card s12 stack"><h2>Makroverteilung<span class="cap">für den Vorschlag</span></h2>
+      <div class="opts o4">${Object.entries(STIL).map(([k,v])=>`<button class="opt${st===k?' on':''}" data-stil="${k}" aria-pressed="${st===k}"><b>${v.t}</b><span>${v.d}</span></button>`).join('')}</div>
+      <div class="sent">Eiweiß: <input class="in" data-pkg="1" inputmode="decimal" value="${mk.pkg?dz(mk.pkg):''}" placeholder="${dz(pStd())}" aria-label="Eiweiß in Gramm je Kilogramm Körpergewicht"> g je kg Körpergewicht <span class="cap">(leer = ${dz(pStd())} für „${PHN[ph.art]}“)</span></div>
+      ${rec?`<div class="ci"><div class="cap">Vorschlag · Bedarf ${rec.src==='Formel'?'aus dem Profil':rec.src}: ${fmt(rec.base)} kcal${td.sport?' ohne Sport':''}${rec.delta?` ${sgn(rec.delta)} für „${PHN[ph.art]}“`:''}</div><div class="big">${fmt(rec.kcal)} kcal</div>
+        <div class="cap">Eiweiß <b>${rec.p} g</b> (${dz(rec.pk)} g/kg) · Fett <b>${rec.f} g</b> (${rec.fpc} %) · Kohlenhydrate <b>${rec.kh} g</b> · davon gesättigt höchstens ${rec.sfa} g · Ballaststoffe mindestens ${rec.bal} g</div>
+        <button class="btn pri" data-apply="1" style="align-self:flex-start">Als Tagesziele übernehmen</button></div>`
+        :'<div class="note">Für einen Vorschlag brauche ich dein Profil (unten) und mindestens ein Gewicht unter „Tag“.</div>'}
+      <p class="src">Eiweiß: 1,2–1,6 g/kg reichen allgemein, 1,6–2,2 g/kg mit Krafttraining, im Defizit bei Trainierten auch mehr – am besten auf mindestens drei eiweißreiche Mahlzeiten verteilt. Wie sich der Rest auf Kohlenhydrate und Fett verteilt, ist bei gleichen Kalorien und gleichem Eiweiß vor allem Geschmackssache (ISSN-Positionspapiere 2017/2026). Fett rund 30 % der Energie, gesättigte Fettsäuren höchstens 10 %, Ballaststoffe mindestens 30 g am Tag (DGE). Fett fällt im Vorschlag nie unter 0,6 g je kg.</p></div>
     <div class="card s6 stack"><h2>Tagesziele</h2>
-      <div class="form">${[['kcal','Kalorien','kcal'],['p','Eiweiß','g'],['kh','Kohlenhydrate','g'],['f','Fett','g'],['bal','Ballaststoffe','g'],['wasser','Wasser','ml']].map(([k,l,u])=>`<label class="lbl w2">${l} (${u})<input class="in mono" inputmode="numeric" data-goal="${k}" value="${g[k]??''}"></label>`).join('')}</div>
-      <div class="cap">Aus den Makros ergeben sich ${fmt(g.p*4+g.kh*4+g.f*9)} kcal.</div>
-      ${rec?`<div class="ci"><div class="cap">Vorschlag aus ${rec.src==='gemessen'?'deinem gemessenen Bedarf':'deinem Profil'} (${fmt(rec.base)} kcal Grundbedarf)</div><div class="big">${fmt(rec.kcal)} kcal</div><div class="cap">Eiweiß ${rec.p} g · Kohlenhydrate ${rec.kh} g · Fett ${rec.f} g</div><button class="btn pri" data-apply="1" style="align-self:flex-start">Übernehmen</button></div>`:''}</div>
+      <div class="form">${[['kcal','Kalorien','kcal'],['p','Eiweiß','g'],['kh','Kohlenhydrate','g'],['f','Fett','g'],['sfa','davon gesättigt, höchstens','g'],['bal','Ballaststoffe','g'],['wasser','Wasser','ml']].map(([k,l,u])=>`<label class="lbl w2">${l} (${u})<input class="in mono" inputmode="numeric" data-goal="${k}" value="${k==='sfa'?(+g.sfa>0?g.sfa:''):g[k]??''}"${k==='sfa'?` placeholder="${sfaMax()} (10 % der kcal)"`:''}></label>`).join('')}</div>
+      <div class="cap">Aus den Makros ergeben sich ${fmt(mk4)} kcal${Math.abs(mk4-g.kcal)>g.kcal*0.05?` – das weicht vom Kalorienziel (${fmt(g.kcal)}) ab`:''}.${SPF()?' Das Kalorienziel gilt für Tage ohne Sport; verbrannte Kalorien kommen obendrauf.':''}</div></div>
     <div class="card s6 stack"><h2>Profil<span class="cap">für den Startwert</span></h2>
-      <div class="sent">Ich bin ${sel('sex',p.sex,[['','–'],['m','männlich'],['w','weiblich']])}, <input class="in" data-prof="alter" inputmode="numeric" value="${p.alter??''}" aria-label="Alter"> Jahre alt, <input class="in" data-prof="cm" inputmode="numeric" value="${p.cm??''}" aria-label="Größe in cm"> cm groß und im Alltag ${sel('akt',p.akt,[[1.2,'kaum aktiv'],[1.375,'leicht aktiv'],[1.55,'mäßig aktiv'],[1.725,'sehr aktiv'],[1.9,'extrem aktiv']])}.</div>
-      <div class="cap">${mifflin()?`Startwert nach Mifflin-St Jeor: <b>${fmt(mifflin())} kcal</b>. Nach etwa drei Wochen ersetzt ihn der gemessene Bedarf aus deinen Einträgen.`:'Für den Startwert brauche ich Profil und mindestens ein Gewicht (unter „Tag“).'}</div>
+      <div class="sent">Ich bin ${sel('sex',p.sex,[['','–'],['m','männlich'],['w','weiblich']])}, <input class="in" data-prof="alter" inputmode="numeric" value="${p.alter??''}" aria-label="Alter"> Jahre alt, <input class="in" data-prof="cm" inputmode="numeric" value="${p.cm??''}" aria-label="Größe in cm"> cm groß und im Alltag – ohne Sport – ${sel('akt',p.akt,[[1.2,'kaum aktiv'],[1.375,'leicht aktiv'],[1.55,'mäßig aktiv'],[1.725,'sehr aktiv'],[1.9,'extrem aktiv']])}.</div>
+      <div class="cap">${mifflin()?`Grundumsatz ${fmt(bmr())} kcal (Mifflin-St Jeor) ${uhrTag()?'+ 10 % – die Bewegung kommt als Tageswert von der Uhr dazu':'× Alltag'} = <b>${fmt(mifflin())} kcal</b> als Startwert. Nach rund drei Wochen ersetzt ihn der gemessene Bedarf aus deinen Einträgen.`:'Für den Startwert brauche ich Profil und mindestens ein Gewicht (unter „Tag“).'}</div>
+      <h2 style="margin-top:6px">Sport</h2>
+      <div class="sent">Verbrannte Kalorien (z. B. von Garmin) ${sel('sport',s.sport,[[1,'voll'],[0.75,'zu drei Vierteln'],[0.5,'zur Hälfte'],[0,'nicht']])} aufs Tagesziel anrechnen.</div>
+      <div class="cap">Der gemessene Bedarf zieht den angerechneten Sport vorher ab – Sport zählt also nicht doppelt, und eine Uhr, die zu viel anzeigt, gleicht sich nach ein paar Wochen von selbst aus. Bis dahin ist „zur Hälfte“ die vorsichtige Wahl.</div>
+      ${window.__PI_SYNC?'<button class="btn sm" data-health="1" style="align-self:flex-start">Garmin / Apple Health automatisch übernehmen …</button>':''}
       <h2 style="margin-top:6px">Fasten</h2>
       <label class="sent" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><input type="checkbox" data-fast="on" ${s.fasten.on?'checked':''} style="width:20px;height:20px;accent-color:var(--accent)"> Intervallfasten mit <input class="in" data-fast="h" inputmode="numeric" value="${s.fasten.h}" aria-label="Fastenstunden"> Stunden Pause</label>
       <div class="cap">Zeigt unter „Tag“, wie lange die letzte Mahlzeit her ist und wann dein Essensfenster endet.</div>
-      <h2 style="margin-top:6px">Sport</h2>
-      <div class="sent">Verbrannte Kalorien (z. B. von Garmin) ${sel('sport',s.sport,[[1,'voll'],[0.5,'zur Hälfte'],[0,'nicht']])} aufs Tagesziel anrechnen.</div>
-      <div class="cap">Uhren schätzen den Verbrauch oft zu hoch – „zur Hälfte“ ist die vorsichtige Wahl, wenn du abnehmen willst.</div>
       <h2 style="margin-top:6px">Mikronährstoffe</h2>
-      <label class="sent" style="display:flex;gap:8px;align-items:center"><input type="checkbox" data-mikro="1" ${s.mikro?'checked':''} style="width:20px;height:20px;accent-color:var(--accent)"> Vitamine &amp; Mineralstoffe auch unter „Tag“ zeigen</label>
-      <div class="cap">Unter „Verlauf“ stehen sie immer (Ø pro Tag). Werte aus dem BLS 4.0; Referenz nach Geschlecht aus dem Profil.</div></div>
+      <label class="sent" style="display:flex;gap:8px;align-items:center"><input type="checkbox" data-mikro="1" ${s.mikro?'checked':''} style="width:20px;height:20px;accent-color:var(--accent)"> Mikronährstoff-Karte auch unter „Tag“ zeigen</label>
+      <div class="cap">Unter „Verlauf“ steht sie immer. Ballaststoffe, Zucker, Salz und gesättigte Fette sind immer zu sehen; Vitamine und Mineralstoffe sind eingeklappt und erscheinen erst, wenn in der Woche für mindestens 70 % der Kalorien Werte vorliegen (BLS 4.0, Referenz nach Geschlecht aus dem Profil).</div></div>
   </div>`;
 }
+
 
 
 /* ---------- Erfassen (Blatt) ---------- */
 function openAdd(zeit,k){ sheet={m:'add',k:k||day,zeit:zeit||(day===today()?nowHM():'12:00'),q:'',tab:'alle',open:null,plate:[]}; drawSheet(); $('ov').classList.add('show'); setTimeout(()=>{ const s=$('q'); if(s&&innerWidth>640) s.focus(); },50); }
 function closeSheet(){ if(sheet&&sheet.m==='add'&&sheet.plate.length&&!confirm('Der Teller ist noch nicht eingetragen. Trotzdem schließen?')) return; sheet=null; $('ov').classList.remove('show'); render(); }
+const EVK=['kcal','p','kh','f','sfa'];   // direkt änderbare Werte bei Einträgen ohne Lebensmittel (Schnell-Eintrag, Foto)
 function drawSheet(){ const s=sheet, d=$('dlg'); if(!s) return;
   if(s.m==='add'){ d.innerHTML=`<div class="dh"><h3 id="dlgT">Eintragen</h3><button class="x" data-close="1" aria-label="Schließen">×</button></div>
     <div class="db"><div class="when">für <input class="in" type="date" id="sk" value="${s.k}" aria-label="Datum"> um <input class="in" type="time" id="sz" value="${s.zeit}" aria-label="Uhrzeit"></div>
@@ -679,26 +843,28 @@ function drawSheet(){ const s=sheet, d=$('dlg'); if(!s) return;
     <div class="df" id="plate"></div>`; drawRes(); drawPlate(); return; }
   if(s.m==='quick'){ d.innerHTML=`<div class="dh"><h3 id="dlgT">Schnell-Eintrag</h3><button class="x" data-close="1" aria-label="Schließen">×</button></div>
     <div class="db"><p class="cap">Für Mensa, Restaurant oder wenn du nur die Werte kennst.</p><div class="form"><label class="lbl w4">Bezeichnung<input class="in" id="qn" placeholder="z. B. Mensa: Linsencurry"></label>
-      ${['kcal','p','kh','f'].map(k=>`<label class="lbl">${NL[k]} (${k==='kcal'?'kcal':'g'})<input class="in mono" id="q_${k}" inputmode="decimal"></label>`).join('')}</div></div>
+      ${EVK.map(k=>`<label class="lbl">${NLX[k]} (${k==='kcal'?'kcal':'g'})<input class="in mono" id="q_${k}" inputmode="decimal"${k==='sfa'?' placeholder="optional"':''}></label>`).join('')}<label class="lbl">Menge (g)<input class="in mono" id="q_g" inputmode="decimal" placeholder="optional"></label></div>
+      <p class="cap">Mit Menge lässt sich der Eintrag später einfach umrechnen (z. B. halbe Portion).</p></div>
     <div class="df"><button class="btn" data-back="1">Zurück</button><span style="flex:1"></span><button class="btn pri" data-quickgo="1">Auf den Teller</button></div>`; setTimeout(()=>$('qn').focus(),30); return; }
   if(s.m==='food'){ const f=s.id?D.foods[s.id]:(s.copy?food(s.copy):null), j=(f&&f.je100)||{}, por=(f&&f.portionen&&f.portionen[0])||{};
-    const row=(k,sub)=>`<div class="nr${sub?' sub':''}"><span>${NL[k]} (${k==='kcal'?'kcal':'g'})</span><input class="in" id="n_${k}" inputmode="decimal" value="${j[k]!=null?String(j[k]).replace('.',','):''}" aria-label="${NL[k]} je 100 g"></div>`;
+    const row=(k,sub)=>`<div class="nr${sub?' sub':''}"><span>${NLX[k]} (${k==='kcal'?'kcal':'g'})</span><input class="in" id="n_${k}" inputmode="decimal" value="${j[k]!=null?String(j[k]).replace('.',','):''}" aria-label="${NLX[k]} je 100 g"></div>`;
     d.innerHTML=`<div class="dh"><h3 id="dlgT">${s.id?'Lebensmittel bearbeiten':'Neues Lebensmittel'}</h3><button class="x" data-close="1" aria-label="Schließen">×</button></div>
     <div class="db"><div class="form"><label class="lbl w2">Name<input class="in" id="fn" value="${esc(f?f.name+(s.copy?'':''):'')}" placeholder="z. B. Haferflocken kernig"></label><label class="lbl">Marke<input class="in" id="fm" value="${esc((f&&f.marke)||'')}"></label>
       <label class="lbl">Barcode (EAN)<span class="srow"><input class="in mono" id="fe" inputmode="numeric" value="${esc((f&&f.ean)||s.ean||'')}">${SCAN_OK()?`<button type="button" class="x" data-scan="food" aria-label="Barcode fotografieren" title="Barcode fotografieren">${CAM}</button>`:''}</span></label></div>
       <label class="sent" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="ffl" ${f&&f.fl?'checked':''} style="width:20px;height:20px;accent-color:var(--accent)"> Getränk (Angaben je 100 ml, zählt zum Trinken)</label>
       <div class="cap">Nährwerte je 100 g bzw. 100 ml – in der Reihenfolge wie auf der Packung:</div>
-      <div class="nk"><div class="nr"><span>Nährwert</span><span style="text-align:right">je 100 g</span></div>${row('kcal')}${row('f')}${row('kh')}${row('zucker',1)}${row('bal')}${row('p')}${row('salz')}</div>
+      <div class="nk"><div class="nr"><span>Nährwert</span><span style="text-align:right">je 100 g</span></div>${row('kcal')}${row('f')}${row('sfa',1)}${row('kh')}${row('zucker',1)}${row('bal')}${row('p')}${row('salz')}</div>
       <div class="form"><label class="lbl w2">Portion (optional)<input class="in" id="pl" value="${esc(por.l||'')}" placeholder="z. B. 1 Riegel"></label><label class="lbl w2">Gramm je Portion<input class="in mono" id="pg" inputmode="decimal" value="${por.g!=null?String(por.g).replace('.',','):''}"></label></div></div>
     <div class="df">${s.back?'<button class="btn" data-back="1">Zurück</button>':''}<span style="flex:1"></span><button class="btn pri" data-fsave="1">Speichern</button></div>`; setTimeout(()=>$('fn').focus(),30); return; }
-  if(s.m==='edit'){ const e=D.log[s.id], f=food(e.ref);
+  if(s.m==='edit'){ const e=D.log[s.id], f=food(e.ref); s.base=null;
     d.innerHTML=`<div class="dh"><h3 id="dlgT">${esc(e.name)}</h3><button class="x" data-close="1" aria-label="Schließen">×</button></div>
-    <div class="db"><div class="amt" style="border:0;border-radius:12px"><div class="row"><input class="in gin" id="eg" inputmode="decimal" value="${String(e.g).replace('.',',')}" aria-label="Menge"><span>${unitOf(e)}</span>
+    <div class="db"><div class="amt" style="border:0;border-radius:12px"><div class="row"><input class="in gin" id="eg" inputmode="decimal" value="${e.g>0?String(e.g).replace('.',','):''}"${f?'':' placeholder="–"'} aria-label="Menge${f?'':' (optional)'}"><span>${unitOf(e)}${f?'':' <span class="cap">(optional)</span>'}</span>
       ${f?(f.portionen||[]).map(p=>`<button class="chip" data-pg="${p.g}">${esc(p.l)} (${fmt(p.g)} ${unitOf(e)})</button>`).join(''):''}</div><div class="live" id="elive"></div></div>
       <label class="sent" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="efl" ${e.fl?'checked':''} style="width:20px;height:20px;accent-color:var(--accent)"> Getränk (Menge in ml, zählt zum Trinken${e.n&&+e.n.alk>0?' – mit Alkohol nicht':''})</label>
       <div class="when">am <input class="in" type="date" id="ek" value="${e.datum}" aria-label="Datum"> um <input class="in" type="time" id="ez" value="${e.zeit}" aria-label="Uhrzeit"></div>
       <label class="lbl">Bezeichnung<input class="in" id="en" value="${esc(e.name)}"></label>
-      ${f?'':`<div class="form">${['kcal','p','kh','f'].map(k=>`<label class="lbl">${NL[k]} (${k==='kcal'?'kcal':'g'})<input class="in mono" id="ev_${k}" inputmode="decimal" value="${e.n&&e.n[k]!=null?String(e.n[k]).replace('.',','):''}"></label>`).join('')}</div><p class="cap">${e.quelle==='foto'?'Foto-Schätzung':'Schnell-Eintrag'}: Werte direkt korrigieren – oder die Menge ändern, dann werden sie mitgerechnet.</p>`}</div>
+      ${f&&f.quelle==='eigen'?`<div class="fref"><span>Werte kommen aus deinem Lebensmittel „${esc(f.name)}“ (${fmt(f.je100.kcal)} kcal je 100 ${unitOf(f)}).</span><button class="btn sm" data-fedit="${esc(f.id)}">Nährwerte bearbeiten</button></div>`:''}
+      ${f?'':`<div class="form">${EVK.map(k=>`<label class="lbl">${NLX[k]} (${k==='kcal'?'kcal':'g'})<input class="in mono" id="ev_${k}" inputmode="decimal" value="${e.n&&e.n[k]!=null?String(e.n[k]).replace('.',','):''}"></label>`).join('')}</div><p class="cap">${e.quelle==='foto'?'Foto-Schätzung':'Schnell-Eintrag'}: Werte direkt korrigieren. Die Menge ist freiwillig – steht eine drin, rechnet eine neue Menge die Werte mit.</p>`}</div>
     <div class="df"><button class="btn dng" data-edel="1">Löschen</button><button class="btn" data-edup="1">Duplizieren</button><span style="flex:1"></span><button class="btn pri" data-esave="1">Speichern</button></div>`; liveEdit(); return; }
   if(s.m==='recipe'){ const r=s.r;
     d.innerHTML=`<div class="dh"><h3 id="dlgT">Rezept</h3><button class="x" data-close="1" aria-label="Schließen">×</button></div>
@@ -714,6 +880,19 @@ function drawSheet(){ const s=sheet, d=$('dlg'); if(!s) return;
       <tr class="h"><td>Vitamine &amp; Mineralstoffe</td><td></td></tr>${MIK.map(k=>tr(MI[k][0],k,MI[k][1],j[k]<1?3:j[k]<10?2:1)).join('')}</table>
       <p class="src">k. A. = kein Wert in den Daten (nicht 0).${f.quelle==='bls'?' BLS-Code '+esc(f.code)+'. ':f.bls?' Mikros aus BLS '+esc(f.bls)+'. ':' '}${f.quelle==='bls'||f.bls?BLS_SRC:''}</p></div>
     <div class="df"><span style="flex:1"></span><button class="btn" data-fcopy="${esc(f.id)}">Anpassen</button></div>`; return; }
+  if(s.m==='health'){ const h=s.h, url=h&&h.token?location.origin+'/api/import_'+h.token:'', l=h&&h.letzte;
+    d.innerHTML=`<div class="dh"><h3 id="dlgT">Garmin / Apple Health</h3><button class="x" data-close="1" aria-label="Schließen">×</button></div>
+    <div class="db"><p class="cap">Das iPhone schickt die aktiven Kalorien des Tages per Kurzbefehl an den Pi – nur im Heim-WLAN. Der Pi geht dafür nicht ins Internet und braucht kein Garmin-Konto.</p>
+      ${!h?'<div class="empty">Adresse wird geladen …</div>':h.err?'<div class="note">Die Adresse konnte nicht geladen werden. Dafür muss die Seite vom Pi geöffnet sein und du brauchst Schreibrechte für „Ernährung“.</div>'
+      :`<div class="urlbox"><code>${esc(url)}</code><button class="btn sm" data-hcopy="${esc(url)}">Kopieren</button></div>
+      <ol class="steps">
+        <li><b>Garmin Connect</b> (iPhone): in den Einstellungen unter den verbundenen Apps <b>Apple Health</b> einschalten und „Aktive Energie“ freigeben (auf Wunsch auch „Gewicht“).</li>
+        <li><b>Kurzbefehle</b> → neuer Kurzbefehl mit drei Aktionen:<br>1. <b>Health-Messungen suchen</b> – Typ „Aktive Energie“, Filter „Startdatum ist heute“.<br>2. <b>Statistiken berechnen</b> – „Summe“.<br>3. <b>Inhalte von URL abrufen</b> – die Adresse oben, Methode <b>POST</b>, Anfragetext <b>JSON</b> mit den Feldern <code>aktiv</code> = Ergebnis der Summe und <code>datum</code> = „Aktuelles Datum“ (Format ISO 8601).</li>
+        <li><b>Automation</b> → „Tageszeit“, z. B. 21:30 und 23:50, „Sofort ausführen“. Du kannst den Kurzbefehl auch jederzeit von Hand starten.</li>
+      </ol>
+      <div class="note">Jeder Lauf <b>ersetzt</b> den Tageswert – nichts wird doppelt gezählt. Unterwegs (kein Heim-WLAN) passiert einfach nichts. Das Datum kommt vom iPhone, weil der Pi ohne Internet keine verlässliche Uhr hat; fehlt es, gilt das Datum des Pi. Zum Nachtragen geht auch <code>datum</code> = „gestern“. Optional: <code>kg</code> (Gewicht; überschreibt kein von Hand eingetragenes).<br>
+        ${l?`Letzter Import: ${new Date(l.ts).toLocaleString('de-DE')} – ${l.aktiv!=null?fmt(l.aktiv)+' kcal':''}${l.kg!=null?' · '+fmt(l.kg,1)+' kg':''} für den ${kDate(l.datum).toLocaleDateString('de-DE')}.`:'Noch kein Import angekommen.'}</div>
+      <p class="cap">Wer die Adresse kennt, kann im Heimnetz Sport-Kalorien eintragen – mehr nicht. <button class="btn sm" data-hneu="1">Neue Adresse erzeugen</button></p>`}</div>`; return; }
   if(s.m==='data'){ d.innerHTML=`<div class="dh"><h3 id="dlgT">Daten &amp; Backup</h3><button class="x" data-close="1" aria-label="Schließen">×</button></div>
     <div class="db"><p class="cap">Alles liegt im Browser${window.__PI_SYNC?' und auf dem Raspberry Pi (pro Eintrag abgeglichen)':''}. Eine JSON-Sicherung kannst du jederzeit wieder einlesen.</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" data-exp="1">JSON-Backup speichern</button><button class="btn" data-imp="1">Backup einlesen</button></div>
@@ -728,16 +907,26 @@ function drawRes(){ const s=sheet, el=$('res'); if(!el) return; const R=search(s
     return `<div class="rr"><button data-pick="${esc(f.id)}" aria-expanded="${op}"><span class="n">${esc(f.name)}${f.quelle==='eigen'?'<span class="tag own">eigen</span>':f.quelle==='rezept'?'<span class="tag own">Rezept</span>':f.quelle==='bls'?'<span class="tag bls">BLS</span>':''}${u[f.id]?`<span class="tag">${u[f.id].n}×</span>`:''}</span>
       <span class="s">${f.marke?esc(f.marke)+' · ':''}${pg?esc(pg.l)+' = '+fmt(pg.g)+' '+unitOf(f):'je 100 '+unitOf(f)}${isFl(f)?' · Getränk':''}</span><span class="k">${fmt(f.je100.kcal)} kcal<br>/100 ${unitOf(f)}</span></button>
       ${op?`<div class="amt"><div class="row"><input class="in gin" id="gIn" inputmode="decimal" value="${String(s.g).replace('.',',')}" aria-label="Menge in ${unitOf(f)==='ml'?'Millilitern':'Gramm'}"><span>${unitOf(f)}</span>${(f.portionen||[]).map(p=>`<button class="chip" data-pg="${p.g}">${esc(p.l)} (${fmt(p.g)} ${unitOf(f)})</button>`).join('')}${(f.portionen||[]).length?`<button class="chip" data-pg="100">100 ${unitOf(f)}</button>`:''}${isFl(f)?[250,500].filter(v=>!(f.portionen||[]).some(p=>p.g===v)).map(v=>`<button class="chip" data-pg="${v}">${v} ml</button>`).join(''):''}</div>
-        <div class="live" id="live"></div><div class="row"><button class="btn pri" data-toplate="1">+ Auf den Teller</button><button class="btn" data-direct="1">Sofort eintragen</button></div></div>`:''}</div>`; }).join('')}</div>`;
+        <div class="live" id="live"></div><div class="row"><button class="btn pri" data-toplate="1">+ Auf den Teller</button><button class="btn" data-direct="1">Sofort eintragen</button>${f.quelle==='eigen'?`<span class="sp"></span><button class="btn sm" data-fedit="${esc(f.id)}">Bearbeiten</button>`:''}</div></div>`:''}</div>`; }).join('')}</div>`;
   liveAmt(); }
 function liveAmt(){ const el=$('live'); if(!el||!sheet.open) return; const f=food(sheet.open), g=num($('gIn').value)||0, n=scale(f.je100,g);
-  el.innerHTML=`= <b>${fmt(n.kcal)} kcal</b> · Eiweiß ${fmt(n.p,1)} g · KH ${fmt(n.kh,1)} g · Fett ${fmt(n.f,1)} g`; }
-function liveEdit(fill){ const e=D.log[sheet.id], f=food(e.ref), g=num($('eg').value)||0, n=f?scale(f.je100,g):scaleN(e.n,e.g?g/e.g:1);
-  if(!f) ['kcal','p','kh','f'].forEach(k=>{ const i=$('ev_'+k); if(!i) return; if(fill){ i.value=n[k]!=null?String(n[k]).replace('.',','):''; } else { const v=num(i.value); if(v!=null&&v>=0) n[k]=rK(k,v); } });   // Menge geändert → Felder nachrechnen, sonst Eingaben übernehmen
+  el.innerHTML=`= <b>${fmt(n.kcal)} kcal</b> · Eiweiß ${fmt(n.p,1)} g · KH ${fmt(n.kh,1)} g · Fett ${fmt(n.f,1)} g${n.sfa!=null?` (gesättigt ${fmt(n.sfa,1)} g)`:''}`; }
+/* Eintrag bearbeiten. Mit Lebensmittel: Werte = Lebensmittel × Menge.
+   Ohne Lebensmittel (Schnell-Eintrag/Foto): Bezug ist sheet.base = {g, n} – der Stand beim Öffnen bzw. nach der letzten Wert-Änderung.
+   mode 'menge': neue Menge rechnet die Felder aus dem Bezug nach (nur wenn Bezug und neue Menge > 0, sonst bleiben die Felder stehen);
+   mode 'wert':  Eingaben übernehmen und als neuen Bezug merken; ohne mode: nur lesen. Leere Felder gelten als „kein Wert“. */
+function liveEdit(mode){ const e=D.log[sheet.id], f=food(e.ref), g=num($('eg').value)||0; let n;
+  if(f) n=scale(f.je100,g);
+  else { const b=sheet.base||(sheet.base={g:+e.g||0,n:{...(e.n||{})}}), sc=b.g>0&&g>0;
+    n=sc?scaleN(b.n,g/b.g):{...b.n};
+    EVK.forEach(k=>{ const i=$('ev_'+k); if(!i) return;
+      if(mode==='menge'&&sc){ i.value=n[k]!=null?String(n[k]).replace('.',','):''; return; }
+      const v=num(i.value); if(v!=null&&v>=0) n[k]=rK(k,v); else delete n[k]; });
+    if(mode==='wert') sheet.base={g,n:{...n}}; }
   $('elive').innerHTML=`= <b>${fmt(n.kcal)} kcal</b> · Eiweiß ${fmt(n.p,1)} g · KH ${fmt(n.kh,1)} g · Fett ${fmt(n.f,1)} g`; return n; }
 function scaleN(n,fac){ const o={}; ALLK.forEach(k=>{ if(n&&n[k]!=null) o[k]=rK(k,n[k]*fac); }); return o; }
 function drawPlate(){ const el=$('plate'); if(!el) return; const P=sheet.plate, t=sumN(P);
-  el.innerHTML=P.length?`<div class="plate">${P.map((p,i)=>`<div class="pi"><span class="n">${esc(p.name)}</span><span class="g">${fmt(p.g)} ${unitOf(p)} · ${fmt(p.n.kcal)} kcal</span><button class="x" data-prm="${i}" aria-label="${esc(p.name)} vom Teller nehmen">×</button></div>`).join('')}</div>
+  el.innerHTML=P.length?`<div class="plate">${P.map((p,i)=>`<div class="pi"><span class="n">${esc(p.name)}</span><span class="g">${p.g>0?fmt(p.g)+' '+unitOf(p)+' · ':''}${fmt(p.n.kcal)} kcal</span><button class="x" data-prm="${i}" aria-label="${esc(p.name)} vom Teller nehmen">×</button></div>`).join('')}</div>
     <span class="cap">Teller: <b>${fmt(t.kcal)} kcal</b> · P ${fmt(t.p)} · KH ${fmt(t.kh)} · F ${fmt(t.f)}</span><span style="flex:1"></span>${P.length>1?'<button class="btn" data-prec="1">Als Rezept speichern</button>':''}<button class="btn pri" data-commit="1">Eintragen (${P.length})</button>`
     :'<span class="cap">Lebensmittel antippen, Menge wählen, auf den Teller legen – dann alles zusammen eintragen.</span>'; }
 function pickToItem(){ const f=food(sheet.open), g=num($('gIn').value); if(!f||!(g>0)){ toast(isFl(f)?'Menge in ml eintragen':'Menge in Gramm eintragen'); return null; }
@@ -748,9 +937,10 @@ function recipeFrom(items,name){ return {id:null,name:name||'',portionen:1,gesam
 
 /* ---------- Ereignisse ---------- */
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-v],[data-day],[data-add],[data-ent],[data-blk],[data-bcopy],[data-brec],[data-bdel],[data-dcopy],[data-water],[data-sugg],[data-rng],[data-apply],[data-keep],[data-ftab],[data-fnew],[data-fedit],[data-fdel],[data-fcopy],[data-redit],[data-rdel],[data-phase],[data-close],[data-stab],[data-quick],[data-quickgo],[data-back],[data-pick],[data-pg],[data-toplate],[data-direct],[data-prm],[data-prec],[data-commit],[data-fsave],[data-esave],[data-edel],[data-edup],[data-zrm],[data-rsave],[data-exp],[data-imp],[data-finfo],[data-scan],[data-bmove],[data-burn],[data-burnrm]');
+  const t=e.target.closest('[data-v],[data-day],[data-add],[data-ent],[data-blk],[data-bcopy],[data-brec],[data-bdel],[data-dcopy],[data-water],[data-sugg],[data-rng],[data-apply],[data-keep],[data-ftab],[data-fnew],[data-fedit],[data-fdel],[data-fcopy],[data-redit],[data-rdel],[data-phase],[data-close],[data-stab],[data-quick],[data-quickgo],[data-back],[data-pick],[data-pg],[data-toplate],[data-direct],[data-prm],[data-prec],[data-commit],[data-fsave],[data-esave],[data-edel],[data-edup],[data-zrm],[data-rsave],[data-exp],[data-imp],[data-finfo],[data-scan],[data-bmove],[data-burn],[data-burnrm],[data-stil],[data-tp],[data-health],[data-hneu],[data-hcopy],[data-mikauf]');
   if(!t) return; const ds=t.dataset;
   if(ds.v){ view=ds.v; openBlk=null; try{ localStorage.setItem('er_view',view); }catch(_){} render(); return scrollTo(0,0); }
+  if(ds.mikauf){ mikAuf=!mikAuf; try{ localStorage.setItem('essen_mikro_auf',mikAuf?'1':'0'); }catch(_){} render(); const b=document.querySelector('[data-mikauf]'); if(b) b.focus({preventScroll:true}); return; }   // Vitamine & Mineralstoffe auf-/zuklappen (nur dieses Gerät)
   if(ds.day!=null){ day=ds.day==='0'?today():kAdd(day,+ds.day); openBlk=null; return render(); }
   if(ds.add!=null) return openAdd(ds.add||undefined);
   if(ds.ent){ sheet={m:'edit',id:ds.ent}; drawSheet(); $('ov').classList.add('show'); return; }
@@ -772,37 +962,53 @@ document.addEventListener('click',e=>{
   if(ds.keep){ setS(s=>{ s.checkin={datum:today(),was:'Ziele behalten'}; }); render(); return toast('Ziele bleiben – nächster Check-in in einer Woche'); }
   if(ds.ftab){ foodTab=ds.ftab; return render(); }
   if(ds.fnew!=null){ const back=ds.fnew==='add'||ds.fnew==='ean'; const prev=back?sheet:null; sheet={m:'food',back:prev,ean:ds.fnew==='ean'?prev.q.trim():''}; drawSheet(); $('ov').classList.add('show'); return; }
-  if(ds.fedit){ sheet={m:'food',id:ds.fedit}; drawSheet(); $('ov').classList.add('show'); return; }
+  if(ds.fedit){ const prev=sheet&&(sheet.m==='add'||sheet.m==='edit')?sheet:null; sheet={m:'food',id:ds.fedit,back:prev}; drawSheet(); $('ov').classList.add('show'); return; }   // aus „Eintragen“ oder einem Eintrag heraus: nach dem Speichern dorthin zurück
   if(ds.fcopy){ sheet={m:'food',copy:ds.fcopy}; drawSheet(); $('ov').classList.add('show'); return; }
   if(ds.finfo){ sheet={m:'info',id:ds.finfo}; drawSheet(); $('ov').classList.add('show'); return; }
   if(ds.fdel){ const f=D.foods[ds.fdel]; if(confirm(`„${f.name}“ löschen? Bereits eingetragene Mahlzeiten bleiben erhalten.`)){ rm('foods',f.id); save(); render(); } return; }
   if(ds.redit){ const r=JSON.parse(JSON.stringify(D.recipes[ds.redit])); sheet={m:'recipe',r}; drawSheet(); $('ov').classList.add('show'); return; }
   if(ds.rdel){ const r=D.recipes[ds.rdel]; if(confirm(`Rezept „${r.name}“ löschen?`)){ rm('recipes',r.id); save(); render(); } return; }
   if(ds.phase){ if(D.set.phase.art===ds.phase) return; let k0=G().kcal,k1; setS(s=>{ const o=phDelta(s.phase.art,s.phase.tempo); phaseSwitch(s,ds.phase); k1=shiftGoal(s,o,phDelta(s.phase.art,s.phase.tempo)); }); render(); return toast(`Kalorienziel ${fmt(k0)} → ${fmt(k1)} kcal`); }
+  if(ds.stil){ setS(s=>{ s.makro={...(s.makro||{}),stil:ds.stil}; }); return render(); }
+  if(ds.tp) return setTempo(+ds.tp);
+  if(ds.health||ds.hneu){ if(ds.hneu&&!confirm('Neue Adresse erzeugen? Die alte gilt dann nicht mehr – der Kurzbefehl braucht die neue.')) return;
+    const neu=!!ds.hneu; if(!neu){ sheet={m:'health',h:null}; drawSheet(); $('ov').classList.add('show'); }
+    fetch('/api/gesundheit',neu?{method:'PUT',headers:{'Content-Type':'application/json'},body:'{}'}:{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject()).then(j=>{ if(sheet&&sheet.m==='health'){ sheet.h=j; drawSheet(); if(neu) toast('Neue Adresse erzeugt'); } })
+      .catch(()=>{ if(sheet&&sheet.m==='health'){ sheet.h={err:1}; drawSheet(); } }); return; }
+  if(ds.hcopy){ (navigator.clipboard?navigator.clipboard.writeText(ds.hcopy):Promise.reject()).then(()=>toast('Adresse kopiert')).catch(()=>prompt('Adresse kopieren:',ds.hcopy)); return; }
   if(ds.close) return closeSheet();
   if(ds.scan){ scanFor=ds.scan; zxLoad().catch(()=>{}); $('scanFile').click(); return; }
   if(!sheet) return;
   if(ds.stab){ sheet.tab=ds.stab; sheet.open=null; drawSheet(); return; }
   if(ds.quick){ sheet={m:'quick',back:sheet}; drawSheet(); return; }
   if(ds.back){ sheet=sheet.back; drawSheet(); return; }
-  if(ds.quickgo){ const n={}; ['kcal','p','kh','f'].forEach(k=>{ const v=num($('q_'+k).value); if(v!=null) n[k]=v; }); if(!(n.kcal>=0)&&n.kcal!==0){ toast('Mindestens die Kalorien eintragen'); return; }
-    const b=sheet.back; b.plate.push({ref:null,name:$('qn').value.trim()||'Schnell-Eintrag',g:0,n,quelle:'schnell'}); sheet=b; drawSheet(); return; }
+  if(ds.quickgo){ const n={}; EVK.forEach(k=>{ const v=num($('q_'+k).value); if(v!=null&&v>=0) n[k]=rK(k,v); }); if(n.kcal==null){ toast('Mindestens die Kalorien eintragen'); $('q_kcal').focus(); return; }
+    if(n.sfa!=null&&n.f!=null&&n.sfa>n.f+0.05){ toast('Gesättigte Fettsäuren können nicht über dem Fett liegen'); return; }
+    const qg=num($('q_g').value), b=sheet.back; b.plate.push({ref:null,name:$('qn').value.trim().slice(0,60)||'Schnell-Eintrag',g:qg>0&&qg<5000?r1(qg):0,n,quelle:'schnell'}); sheet=b; drawSheet(); return; }
   if(ds.pick){ if(sheet.open===ds.pick){ sheet.open=null; return drawRes(); } sheet.open=ds.pick; sheet.g=defG(food(ds.pick)); drawRes(); const g=$('gIn'); if(g){ g.focus(); g.select(); } return; }
-  if(ds.pg){ const g=$('gIn')||$('eg'); g.value=String(+ds.pg).replace('.',','); return sheet.m==='edit'?liveEdit():liveAmt(); }
+  if(ds.pg){ const g=$('gIn')||$('eg'); g.value=String(+ds.pg).replace('.',','); return sheet.m==='edit'?liveEdit('menge'):liveAmt(); }
   if(ds.toplate||ds.direct){ const it=pickToItem(); if(!it) return; sheet.plate.push(it); sheet.open=null; if(ds.direct) return commitPlate(); sheet.q=''; drawSheet(); const q=$('q'); if(q&&innerWidth>640) q.focus(); return; }
   if(ds.prm!=null){ sheet.plate.splice(+ds.prm,1); return drawPlate(); }
   if(ds.prec){ const items=sheet.plate.filter(p=>p.ref); sheet={m:'recipe',r:recipeFrom(items),back:sheet}; drawSheet(); return; }
   if(ds.commit) return commitPlate();
-  if(ds.fsave){ const name=$('fn').value.trim(); if(!name){ toast('Bitte einen Namen eingeben'); return; } const je100={}; NUT.forEach(k=>{ const v=num($('n_'+k).value); if(v!=null) je100[k]=v; });
+  if(ds.fsave){ const name=$('fn').value.trim(); if(!name){ toast('Bitte einen Namen eingeben'); return; } const je100={}; [...NUT,'sfa'].forEach(k=>{ const v=num($('n_'+k).value); if(v!=null) je100[k]=v; });
     if(je100.kcal==null){ toast('Mindestens die Kalorien je 100 g eintragen'); return; }
-    const src=sheet.id?D.foods[sheet.id]:sheet.copy?food(sheet.copy):null; if(src&&src.je100) MX.forEach(k=>{ if(src.je100[k]!=null) je100[k]=src.je100[k]; });   // Vitamine & Co. übernehmen
+    if(je100.sfa!=null&&je100.f!=null&&je100.sfa>je100.f+0.05){ toast('Gesättigte Fettsäuren können nicht über dem Fett liegen'); return; }
+    const src=sheet.id?D.foods[sheet.id]:sheet.copy?food(sheet.copy):null; if(src&&src.je100) MX.forEach(k=>{ if(k!=='sfa'&&src.je100[k]!=null) je100[k]=src.je100[k]; });   // Vitamine & Co. übernehmen
     const pg=num($('pg').value), pl=$('pl').value.trim(), ean=$('fe').value.replace(/\D/g,'');
     if(ean&&live('foods').some(f=>f.ean===ean&&f.id!==sheet.id)){ toast('Diese Barcode-Nummer gehört schon zu einem anderen Lebensmittel'); return; }
     const f=put('foods',{id:sheet.id||uid('f'),...(src&&src.quelle==='bls'?{bls:src.code}:src&&src.bls?{bls:src.bls}:{}),name,marke:$('fm').value.trim(),ean,fl:$('ffl').checked,je100,portionen:pg>0?[{l:pl||'Portion',g:pg}]:[]}); USE=null; save();
-    if(sheet.back){ const b=sheet.back; b.q=''; b.tab='alle'; b.open=f.id; b.g=pg>0?pg:100; sheet=b; drawSheet(); return toast('Gespeichert – Menge wählen'); }
+    if(sheet.back&&sheet.back.m==='edit'){ const b=sheet.back, e=D.log[b.id];   // aus einem Eintrag heraus bearbeitet: diesen Eintrag gleich mit den neuen Werten neu rechnen
+      if(e&&!e.del&&e.ref===f.id&&e.g>0) put('log',{...e,n:scale(je100,e.g)}); USE=null; save(); sheet=b; drawSheet(); return toast('Lebensmittel gespeichert – Eintrag neu berechnet'); }
+    if(sheet.back){ const b=sheet.back, neu=!sheet.id; b.q=f.ean||f.name; b.tab='alle'; b.open=f.id; b.g=sheet.id?(b.g||defG(food(f.id))):pg>0?pg:100; sheet=b; drawSheet(); return toast(neu?'Gespeichert – Menge wählen':'Lebensmittel gespeichert'); }   // Suche auf das Lebensmittel setzen, damit es sicher in der Liste steht
     sheet=null; $('ov').classList.remove('show'); foodTab='eigen'; render(); return toast('Lebensmittel gespeichert'); }
-  if(ds.esave){ const e=D.log[sheet.id], g=num($('eg').value); if(!(g>0)){ toast('Menge eintragen'); return; } const n=liveEdit();
-    const fl=$('efl').checked; put('log',{...e,name:($('en').value.trim()||e.name).slice(0,60),g:r1(g),n,fl:fl?1:0,datum:$('ek').value||e.datum,zeit:$('ez').value||e.zeit}); USE=null; save(); sheet=null; $('ov').classList.remove('show'); render(); return toast('Gespeichert'); }
+  if(ds.esave){ const e=D.log[sheet.id], f=food(e.ref), g=num($('eg').value);
+    if(f&&!(g>0)){ toast('Menge eintragen'); $('eg').focus(); return; }
+    if(g!=null&&!(g>=0&&g<5000)){ toast('Bitte eine Menge zwischen 0 und 5000 eintragen'); $('eg').focus(); return; }
+    const n=liveEdit();
+    if(!f&&n.kcal==null){ toast('Mindestens die Kalorien eintragen'); $('ev_kcal').focus(); return; }
+    if(!f&&n.sfa!=null&&n.f!=null&&n.sfa>n.f+0.05){ toast('Gesättigte Fettsäuren können nicht über dem Fett liegen'); return; }
+    const fl=$('efl').checked; put('log',{...e,name:($('en').value.trim()||e.name).slice(0,60),g:g>0?r1(g):0,n,fl:fl?1:0,datum:$('ek').value||e.datum,zeit:$('ez').value||e.zeit}); USE=null; save(); sheet=null; $('ov').classList.remove('show'); render(); return toast('Gespeichert'); }
   if(ds.edel){ rm('log',sheet.id); USE=null; save(); sheet=null; $('ov').classList.remove('show'); render(); return toast('Eintrag gelöscht'); }
   if(ds.edup){ const e=D.log[sheet.id]; put('log',{...e,id:uid('e'),zeit:day===today()?nowHM():e.zeit,datum:day}); save(); sheet=null; $('ov').classList.remove('show'); render(); return toast('Noch einmal eingetragen'); }
   if(ds.zrm!=null){ sheet.r.zutaten.splice(+ds.zrm,1); return drawSheet(); }
@@ -813,6 +1019,7 @@ document.addEventListener('click',e=>{
   if(ds.exp){ const b=new Blob([JSON.stringify(D,null,1)],{type:'application/json'}), u=URL.createObjectURL(b), a=document.createElement('a'); a.href=u; a.download='ernaehrung_'+today()+'.json'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),1000); return toast('Backup gespeichert'); }
   if(ds.imp) return $('impFile').click();
 });
+function setTempo(v,soon){ let k0=G().kcal,k1; setS(s=>{ const o=phDelta(s.phase.art,s.phase.tempo); s.phase.tempo=v; k1=shiftGoal(s,o,phDelta(s.phase.art,v)); }); soon?renderSoon():render(); if(k1!==k0) toast(`Kalorienziel ${fmt(k0)} → ${fmt(k1)} kcal`); }
 /* Foto-Schätzung (Skill „essen-foto“): Code „ESSEN1 [{…},…]“ ins Suchfeld einfügen → alle Teile landen auf dem Teller */
 function fotoCode(s){ s=String(s||'').replace(/[“”„]/g,'"'); if(!/^\s*ESSEN1\b/i.test(s)) return null;
   const m=/^\s*ESSEN1\s*(\[[\s\S]*\]|\{[\s\S]*\})\s*$/i.exec(s); if(!m) return [];
@@ -822,13 +1029,14 @@ function fotoCode(s){ s=String(s||'').replace(/[“”„]/g,'"'); if(!/^\s*ESSE
     const ml=+it.ml>0&&+it.ml<5000, g=ml?r1(it.ml):+it.g>0&&+it.g<5000?r1(it.g):0; return {ref:null,name:(String(it.t||it.name||'Foto-Schätzung').trim()||'Foto-Schätzung').slice(0,60),g,n,quelle:'foto',...(ml?{fl:1}:{})}; }); }
 let fqT; document.addEventListener('input',e=>{ const el=e.target;
   if(el.id==='q'&&sheet&&sheet.m==='add'){ const F=fotoCode(el.value);
-    if(F){ if(!F.length){ toast('Der Code ist unvollständig – bitte komplett kopieren und einfügen.',4000); return; }
-      sheet.plate.push(...F); sheet.q=''; sheet.open=null; drawSheet(); const k=F.reduce((t,p)=>t+(+p.n.kcal||0),0);
-      return toast(`${F.length} ${F.length===1?'Teil':'Teile'} vom Foto auf dem Teller (${Math.round(k)} kcal) – prüfen, dann „Eintragen“`,4500); } }
+    if(F){ if(!F.length){ sheet.q=el.value; sheet.open=null; if(!sheet.fw){ sheet.fw=1; toast('Der Code ist unvollständig – bitte komplett kopieren und einfügen.',4000); } return; }   // Hinweis nur einmal, nicht bei jedem Tastendruck
+      sheet.fw=0; sheet.plate.push(...F); sheet.q=''; sheet.open=null; drawSheet(); const k=F.reduce((t,p)=>t+(+p.n.kcal||0),0);
+      return toast(`${F.length} ${F.length===1?'Teil':'Teile'} vom Foto auf dem Teller (${Math.round(k)} kcal) – prüfen, dann „Eintragen“`,4500); }
+    sheet.fw=0; }
   if(el.id==='q'&&sheet){ sheet.q=el.value; sheet.open=null; return drawRes(); }
   if(el.id==='gIn') return liveAmt();
-  if(el.id==='eg') return liveEdit(true);
-  if(/^ev_/.test(el.id)) return liveEdit();
+  if(el.id==='eg') return liveEdit('menge');
+  if(/^ev_/.test(el.id)) return liveEdit('wert');
   if(el.id==='fq'){ fq=el.value; clearTimeout(fqT); fqT=setTimeout(()=>{ const l=$('flist'); if(l) l.innerHTML=blsList(); },150); return; }
 });
 document.addEventListener('keydown',e=>{
@@ -839,13 +1047,16 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&e.target.id==='q'&&sheet){ e.preventDefault(); const R=search(sheet.q,sheet.tab); if(R.length===1||(/^\d{8,14}$/.test(sheet.q.trim())&&R.length)){ sheet.open=R[0].id; sheet.g=defG(R[0]); drawRes(); const g=$('gIn'); if(g){ g.focus(); g.select(); } } else if(!R.length&&/^\d{8,14}$/.test(sheet.q.trim())){ const b=document.querySelector('[data-fnew="ean"]'); if(b) b.click(); } }
 });
 document.addEventListener('change',e=>{ const el=e.target;
-  if(el.id==='kgIn'){ const v=num(el.value); if(v==null){ rm('weight','w'+day); } else if(v<25||v>350){ toast('Bitte ein Gewicht in kg eintragen'); return; } else put('weight',{id:'w'+day,datum:day,kg:r1(v*10)/10}); save(); return render(); }
-  if(el.dataset.goal){ const v=num(el.value); if(v==null||v<0) return render(); setS(s=>{ s.ziele[el.dataset.goal]=Math.round(v); }); return render(); }
-  if(el.dataset.prof==='sport'){ setS(s=>{ s.sport=+el.value; }); return render(); }
-  if(el.dataset.prof){ const k=el.dataset.prof; setS(s=>{ s.profil[k]=k==='sex'?el.value:num(el.value); }); return render(); }
-  if(el.dataset.tempo){ const v=num(el.value); if(v==null||v<0||v>1.5){ toast('Tempo zwischen 0 und 1,5 kg pro Woche'); return render(); } let k0=G().kcal,k1; setS(s=>{ const o=phDelta(s.phase.art,s.phase.tempo); s.phase.tempo=v; k1=shiftGoal(s,o,phDelta(s.phase.art,v)); }); render(); return k1!==k0?toast(`Kalorienziel ${fmt(k0)} → ${fmt(k1)} kcal`):undefined; }
+  if(el.id==='kgIn'){ const v=num(el.value); if(v==null){ rm('weight','w'+day); } else if(v<25||v>350){ toast('Bitte ein Gewicht in kg eintragen'); return; } else put('weight',{id:'w'+day,datum:day,kg:r1(v*10)/10}); save(); return renderSoon(); }
+  if(el.id==='bcIn'){ const v=num(el.value); if(v==null){ rm('mass','m'+day); } else if(v<40||v>200){ toast('Bitte den Bauchumfang in cm eintragen'); return; } else put('mass',{id:'m'+day,datum:day,bauch:r1(v)}); save(); return renderSoon(); }
+  if(el.dataset.goal){ const v=num(el.value); if(el.dataset.goal==='sfa'&&(v==null||v<=0)){ setS(s=>{ s.ziele.sfa=0; }); return renderSoon(); } if(v==null||v<0) return render(); setS(s=>{ s.ziele[el.dataset.goal]=Math.round(v); }); return renderSoon(); }
+  if(el.dataset.prof==='sport'){ setS(s=>{ s.sport=+el.value; }); return renderSoon(); }
+  if(el.dataset.prof){ const k=el.dataset.prof; setS(s=>{ s.profil[k]=k==='sex'?el.value:num(el.value); }); return renderSoon(); }
+  if(el.dataset.tempo){ const v=num(el.value); if(v==null||v<0||v>1.5){ toast('Tempo zwischen 0 und 1,5 kg pro Woche'); return render(); } return setTempo(v,true); }
+  if(el.dataset.zielkg){ const v=num(el.value); if(v!=null&&(v<25||v>350)){ toast('Bitte ein Zielgewicht in kg'); return render(); } setS(s=>{ s.phase.zielKg=v==null?null:r1(v); }); return renderSoon(); }
+  if(el.dataset.pkg){ const v=num(el.value); if(v!=null&&(v<0.8||v>3.5)){ toast('Eiweiß zwischen 0,8 und 3,5 g je kg'); return render(); } setS(s=>{ s.makro={...(s.makro||{}),pkg:v}; }); return renderSoon(); }
   if(el.dataset.mikro){ setS(s=>{ s.mikro=el.checked; }); return render(); }
-  if(el.dataset.fast){ setS(s=>{ if(el.dataset.fast==='on') s.fasten.on=el.checked; else { const v=num(el.value); if(v>=8&&v<=23) s.fasten.h=Math.round(v); } }); return render(); }
+  if(el.dataset.fast){ setS(s=>{ if(el.dataset.fast==='on') s.fasten.on=el.checked; else { const v=num(el.value); if(v>=8&&v<=23) s.fasten.h=Math.round(v); } }); return el.dataset.fast==='on'?render():renderSoon(); }
   if(el.dataset.zg!=null&&sheet&&sheet.m==='recipe'){ const v=num(el.value); if(v>0) sheet.r.zutaten[+el.dataset.zg].g=v; return drawSheet(); }
   if(el.id==='sk'&&sheet) sheet.k=el.value; if(el.id==='sz'&&sheet) sheet.zeit=el.value;
   if(el.id==='scanFile'&&el.files[0]){ const file=el.files[0], to=scanFor; el.value=''; toast('Barcode wird gelesen …',60000);
@@ -853,11 +1064,19 @@ document.addEventListener('change',e=>{ const el=e.target;
   if(el.id==='impFile'&&el.files[0]){ const r=new FileReader(); r.onload=()=>{ let x=null; try{ x=JSON.parse(r.result); }catch(_){}
       if(!x||x.app!==APP){ toast('Keine Ernährungs-Daten in der Datei'); return; }
       if(!confirm(`Backup vom ${x.savedAt?new Date(x.savedAt).toLocaleString('de-DE'):'?'} einlesen? Einträge werden zusammengeführt – nichts geht verloren.`)) return;
-      ['log','foods','recipes','weight','water','burn'].forEach(c=>Object.values(x[c]||{}).forEach(it=>{ const o=D[c][it.id]; if(!o||(+it.upd||0)>(+o.upd||0)) D[c][it.id]=it; }));
+      ['log','foods','recipes','weight','water','burn','mass'].forEach(c=>Object.values(x[c]||{}).forEach(it=>{ const o=D[c][it.id]; if(!o||(+it.upd||0)>(+o.upd||0)) D[c][it.id]=it; }));
       if(x.set&&(+x.set.upd||0)>(+D.set.upd||0)) D.set=x.set; D=normalize(D); USE=null; save(); sheet=null; $('ov').classList.remove('show'); render(); toast('Backup eingelesen'); };
     r.readAsText(el.files[0]); el.value=''; }
 });
 $('ov').addEventListener('click',e=>{ if(e.target.id==='ov') closeSheet(); });
+/* Nach einer Eingabe erst neu zeichnen, wenn kein Feld mehr den Fokus hat und kein Finger/Mausknopf unten ist.
+   Sonst baut die Seite um, während man ins nächste Feld tippt – am Handy geht dann die Tastatur zu. */
+let rPend=false, ptrDown=false;
+function renderSoon(){ rPend=true; setTimeout(()=>{ if(!rPend||ptrDown||sheet) return; const a=document.activeElement;
+  if(a&&a.matches&&a.matches('#main input,#main select,#main textarea')) return; rPend=false; render(); },60); }
+document.addEventListener('focusout',()=>{ if(rPend) renderSoon(); });
+document.addEventListener('pointerdown',()=>{ ptrDown=true; },true);
+['pointerup','pointercancel'].forEach(ev=>document.addEventListener(ev,()=>{ ptrDown=false; if(rPend) renderSoon(); },true));
 
 /* ---------- Dashboard-Kachel, Kleinkram ---------- */
 function pushSum(){ if(!window.__PI_SYNC) return; const k=today(), t=sumN(entriesOn(k)), g=G(), w=waterSum(k), bud=budget(k);
