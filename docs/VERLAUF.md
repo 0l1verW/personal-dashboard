@@ -21,3 +21,9 @@ Was in welcher Runde dazukam. Die Runden ab dem 11.11.2026 sind hier beschrieben
 - Fokus bleibt beim Weitertippen erhalten: neu gezeichnet wird erst, wenn kein Feld mehr aktiv ist.
 - Hinweis „Code unvollständig“ beim Foto-Code nur noch einmal je Eingabe.
 - Test: `test_eingabe_handy.py`.
+
+## Runde 6 – Umsetzung der Grill-Runde, Schritt 1 und 2 (20.11.2026)
+- Sicherheitsnetz Uhr: geht die Pi-Uhr nach, löscht und archiviert der Pi nichts und zeigt einen roten Hinweis.
+- Erinnerung, die Komplettsicherung herunterzuladen (nach 35 Tagen).
+- Anmelde-Cookie 1 Jahr, verlängert sich bei jeder Nutzung.
+- Tests: `harness.py`, `run_server.py`, `test_schritt1.py`, `test_schritt2.py`.
