@@ -51,6 +51,7 @@ h2 small{font:500 12.5px Inter,sans-serif;color:var(--muted);margin-left:auto}
 .opt b{font-weight:600}.opt span.s{font-size:12.5px;color:var(--muted);margin-left:auto;text-align:right}
 .hint{font-size:13px;color:var(--muted)}
 .hint code,.code{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;background:var(--card2);border:1px solid var(--border);padding:8px 10px;border-radius:10px;display:block;word-break:break-all;margin-top:6px;color:var(--ink)}
+.dlinfo.alt{color:var(--warn);font-weight:600}
 .sw{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-weight:600}
 .sw input{appearance:none;width:46px;height:28px;border-radius:99px;background:var(--card3);border:1px solid var(--border2);position:relative;cursor:pointer;transition:background .15s;flex:none}
 .sw input::after{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .15s}
@@ -68,6 +69,17 @@ input[type=time]{padding:8px 10px;border:1px solid var(--border);border-radius:1
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--card);padding:10px 14px;border-radius:12px;font-size:14px;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none;max-width:calc(100vw - 24px);text-align:center}
 .toast.show{opacity:1}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* Programm aktualisieren */
+.plan{display:flex;flex-direction:column;gap:10px;border:1.5px solid var(--accent);border-radius:14px;padding:14px;background:color-mix(in srgb,var(--accent) 6%,var(--card))}
+.plan.err{border-color:var(--bad-bg);background:color-mix(in srgb,var(--bad-bg) 9%,var(--card))}
+.plan b{font-size:15px}.plan .cnt{display:flex;flex-wrap:wrap;gap:6px}
+.plan details summary{cursor:pointer;font-size:13px;color:var(--muted);font-weight:600}
+.plan ul{list-style:none;display:flex;flex-direction:column;gap:2px;margin-top:6px;max-height:240px;overflow:auto;font:12px "JetBrains Mono",ui-monospace,monospace}
+.plan li span{display:inline-block;min-width:74px;font-family:Inter,sans-serif;font-weight:700;font-size:11px;color:var(--muted)}
+.plan li.neu span{color:var(--good)}.plan li.geändert span{color:var(--accent)}.plan li.entfernt span{color:var(--bad)}
+.plan pre{white-space:pre-wrap;font:11.5px "JetBrains Mono",ui-monospace,monospace;background:var(--card2);border-radius:10px;padding:8px;max-height:200px;overflow:auto}
+.tag.ok{background:color-mix(in srgb,var(--good-bg) 15%,transparent);color:var(--good)}
+.tag.acc{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}
 @media (max-width:520px){.opt{flex-wrap:wrap}.opt span.s{margin-left:30px;text-align:left;width:100%}h1{font-size:22px}.card{padding:14px}.stats{grid-template-columns:1fr 1fr}.st b{font-size:19px}}
 </style></head><body>
 <main>
@@ -76,8 +88,8 @@ input[type=time]{padding:8px 10px;border:1px solid var(--border);border-radius:1
   <section class="card" aria-labelledby="h1z"><h2 id="h1z">Zustand des Pi <small id="zt"></small></h2><div class="stats" id="stats"></div><div class="tl" id="tools"></div></section>
   <section class="card" aria-labelledby="h2s"><h2 id="h2s">Sicherung</h2>
     <div class="last" id="last"></div>
-    <div class="row"><button class="btn pri" id="now">Jetzt sichern</button><a class="btn" id="dl" href="/api/system_download">Herunterladen (.zip)</a></div>
-    <p class="hint">Gesichert wird alles: alle Tools, Personen, Rechte, PINs/Passwörter, Kurzinfos und Kalender-Abos. Die heruntergeladene Datei kannst du z. B. in iCloud oder auf dem PC ablegen.</p>
+    <div class="row"><button class="btn pri" id="now">Jetzt sichern</button><a class="btn" id="dl" href="/api/system_download">Herunterladen (.zip)</a><span class="hint dlinfo" id="dlinfo"></span></div>
+    <p class="hint">Gesichert wird alles: alle Tools, Personen, Rechte, PINs/Passwörter, Kurzinfos und Kalender-Abos. Die ZIP-Datei selbst aufheben (nur sie lässt sich zurückspielen) und den Download-Ordner in eine Cloud legen (OneDrive/iCloud) – wegen Brand oder Diebstahl.</p>
   </section>
   <section class="card" aria-labelledby="h3o"><h2 id="h3o">Wohin und wann</h2>
     <div class="opts" id="ziele" role="radiogroup" aria-label="Sicherungsziel"></div>
@@ -88,7 +100,15 @@ input[type=time]{padding:8px 10px;border:1px solid var(--border);border-radius:1
     <div class="list" id="list"></div>
     <div id="restore"></div>
   </section>
+  <section class="card" aria-labelledby="h5u"><h2 id="h5u">Programm aktualisieren <small id="pst"></small></h2>
+    <p class="hint">Update-Datei (<code style="display:inline;padding:1px 5px;margin:0">pi-update.zip</code>) wählen. Du siehst vorher, welche Dateien sich ändern. Deine Daten bleiben unangetastet; Daten und die bisherigen Programmdateien werden vorher gesichert, ein neuer Server wird erst getestet und startet dann von selbst neu.</p>
+    <div class="row"><button class="btn pri" id="upd">Update-Datei wählen …</button></div>
+    <div id="updplan"></div>
+    <div class="lt">Frühere Programmstände</div>
+    <div class="list" id="proglist"></div>
+  </section>
 </main>
+<input type="file" id="ufile" accept=".zip,application/zip" hidden>
 <input type="file" id="file" accept=".zip,application/zip" hidden>
 <div class="toast" id="toast" role="status"></div>
 <script>
@@ -107,10 +127,11 @@ function drawZustand(){ var z=D.zustand, H=D.hinweise;
   $('hw').innerHTML=H.filter(function(h){ return h.ton!=='info'; }).map(function(h){ return '<div class="h '+h.ton+'"><i></i><span>'+esc(h.text)+'</span></div>'; }).join('')
     || '<div class="h ok"><i></i><span>Alles in Ordnung.</span></div>';
   $('zt').textContent=z.modell.replace(/ Rev [\d.]+$/,'')+' · '+z.host;
-  var t=z.temp, sd=z.sd, sdU=sd.gesamt?(1-sd.frei/sd.gesamt)*100:0, ram=z.ram, ramU=ram&&ram.gesamt?(1-ram.frei/ram.gesamt)*100:null, s=z.strom;
-  var ld=z.last?Math.round(z.last[0]/(z.kerne||1)*100):null;
+  var t=z.temp, sd=z.sd, sdU=sd.gesamt?(1-sd.frei/sd.gesamt)*100:0, ram=z.ram, ramU=ram&&ram.gesamt?(1-ram.frei/ram.gesamt)*100:null, s=z.strom, u=z.uhr||{};
+  var ld=z.last?Math.round(z.last[0]/(z.kerne||1)*100):null, pz=new Date(z.jetzt);
   $('stats').innerHTML=
      st('Temperatur',t==null?'–':t.toFixed(0)+' °C',t==null?'nicht verfügbar':t>=80?'zu heiß':t>=70?'warm':'normal',t==null?'':t>=80?'rot':t>=70?'gelb':'ok')
+    +st('Uhrzeit',String(pz.getHours()).padStart(2,'0')+':'+String(pz.getMinutes()).padStart(2,'0'),u.falsch?'geht nach – neuester Eintrag '+esc(fWhen(u.neueste)):pz.toLocaleDateString('de-DE')+' · passt zu den Daten',u.falsch?'rot':'ok')
     +st('SD-Karte',fB(sd.frei)+' frei','von '+fB(sd.gesamt),sdU>95?'rot':sdU>85?'gelb':'',sdU)
     +(ram?st('Arbeitsspeicher',fB(ram.frei)+' frei','von '+fB(ram.gesamt),ramU>90?'gelb':'',ramU):'')
     +(ld!=null?st('Auslastung',ld+' %','Durchschnitt der letzten Minute',ld>90?'gelb':'',ld):'')
@@ -120,6 +141,9 @@ function drawZustand(){ var z=D.zustand, H=D.hinweise;
   $('tools').innerHTML=z.tools.map(function(x){ return '<span><i style="background:'+esc(x.farbe||'#7D8597')+'"></i>'+esc(x.titel)+': '+(x.geaendert?'zuletzt '+esc(fWhen(x.geaendert)):'noch keine Daten')+'</span>'; }).join(''); }
 function drawSich(){ var S=D.sicherung, L=S.letzte;
   $('last').innerHTML='<div class="big"><span>Letzte Komplettsicherung</span>'+(L?(L.ok?'<b>'+esc(fWhen(L.ts))+'</b><span>'+(L.ort==='usb'?'auf dem USB-Stick':'auf der SD-Karte')+' · '+fB(L.groesse)+' · '+L.dateien+' Dateien'+(L.grund==='manuell'?' · von Hand':'')+'</span>':'<b style="color:var(--bad)">fehlgeschlagen</b><span>'+esc(fWhen(L.ts)+' – '+(L.fehler||''))+'</span>'):'<b>noch keine</b><span>'+S.dateien+' Dateien warten auf die erste Sicherung</span>')+'</div>';
+  var dlT=S.download?Math.floor((Date.now()-S.download)/864e5):null, dlAlt=dlT==null||dlT>(S.downloadTage||35);
+  $('dlinfo').textContent=S.download?'Zuletzt heruntergeladen: '+fWhen(S.download)+(dlT>=2?' (vor '+dlT+' Tagen)':''):'Noch nie heruntergeladen';
+  $('dlinfo').classList.toggle('alt',D.besitzer&&dlAlt);
   var Z=[{pfad:'',name:'SD-Karte im Pi',s:'immer vorhanden – hilft nicht, wenn die Karte kaputtgeht'}].concat(S.ziele.map(function(u){ return {pfad:u.pfad,name:'USB: '+u.name,s:fB(u.frei)+' frei von '+fB(u.gesamt)}; }));
   if(S.ziel&&!S.ziele.some(function(u){ return u.pfad===S.ziel; })) Z.push({pfad:S.ziel,name:'USB: '+S.ziel.split('/').pop(),s:'nicht eingesteckt – solange auf die SD-Karte',miss:1});
   $('ziele').innerHTML=Z.map(function(x){ return '<button class="opt" role="radio" data-ziel="'+esc(x.pfad)+'" aria-pressed="'+(S.ziel===x.pfad)+'" aria-checked="'+(S.ziel===x.pfad)+'"'+(x.miss?' disabled':'')+'><span class="rd"></span><b>'+esc(x.name)+'</b><span class="s">'+esc(x.s)+'</span></button>'; }).join('');
@@ -128,7 +152,7 @@ function drawSich(){ var S=D.sicherung, L=S.letzte;
   if(document.activeElement!==$('uhr')) $('uhr').value=S.uhrzeit; $('auto').checked=!!S.auto;
   $('cnt').textContent=S.liste.length?S.liste.length+' Stück':'';
   $('list').innerHTML=S.liste.length?S.liste.map(function(x){ var vor=/-vorher\.zip$/.test(x.name), man=/-manuell\.zip$/.test(x.name);
-      return '<div class="li"><div class="w"><b>'+esc(fWhen(x.ts))+'</b><span>'+fB(x.groesse)+(vor?' · Stand vor einer Wiederherstellung':man?' · von Hand':'')+'</span></div>'
+      return '<div class="li"><div class="w"><b>'+esc(fWhen(x.ts))+'</b><span>'+fB(x.groesse)+(vor?' · Stand vor einer Wiederherstellung':/-update\.zip$/.test(x.name)?' · vor einem Programm-Update':man?' · von Hand':'')+'</span></div>'
         +'<span class="tag'+(x.ort==='usb'?' usb':'')+'">'+(x.ort==='usb'?'USB':'SD')+'</span>'+(vor?'<span class="tag vor">vorher</span>':'')
         +'<a class="btn sm" href="/api/system_datei?ort='+x.ort+'&name='+encodeURIComponent(x.name)+'" aria-label="Herunterladen">↓</a>'
         +(D.besitzer?'<button class="btn sm dng" data-rest="'+esc(x.name)+'" data-ort="'+x.ort+'">Zurückspielen</button>':'')+'</div>'; }).join('')
@@ -136,7 +160,34 @@ function drawSich(){ var S=D.sicherung, L=S.letzte;
   $('restore').innerHTML=D.besitzer?'<div class="row"><button class="btn" id="up">Aus Datei zurückspielen …</button><span class="hint">z. B. eine heruntergeladene .zip</span></div>'
     :'<p class="hint">Zurückspielen darf nur der Besitzer.</p>'; }
 function load(){ return req('GET','/api/system?t='+Date.now()).then(function(r){ if(r.status===403){ location.href='/anmelden?z=/system&kein=1'; throw 0; } return r.json(); })
-  .then(function(x){ D=x; drawZustand(); drawSich(); }); }
+  .then(function(x){ D=x; drawZustand(); drawSich(); drawProg(); }); }
+/* ---------- Programm aktualisieren ---------- */
+var UPD=null;   // {kind:'update'|'programm', data, name, plan}
+function drawProg(){ var P=D.programm||{liste:[]}, own=!!D.besitzer;
+  $('pst').textContent=P.server?'Server vom '+fWhen(P.server):'';
+  $('upd').disabled=!own||busy; $('upd').title=own?'':'Nur der Besitzer darf das Programm ändern';
+  $('proglist').innerHTML=P.liste.length?P.liste.map(function(x){ return '<div class="li"><div class="w"><b>'+esc(fWhen(x.ts))+'</b><span>'+esc(x.grund||'Programmsicherung')+' · '+x.dateien+' Dateien · '+fB(x.groesse)+'</span></div>'
+      +(own?'<button class="btn sm" data-prog="'+esc(x.name)+'">Zu diesem Stand zurück</button>':'')+'</div>'; }).join('')
+    :'<div class="empty">Noch keine – vor jedem Update wird der bisherige Programmstand hier gesichert.</div>';
+  if(UPD) drawPlan(); }
+function drawPlan(){ var el=$('updplan'); if(!UPD){ el.innerHTML=''; return; }
+  if(UPD.err) { el.innerHTML='<div class="plan err"><b>'+esc(UPD.err)+'</b>'+(UPD.log?'<pre>'+esc(UPD.log)+'</pre>':'')+'<div class="row"><button class="btn" data-upd="x">Schließen</button></div></div>'; return; }
+  if(UPD.wait){ el.innerHTML='<div class="plan"><b>'+esc(UPD.wait)+'</b><span class="hint">Die Seite lädt von selbst neu, sobald der Pi wieder antwortet.</span></div>'; return; }
+  var L=UPD.plan.dateien, n=function(s){ return L.filter(function(x){ return x.status===s; }).length; }, ch=L.filter(function(x){ return x.status!=='gleich'; });
+  el.innerHTML='<div class="plan"><b>'+(UPD.kind==='programm'?'Zurück zum Programmstand vom '+esc(fWhen((D.programm.liste.filter(function(x){ return x.name===UPD.name; })[0]||{}).ts)):esc(UPD.name))+'</b>'
+    +'<div class="cnt">'+(n('neu')?'<span class="tag ok">'+n('neu')+' neu</span>':'')+(n('geändert')?'<span class="tag acc">'+n('geändert')+' geändert</span>':'')+(n('entfernt')?'<span class="tag vor">'+n('entfernt')+' entfernt</span>':'')+'<span class="tag">'+n('gleich')+' unverändert</span>'
+    +(UPD.plan.neustart?'<span class="tag vor">Server startet neu</span>':'')+'</div>'
+    +(ch.length?'<details'+(ch.length<=8?' open':'')+'><summary>Welche Dateien?</summary><ul>'+ch.map(function(x){ return '<li class="'+x.status+'"><span>'+x.status+'</span>'+esc(x.pfad)+'</li>'; }).join('')+'</ul></details>'
+      :'<span class="hint">Alles ist schon auf diesem Stand.</span>')
+    +'<div class="row">'+(ch.length?'<button class="btn pri" data-upd="go">'+(UPD.kind==='programm'?'Zurückholen':'Einspielen')+'</button>':'')+'<button class="btn" data-upd="x">Abbrechen</button></div></div>'; }
+function updSend(go){ var u=UPD.kind==='programm'?'/api/system_programm?name='+encodeURIComponent(UPD.name)+(go?'':'&pruefen=1'):'/api/system_update'+(go?'':'?pruefen=1');
+  return req('POST',u,UPD.kind==='programm'?'{}':UPD.data,UPD.kind==='programm'?'application/json':'application/zip').then(function(r){ return r.json().then(function(x){ return {ok:r.ok,x:x}; }); }); }
+function waitRestart(){ UPD.wait='Pi startet mit dem neuen Programm neu …'; drawPlan(); var t0=Date.now();
+  (function poll(){ setTimeout(function(){ fetch('/api/ich?t='+Date.now(),{credentials:'same-origin'}).then(function(r){ if(r.ok) location.reload(); else throw 0; })
+    .catch(function(){ if(Date.now()-t0<90000) return poll(); UPD.wait=null; UPD.err='Der Pi antwortet nach 90 Sekunden nicht. Seite später neu laden; falls er nicht wiederkommt: per ssh „sudo systemctl status dashboard“.'; drawPlan(); }); },1500); })(); }
+function pick(kind,name,data){ UPD={kind:kind,name:name,data:data}; busy=true; $('upd').disabled=true; UPD.wait='Wird geprüft …'; drawPlan();
+  updSend(false).then(function(r){ busy=false; UPD.wait=null; $('upd').disabled=false; if(!r.ok){ UPD.err=r.x.error||'Fehler'; UPD.log=r.x.log; } else UPD.plan=r.x; drawPlan(); })
+    .catch(function(){ busy=false; UPD.wait=null; UPD.err='Pi nicht erreichbar'; drawPlan(); }); }
 function setCfg(o){ return req('POST','/api/system_einstellung',JSON.stringify(o)).then(function(r){ if(!r.ok) return r.json().then(function(x){ toast(x.error||'Fehler'); }); return load(); }); }
 function restore(body,ct,label){
   if(!confirm('„'+label+'“ zurückspielen?\n\nDer jetzige Stand aller Tools, Personen und PINs wird durch die Sicherung ersetzt. Der aktuelle Stand wird vorher automatisch gesichert. Alle Geräte laden beim nächsten Öffnen den zurückgespielten Stand.')) return;
@@ -151,7 +202,20 @@ document.addEventListener('click',function(e){ var t=e.target.closest('button');
   if(d.ziel!=null) return setCfg({ziel:d.ziel});
   if(d.rest) return restore(Promise.resolve({url:'/api/system_zurueck?ort='+d.ort+'&name='+encodeURIComponent(d.rest),data:'{}'}),'application/json','Sicherung vom '+fWhen((D.sicherung.liste.filter(function(x){ return x.name===d.rest; })[0]||{}).ts));
   if(t.id==='up') return $('file').click();
+  if(t.id==='upd') return $('ufile').click();
+  if(d.prog) return pick('programm',d.prog,null);
+  if(d.upd==='x'){ UPD=null; return drawPlan(); }
+  if(d.upd==='go'){ var lbl=UPD.kind==='programm'?'Zum früheren Programmstand zurückkehren?':'Update „'+UPD.name+'“ einspielen?';
+    if(!confirm(lbl+'\n\nVorher werden deine Daten und die bisherigen Programmdateien gesichert.'+(UPD.plan.neustart?' Der Server startet danach kurz neu.':''))) return;
+    busy=true; UPD.wait='Wird eingespielt …'; drawPlan();
+    return updSend(true).then(function(r){ busy=false;
+      if(!r.ok){ UPD.wait=null; UPD.err=r.x.error||'Fehler'; UPD.log=r.x.log; return drawPlan(); }
+      if(r.x.neustart) return waitRestart();
+      UPD=null; drawPlan(); toast(r.x.hinweis||('Eingespielt – '+r.x.geaendert+' Dateien. Offene Seiten zeigen den neuen Stand nach dem Neuladen.'),5000); return load(); })
+      .catch(function(){ busy=false; if(UPD&&UPD.plan&&UPD.plan.neustart) return waitRestart(); UPD.wait=null; UPD.err='Pi nicht erreichbar'; drawPlan(); }); }
 });
+document.addEventListener('click',function(e){ if(e.target.closest('#dl,a[href^="/api/system_datei"]')) setTimeout(load,2500); });   // Download merkt sich der Pi – Hinweis danach neu laden
+$('ufile').addEventListener('change',function(){ var f=this.files[0]; if(!f) return; this.value=''; f.arrayBuffer().then(function(b){ pick('update',f.name,b); }); });
 $('auto').addEventListener('change',function(){ setCfg({auto:this.checked}); });
 $('uhr').addEventListener('change',function(){ if(this.value) setCfg({uhrzeit:this.value}); });
 $('file').addEventListener('change',function(){ var f=this.files[0]; if(!f) return; this.value='';
