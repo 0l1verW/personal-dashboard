@@ -27,3 +27,8 @@ Was in welcher Runde dazukam. Die Runden ab dem 11.11.2026 sind hier beschrieben
 - Erinnerung, die Komplettsicherung herunterzuladen (nach 35 Tagen).
 - Anmelde-Cookie 1 Jahr, verlängert sich bei jeder Nutzung.
 - Tests: `harness.py`, `run_server.py`, `test_schritt1.py`, `test_schritt2.py`.
+
+## Runde 6, Schritt 3 – neues Tool „Training“ (20.11.2026)
+- Vorlagen, Satz- und Pausen-Timer, kg/Wdh., Notizen, Fortschritt (Bestgewicht, Volumen, 1RM, Bestwert-Hinweis).
+- Kachel mit Start-Knöpfen je Vorlage, Auffrischen im Hintergrund.
+- Test: `test_schritt3.py` (Chromium und WebKit).
