@@ -44,3 +44,8 @@ Was in welcher Runde dazukam. Die Runden ab dem 11.11.2026 sind hier beschrieben
 - Private Aufgaben: nur die eintragende Person sieht sie, auch kein Admin.
 - Geteiltes Gerät: beim Personenwechsel verwirft das Gerät fremde lokale Kopien.
 - Tests: `test_familie_http.py`, `test_familie_browser.py`.
+
+## Runde 8 – neues Tool „Einkaufsliste“ (22.11.2026)
+- Gemeinsame Liste für die Familie, sortiert nach Bereichen in Laden-Reihenfolge.
+- Schnelleingabe mit Mengen und Notizen, „Oft gekauft“, Abhaken in „Im Wagen“, wer eingetragen und wer gekauft hat.
+- Tests: `test_einkauf.py`, `test_einkauf_export.py`.
