@@ -1,0 +1,41 @@
+name: Fehler melden
+description: Etwas funktioniert nicht wie erwartet.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Bitte **keine persönlichen Daten** (Namen, Einträge, Sicherungen, Passwörter) in diese Meldung schreiben oder anhängen.
+        Sicherheitslücken bitte nicht hier, sondern privat melden (siehe SECURITY.md).
+  - type: dropdown
+    id: bereich
+    attributes:
+      label: Bereich
+      options: [Startseite / Kacheln, Semesterplaner, Notencockpit, Aufgaben, Ernährung, Haushaltsbuch, Training, Einkaufsliste, Anmeldung / Verwaltung, System / Sicherung / Update, Sync zwischen Geräten, Installation]
+    validations:
+      required: true
+  - type: textarea
+    id: schritte
+    attributes:
+      label: Schritte zum Nachstellen
+      placeholder: "1. …\n2. …\n3. …"
+    validations:
+      required: true
+  - type: textarea
+    id: erwartet
+    attributes:
+      label: Erwartet und tatsächlich
+      description: Was sollte passieren, was ist passiert?
+    validations:
+      required: true
+  - type: input
+    id: geraet
+    attributes:
+      label: Gerät und Browser
+      placeholder: z. B. iPhone 15, Safari, iOS 26 · Raspberry Pi 4, Raspberry Pi OS Bookworm
+  - type: textarea
+    id: log
+    attributes:
+      label: Meldungen
+      description: Fehlermeldung auf der Seite, Browser-Konsole oder `journalctl -u dashboard -n 50` (ohne persönliche Daten).
+      render: text

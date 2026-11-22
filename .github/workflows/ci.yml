@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  pruefen:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.9", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Python kompilieren
+        run: python -m py_compile dashboard/server.py scripts/*.py quellcode/*/build.py
+
+      - name: Selbsttest des Servers
+        run: |
+          cp -r dashboard /tmp/dash && rm -rf /tmp/dash/data
+          cd /tmp/dash && python server.py selbsttest
+
+      - name: Gebaute Tools passen zum Quellcode
+        run: python scripts/build_all.py --check
+
+      - name: JavaScript-Syntax
+        run: |
+          set -e
+          for f in dashboard/sync.js dashboard/www/pinpad.js dashboard/www/shared/*.js dashboard/www/addons/*.js; do node --check "$f"; done
+          for d in quellcode/*/; do cat "$d"*.js > /tmp/tool.js; node --check /tmp/tool.js; done
+
+      - name: Keine Daten im Repo
+        run: |
+          if git ls-files | grep -E '(^|/)data/|\.zip$|bls\.json'; then echo "Daten- oder Archivdateien gefunden"; exit 1; fi

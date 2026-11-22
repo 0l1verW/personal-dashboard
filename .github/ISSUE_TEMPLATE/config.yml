@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Sicherheitslücke melden
+    url: https://github.com/0l1verW/personal-dashboard/security/advisories/new
+    about: Bitte privat melden, nicht als öffentliches Issue.
+  - name: Anleitung
+    url: https://github.com/0l1verW/personal-dashboard/blob/main/docs/ANLEITUNG.md
+    about: Installation, Einrichtung, Sicherung, Updates, Fehlersuche
