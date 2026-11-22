@@ -1,6 +1,9 @@
 [
-{"id": "planer", "datei": "Semesterplaner.html", "titel": "Semesterplaner", "kurz": "Planer", "gruppe": "Uni", "farbe": "#5B4BE0", "kachel": "2x2", "keys": ["semesterplaner_ws2627_v1"], "sync": "ganz", "addon": "addons/planer-sum.js"},
-{"id": "noten", "datei": "Notencockpit.html", "titel": "Notencockpit", "kurz": "Noten", "gruppe": "Uni", "farbe": "#2F5FB3", "kachel": "1x2", "keys": ["bsc_informatik_cockpit_v2"], "sync": "ganz"},
-{"id": "aufgaben", "datei": "Aufgaben.html", "titel": "Aufgaben", "kurz": "Aufgaben", "gruppe": "Alltag", "farbe": "#E0673A", "kachel": "2x2", "keys": ["aufgaben_v1"], "sync": "liste", "familie": true, "neu": true, "proPerson": true},
-{"id": "essen", "datei": "Ernaehrung.html", "titel": "Ernährung", "kurz": "Essen", "gruppe": "Alltag", "farbe": "#16A85A", "kachel": "2x2", "keys": ["ernaehrung_v1"], "sync": "liste", "neu": true}
+ {"id": "planer", "datei": "Semesterplaner.html", "titel": "Semesterplaner", "kurz": "Planer", "gruppe": "Uni", "farbe": "#5B4BE0", "kachel": "2x2", "keys": ["semesterplaner_ws2627_v1"], "sync": "ganz", "addon": "addons/planer-sum.js", "bgZeit": true},
+ {"id": "noten", "datei": "Notencockpit.html", "titel": "Notencockpit", "kurz": "Noten", "gruppe": "Uni", "farbe": "#2F5FB3", "kachel": "2x2", "keys": ["bsc_informatik_cockpit_v2"], "sync": "ganz", "addon": "addons/noten-sum.js"},
+ {"id": "aufgaben", "datei": "Aufgaben.html", "titel": "Aufgaben", "kurz": "Aufgaben", "gruppe": "Alltag", "farbe": "#E0673A", "kachel": "2x2", "keys": ["aufgaben_v1"], "sync": "liste", "familie": true, "neu": true, "proPerson": true},
+ {"id": "essen", "datei": "Ernaehrung.html", "titel": "Ernährung", "kurz": "Essen", "gruppe": "Alltag", "farbe": "#16A85A", "kachel": "2x2", "keys": ["ernaehrung_v1"], "sync": "liste", "neu": true, "addon": "addons/essen-sum.js", "archiv": {"sammlungen": ["log", "water", "burn", "weight", "mass"], "feld": "datum", "tage": 120, "tageJe": {"weight": 730, "mass": 730}}},
+ {"id": "einkauf", "datei": "Einkauf.html", "titel": "Einkaufsliste", "kurz": "Einkauf", "gruppe": "Alltag", "farbe": "#C2720C", "kachel": "2x2", "keys": ["einkauf_v1"], "sync": "liste", "familie": true, "neu": true},
+ {"id": "haushalt", "datei": "Haushaltsbuch.html", "titel": "Haushaltsbuch", "kurz": "Geld", "gruppe": "Alltag", "farbe": "#0E7C86", "kachel": "2x2", "keys": ["haushalt_v1"], "sync": "liste", "neu": true},
+ {"id": "training", "datei": "Training.html", "titel": "Training", "kurz": "Training", "gruppe": "Sport", "farbe": "#C2255C", "kachel": "2x2", "keys": ["training_v1"], "sync": "liste", "neu": true, "bg": true}
 ]
