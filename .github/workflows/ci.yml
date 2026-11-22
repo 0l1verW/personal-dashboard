@@ -35,6 +35,9 @@ jobs:
       - name: Gebaute Tools passen zum Quellcode
         run: python scripts/build_all.py --check
 
+      - name: Claude-Skills gültig
+        run: python scripts/pack_skills.py --check
+
       - name: JavaScript-Syntax
         run: |
           set -e

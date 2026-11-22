@@ -5,6 +5,7 @@ Alle nennenswerten Änderungen. Neueste oben. Das Projekt hat keine Versionsnumm
 ## Unveröffentlicht
 
 ### Hinzugefügt
+- KI-Unterstützung: Claude-Skills `essen-foto` und `rewe-bestellung` unter `ki/skills/`, Beschreibung der Schnittstellen (`ESSEN1`, Einkaufs-CSV) und Installation in `ki/README.md`, `scripts/pack_skills.py` zum Prüfen und Packen, `CLAUDE.md` mit Regeln für KI-Assistenten.
 - Anleitung (`docs/ANLEITUNG.md`), Entwickler-Doku (`docs/ENTWICKLUNG.md`), Lizenz (GPL-3.0), `CONTRIBUTING.md`, `SECURITY.md`, `THIRD_PARTY.md`.
 - `scripts/build_all.py` (alle Tools bauen bzw. mit `--check` prüfen) und `scripts/make_update_zip.py` (Update-ZIP für `/system`).
 - `quellcode/ernaehrung/mkbls.py`: erzeugt `bls.json.gz` aus dem BLS 4.0.

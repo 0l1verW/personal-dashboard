@@ -26,6 +26,7 @@ Jedes Tool ist **eine** HTML-Datei. Sie läuft auch ohne Pi direkt im Browser (d
 - **Sicherung**: täglich automatisch (SD-Karte oder USB-Stick), Download als ZIP, Wiederherstellen über die Systemseite.
 - **Updates** als ZIP über die Systemseite, mit Selbsttest und Rückweg.
 - Als **Home-Bildschirm-App** auf iPhone und iPad nutzbar, hell und dunkel.
+- **KI-Unterstützung** (optional, mit Claude): Essen fotografieren statt eintippen, Einkaufsliste online in den Warenkorb legen lassen. Die Skills liegen in [`ki/`](ki/README.md).
 
 ## Schnellstart
 
@@ -53,7 +54,8 @@ dashboard/              Programm, das auf dem Pi läuft
   www/                  Tools (gebaut), Icons, Schriften, gemeinsame Schicht, Addons
   data/                 entsteht beim ersten Start: alle Daten (nicht im Repo)
 quellcode/<tool>/       Quellen der neueren Tools; build.py baut daraus die HTML-Datei
-scripts/                build_all.py, make_update_zip.py
+ki/                     Claude-Skills (Essen-Foto, REWE-Bestellung) und ihre Schnittstellen
+scripts/                build_all.py, make_update_zip.py, pack_skills.py
 docs/                   Anleitung, Entwickler-Doku, Notizen je Entwicklungsrunde
 ```
 

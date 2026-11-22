@@ -5,6 +5,7 @@ dashboard/data/
 # Erzeugte bzw. nicht weitergebbare Dateien
 dashboard/www/bls.json
 pi-update*.zip
+dist/
 *.zip
 
 # Python, Editor, Betriebssystem

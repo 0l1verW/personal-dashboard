@@ -164,9 +164,14 @@ Aufgaben → Einstellungen → *Kalender-Abo*. Die Adresse (`…/aufgaben.ics` o
 
 Ernährung → Ziele → Sport → *Garmin / Apple Health automatisch übernehmen*. Dort steht eine Adresse und die Anleitung für einen iOS-Kurzbefehl. Der Kurzbefehl liest die aktiven Kalorien des Tages aus Apple Health und schickt sie an den Pi. Der Pi braucht dafür kein Internet und kein Garmin-Konto. Wer die Adresse kennt, kann im Heimnetz Sport-Kalorien eintragen; bei Bedarf unter dem gleichen Menü eine neue Adresse erzeugen.
 
-### Einkaufsliste online bestellen
+### KI-Unterstützung: Essen-Foto und Online-Bestellung
 
-Die Einkaufsliste exportiert die gewählten Artikel als CSV (*Export für Online-Bestellung*). Die Datei lässt sich von einem Assistenten oder von Hand in einen Online-Warenkorb übertragen. Danach hakst du im selben Blatt nur ab, was wirklich bestellt wurde.
+Mit dem KI-Assistenten Claude und zwei mitgelieferten Skills geht beides schneller:
+
+- **Essen-Foto:** Foto an Claude schicken, die zurückgegebene Codezeile (`ESSEN1 …`) in der Ernährung unter *Eintragen* ins Suchfeld einfügen; alle Bestandteile liegen dann auf dem Teller.
+- **Einkaufsliste bestellen:** In der Einkaufsliste *Export für Online-Bestellung* → CSV an Claude geben; Claude füllt den REWE-Warenkorb und fragt bei Angeboten nach. Bezahlen und Abschicken machst du selbst. Danach im selben Blatt nur abhaken, was wirklich bestellt wurde.
+
+Installation der Skills, Formate und Datenschutz-Hinweise: [ki/README.md](../ki/README.md). Ohne KI geht beides auch von Hand.
 
 ## 10. Umzug auf einen neuen Pi
 

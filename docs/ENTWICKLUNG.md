@@ -108,12 +108,17 @@ Das Tool schickt eine Kurzinfo an `PUT /api/sum_<id>` und stellt sie zusätzlich
 
 Hash-Konventionen: `#neu` öffnet die Eingabe, `#hintergrund` heißt „unsichtbar geladen“ (keine automatischen Buchungen o. Ä.).
 
+## Schnittstellen zur KI
+
+Zwei Formate verbinden Tools und Claude-Skills (`ki/skills/`): die Codezeile `ESSEN1` (gelesen von `fotoCode()` in `quellcode/ernaehrung/app3.js`) und die CSV der Einkaufsliste (`csvExport()` in `quellcode/einkauf/app.js`). Beschreibung in [ki/README.md](../ki/README.md). Wer eine Seite ändert, ändert die andere im selben Commit. Skills packen und prüfen: `python3 scripts/pack_skills.py` bzw. `--check`. Regeln für KI-Assistenten, die am Repo arbeiten: [CLAUDE.md](../CLAUDE.md).
+
 ## Prüfen vor einem Commit
 
 ```bash
 python3 -m py_compile dashboard/server.py
 python3 dashboard/server.py selbsttest
 python3 scripts/build_all.py --check
+python3 scripts/pack_skills.py --check
 ```
 
 Dazu die geänderten Tools im Browser bei 375, 768 und 1280 px Breite, hell und dunkel ansehen. Die CI (`.github/workflows/ci.yml`) führt die drei Befehle oben und `node --check` für alle Skripte aus.
