@@ -1,4 +1,21 @@
+# Laufzeitdaten des Pi: persönliche Daten, Anmeldungen, Sicherungen – nie ins Repo
 data/
+dashboard/data/
+
+# Erzeugte bzw. nicht weitergebbare Dateien
+dashboard/www/bls.json
+dashboard/www/bls.json.gz
+pi-update*.zip
+*.zip
+
+# Python, Editor, Betriebssystem
 __pycache__/
+*.pyc
 *.tmp
 *.upd-neu
+.venv/
+.env
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

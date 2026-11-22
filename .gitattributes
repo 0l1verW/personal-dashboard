@@ -1,0 +1,12 @@
+* text=auto eol=lf
+*.png  binary
+*.woff2 binary
+*.gz   binary
+*.zip  binary
+# gebaute Tool-Seiten: auf GitHub als erzeugt markieren (Diffs eingeklappt, nicht in der Sprachstatistik)
+dashboard/www/Aufgaben.html      linguist-generated
+dashboard/www/Ernaehrung.html    linguist-generated
+dashboard/www/Haushaltsbuch.html linguist-generated
+dashboard/www/Training.html      linguist-generated
+dashboard/www/Einkauf.html       linguist-generated
+dashboard/www/vendor/**          linguist-vendored
