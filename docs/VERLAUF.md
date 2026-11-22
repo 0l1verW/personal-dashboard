@@ -38,3 +38,9 @@ Was in welcher Runde dazukam. Die Runden ab dem 11.11.2026 sind hier beschrieben
 - Neu angelegtes Lebensmittel erscheint direkt in der Trefferliste.
 - Eigene Lebensmittel lassen sich aus „Eintragen“ und aus einem Eintrag heraus bearbeiten.
 - Test: `test_lebensmittel_bearbeiten.py`.
+
+## Runde 7 – Familie: eigene Daten je Person, private Aufgaben (22.11.2026)
+- Je Person und Tool wählbar: gemeinsame oder eigene (leere) Daten; der Pi legt sie getrennt ab, die Tools merken nichts davon.
+- Private Aufgaben: nur die eintragende Person sieht sie, auch kein Admin.
+- Geteiltes Gerät: beim Personenwechsel verwirft das Gerät fremde lokale Kopien.
+- Tests: `test_familie_http.py`, `test_familie_browser.py`.
