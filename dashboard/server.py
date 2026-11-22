@@ -2,7 +2,7 @@
 """Personal Dashboard auf dem Raspberry Pi: liefert die Tools aus www/, das Dashboard (/) und
 speichert den Stand jedes Tools zentral in data/. Nur Python-Standardbibliothek nötig.
 Welche Tools es gibt, steht in apps.json (Register) – neues Tool = HTML-Datei + Icons + Eintrag."""
-import gzip, hashlib, hmac, http.cookies, io, json, os, re, secrets, shutil, socket, subprocess, sys, time, threading, zipfile
+import gzip, hashlib, hmac, http.cookies, io, json, os, re, secrets, shutil, socket, subprocess, sys, tempfile, time, threading, zipfile
 from urllib.parse import urlparse, parse_qs
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 
@@ -59,11 +59,59 @@ def liste_keys():
 TOMB_DAYS = 60   # gelöschte Einträge so lange als Grabstein behalten (damit Offline-Geräte sie nicht wiederbeleben)
 def is_coll(d):
     return isinstance(d, dict) and all(isinstance(v, dict) and 'upd' in v for v in d.values())
+
+# ---------- Sicherheitsnetz Uhr ----------
+# Der Pi hat ohne Netz keine verlässliche Uhr (nach Stromausfall läuft er mit der Zeit vom letzten Herunterfahren an).
+# Die Geräte stempeln ihre Einträge (upd/savedAt) mit ihrer eigenen, richtigen Uhr. Liegt die Pi-Uhr deutlich vor dem
+# neuesten gespeicherten Zeitstempel, geht sie nach: dann räumt der Pi keine Grabsteine auf und archiviert nichts.
+UHR_TOL = 10 * 60 * 1000                     # 10 Min Spielraum für leicht abweichende Geräte-Uhren
+UHR_MAX = 4102444800000                      # Werte ab 2100 sind Unsinn und zählen nicht
+_uhr = {}                                    # Datei -> (mtime_ns, size, neuester Zeitstempel)
+_uhrc = {'t': 0.0, 'v': 0.0}
+def _ts(x):
+    try: x = float(x)
+    except Exception: return 0
+    return x if 0 < x < UHR_MAX else 0
+def max_ts(obj):
+    """Neuester upd/savedAt in einem Stand (oben, in Objekten mit upd und in Sammlungen)."""
+    if not isinstance(obj, dict): return 0
+    mx = _ts(obj.get('savedAt'))
+    for v in obj.values():
+        if not isinstance(v, dict): continue
+        if is_coll(v):
+            for it in v.values(): mx = max(mx, _ts(it.get('upd')))
+        elif 'upd' in v: mx = max(mx, _ts(v.get('upd')))
+    return mx
+def neueste_zeit():
+    mx = 0; seen = set(); LK = set(liste_keys())
+    try: names = os.listdir(DATA)
+    except OSError: return 0
+    for n in names:
+        if not n.endswith('.json') or n.startswith('_') or n in ('auth.json', 'sicherung.json', 'gesundheit.json'): continue
+        f = os.path.join(DATA, n); seen.add(n)
+        try: st = os.stat(f)
+        except OSError: continue
+        c = _uhr.get(n)
+        if not (c and c[0] == st.st_mtime_ns and c[1] == st.st_size):
+            obj = state_load(n[:-5])[0] if n[:-5] in LK else jload(f, None)
+            c = (st.st_mtime_ns, st.st_size, max_ts(obj)); _uhr[n] = c
+        mx = max(mx, c[2])
+    for n in list(_uhr):
+        if n not in seen: _uhr.pop(n, None)
+    return mx
+def uhr_status(extra=0):
+    """(Pi-Uhr geht nach?, neuester gespeicherter Zeitstempel in ms). Höchstens alle 30 s neu berechnet."""
+    now = time.time()
+    if now - _uhrc['t'] > 30 or now < _uhrc['t']: _uhrc['v'] = neueste_zeit(); _uhrc['t'] = now
+    if extra: _uhrc['v'] = max(_uhrc['v'], _ts(extra))
+    return _uhrc['v'] > now * 1000 + UHR_TOL, _uhrc['v']
+def uhr_ok(extra=0): return not uhr_status(extra)[0]
+
 def merge(old, new):
     """Modus „liste“: Sammlungen ({id:{…,upd}}) pro Eintrag zusammenführen – der neuere upd gewinnt.
     Objekte mit upd (z. B. Einstellungen) als Ganzes nach upd, alles andere nach savedAt."""
     newer = saved_at(new) >= saved_at(old); out = dict(old)
-    cut = (time.time() - TOMB_DAYS * 86400) * 1000
+    cut = (time.time() - TOMB_DAYS * 86400) * 1000 if uhr_ok(max_ts(new)) else 0   # Uhr geht nach → keine Grabsteine löschen
     for k, v in new.items():
         o = old.get(k)
         if isinstance(v, dict) and isinstance(o, dict) and is_coll(v) and is_coll(o) and (v or o) and not ('upd' in v and not is_coll(v)):
@@ -78,12 +126,161 @@ def merge(old, new):
     out['savedAt'] = max(saved_at(old), saved_at(new))
     return out
 
+# ---------- Delta-Sync (Modus „liste“): Geräte schicken und holen nur Geändertes ----------
+# Jeder Eintrag einer Sammlung bekommt beim Speichern auf dem Pi eine laufende Nummer `_s` (Server-Reihenfolge,
+# unabhängig von den Uhren der Geräte). Geräte merken sich die höchste Nummer und fragen mit ?seit=<Nummer> nach.
+# Nummer und Stand je Key: data/_sync_<key>.json {seq, top:{key:seq}, floor}. floor = höchste Nummer eines endgültig
+# entfernten Grabsteins – wer davor zuletzt abgeglichen hat, lädt einmal alles neu (voll:1).
+_cache = {}                                   # key -> (mtime, size, state, max_s)
+def state_load(k):
+    """Stand eines Keys (zwischengespeichert, nur lesen – nie verändern!)."""
+    f = os.path.join(DATA, k + '.json')
+    try: st = os.stat(f)
+    except OSError: return None, 0
+    c = _cache.get(k)
+    if c and c[0] == st.st_mtime_ns and c[1] == st.st_size: return c[2], c[3]
+    try:
+        with open(f, encoding='utf-8') as fh: obj = json.load(fh)
+    except Exception: return None, 0
+    mx = 0
+    if isinstance(obj, dict):
+        for v in obj.values():
+            if isinstance(v, dict) and is_coll(v):
+                for it in v.values():
+                    try: mx = max(mx, int(it.get('_s') or 0))
+                    except Exception: pass
+    _cache[k] = (st.st_mtime_ns, st.st_size, obj, mx)
+    return obj, mx
+def meta_load(k, mx=0):
+    m = jload(os.path.join(DATA, '_sync_' + k + '.json'), None)
+    if not isinstance(m, dict): m = {}
+    m['seq'] = max(int(m.get('seq') or 0), int(mx or 0)); m.setdefault('top', {}); m.setdefault('floor', 0)
+    return m
+def meta_save(k, m): jsave(os.path.join(DATA, '_sync_' + k + '.json'), m)
+def _plain(it): return {a: b for a, b in it.items() if a != '_s'} if isinstance(it, dict) else it
+def merge_s(old, new, meta):
+    """Wie merge(), stempelt aber jeden übernommenen Eintrag mit der nächsten Nummer. Gibt (Stand, geändert?) zurück."""
+    newer = saved_at(new) >= saved_at(old); out = dict(old); chg = False
+    cut = (time.time() - TOMB_DAYS * 86400) * 1000 if uhr_ok(max_ts(new)) else 0   # Uhr geht nach → keine Grabsteine löschen
+    def stamp():
+        meta['seq'] = int(meta.get('seq') or 0) + 1; return meta['seq']
+    for k, v in new.items():
+        if k == 'savedAt': continue
+        o = old.get(k)
+        if isinstance(v, dict) and is_coll(v) and ((isinstance(o, dict) and is_coll(o)) or (o is None and v)):   # leere Sammlung löscht nichts
+            c = dict(o or {})
+            for i, it in v.items():
+                if not isinstance(it, dict): continue
+                cur = c.get(i)
+                nu = float(it.get('upd') or 0); cu = float(cur.get('upd') or 0) if isinstance(cur, dict) else -1
+                if cur is None or nu > cu or (nu == cu and _plain(it) != _plain(cur)):
+                    it = dict(it); it['_s'] = stamp(); c[i] = it; chg = True
+            keep = {}
+            for i, it in c.items():
+                if it.get('del') and float(it.get('upd') or 0) < cut:
+                    meta['floor'] = max(int(meta.get('floor') or 0), int(it.get('_s') or 0)); chg = True
+                else: keep[i] = it
+            out[k] = keep
+        elif isinstance(v, dict) and isinstance(o, dict) and 'upd' in v and 'upd' in o and not is_coll(v):
+            if float(v.get('upd') or 0) > float(o.get('upd') or 0) or (float(v.get('upd') or 0) == float(o.get('upd') or 0) and v != o):
+                out[k] = v; meta['top'][k] = stamp(); chg = True
+        elif k not in old or (newer and v != o):
+            out[k] = v; meta['top'][k] = stamp(); chg = True
+    sa = max(saved_at(old), saved_at(new))
+    if sa != saved_at(old): chg = True
+    out['savedAt'] = sa
+    return out, chg
+def liste_store(k, teil):
+    """Listen-Stand unter LOCK laden, teil(alt) pro Eintrag einarbeiten, speichern. Gibt (Stand, meta) zurück."""
+    f = os.path.join(DATA, k + '.json')
+    with LOCK:
+        old, mx = state_load(k)
+        if not isinstance(old, dict): old = {}
+        meta = meta_load(k, mx)
+        part = teil(old)
+        if part is None: return old, meta
+        out, chg = merge_s(old, part, meta)
+        if not chg: return old, meta
+        if os.path.exists(f):                  # vor der ersten Änderung des Tages eine Kopie
+            day = time.strftime('%Y-%m-%d'); bk = os.path.join(BACKUPS, f'{k}_{day}.json')
+            if not os.path.exists(bk): shutil.copy2(f, bk)
+            olds = sorted(x for x in os.listdir(BACKUPS) if x.startswith(k + '_'))
+            for x in olds[:-KEEP_BACKUPS]: os.remove(os.path.join(BACKUPS, x))
+        raw = json.dumps(out, ensure_ascii=False, separators=(',', ':')).encode('utf-8'); tmp = f + '.tmp'
+        with open(tmp, 'wb') as fh: fh.write(raw); fh.flush(); os.fsync(fh.fileno())
+        os.replace(tmp, f); meta_save(k, meta)
+        state, mx = state_load(k)              # frisch in den Zwischenspeicher
+        return (out if state is None else state), meta
+def archiv_of(k):
+    """Archiv eines Keys (apps.json „archiv“): ältere Einträge bleiben nur auf dem Pi, Geräte bekommen die letzten N Tage.
+    Geht die Uhr des Pi nach, wird nichts archiviert (Geräte behalten und bekommen alles)."""
+    a = app_of_key(k); x = a.get('archiv') if a else None
+    if not isinstance(x, dict): return None
+    try: tage = int(x.get('tage') or 0)
+    except Exception: tage = 0
+    if tage <= 0 or not uhr_ok(): return None
+    ab = lambda t: time.strftime('%Y-%m-%d', time.localtime(time.time() - t * 86400))
+    je = {}                                    # „tageJe“: einzelne Sammlungen länger auf dem Gerät (z. B. Gewicht 2 Jahre)
+    for c, t in (x.get('tageJe') or {}).items():
+        try: t = int(t)
+        except Exception: continue
+        if t > 0: je[str(c)] = ab(t)
+    return {'sammlungen': [str(c) for c in (x.get('sammlungen') or [])], 'feld': str(x.get('feld') or 'datum'),
+            'ab': ab(tage), 'tage': tage, 'abJe': je}
+def alt(ar, it, c=None):
+    if not ar or not isinstance(it, dict): return False
+    return str(it.get(ar['feld']) or '9999') < (ar.get('abJe') or {}).get(c, ar['ab'])
+def archiv_filter(state, ar):
+    if not ar or not isinstance(state, dict): return state
+    out = dict(state)
+    for c in ar['sammlungen']:
+        v = state.get(c)
+        if isinstance(v, dict): out[c] = {i: it for i, it in v.items() if not alt(ar, it, c)}
+    return out
+def delta_of(state, meta, seit, ar, vis=None, weg=None):
+    """Alles, was seit Nummer `seit` dazukam. vis: {sammlung: ids} – nur diese Einträge (Sicht „eigene“, private Aufgaben).
+    weg: {sammlung: ids} – geänderte Einträge, die das Gerät nicht (mehr) sehen darf, gehen als Grabstein raus
+    (z. B. eine Aufgabe, die gerade privat gestellt wurde – sonst bliebe die alte Kopie auf dem Gerät liegen)."""
+    if seit > int(meta.get('seq') or 0) or seit < int(meta.get('floor') or 0):
+        return {'voll': 1, 'seq': meta['seq']}
+    d = {}; top = {}
+    for k, v in state.items():
+        if k == 'savedAt': continue
+        if isinstance(v, dict) and is_coll(v):
+            for i, it in v.items():
+                if int(it.get('_s') or 0) > seit and not (ar and k in ar['sammlungen'] and alt(ar, it, k)):
+                    if vis is not None and k in vis and i not in vis[k]:
+                        if weg and seit > 0 and i in weg.get(k, ()): d.setdefault(k, {})[i] = {'id': i, 'upd': it.get('upd') or 0, 'del': True}
+                        continue
+                    d.setdefault(k, {})[i] = it
+        elif int(meta['top'].get(k) or 0) > seit:
+            top[k] = v
+    return {'seq': meta['seq'], 'savedAt': saved_at(state), 'd': d, 'top': top}
+def korrektur(body, sent, state, vis):
+    """Was das Gerät geschickt hat, der Pi aber anders (oder gar nicht) gespeichert hat – z. B. weil eine Änderung nicht erlaubt
+    war –, geht mit der Antwort zurück. So bleibt kein Gerät auf einem Stand sitzen, den es auf dem Pi nicht gibt."""
+    for k, v in sent.items():
+        if k == 'savedAt': continue
+        if isinstance(v, dict) and is_coll(v):
+            have = state.get(k) if isinstance(state.get(k), dict) else {}
+            for i, it in v.items():
+                if not isinstance(it, dict): continue
+                srv = have.get(i)
+                if srv is None or (vis is not None and k in vis and i not in vis[k]):
+                    body['d'].setdefault(k, {})[i] = {'id': i, 'upd': it.get('upd') or 0, 'del': True}
+                elif _plain(srv) != _plain(it):
+                    body['d'].setdefault(k, {})[i] = srv
+        elif k in state and state[k] != v:
+            body['top'][k] = state[k]
+
 # ---------- Personen, Anmeldung (PIN/Passwort je Person) und Rechte ----------
-AUTH_F = os.path.join(DATA, 'auth.json')      # {users:{pid:{salt,hash,kind}}, tokens:{sha256(token):{pid,ts,ua}}} – nie über /api lesbar
-RECHTE_F = os.path.join(DATA, 'rechte.json')  # {savedAt, p:{pid:{admin,sicht,tools:{appId:none|view|edit}}}}
+AUTH_F = os.path.join(DATA, 'auth.json')      # {users:{pid:{salt,hash,kind}}, tokens:{sha256(token):{pid,ts,ua,seen}}} – nie über /api lesbar
+RECHTE_F = os.path.join(DATA, 'rechte.json')  # {savedAt, p:{pid:{admin,sicht,tools:{appId:none|view|edit},eigen:[appId]}}}
 LEVELS = ('none', 'view', 'edit')
 FAILS = {}                                    # pid -> Zeitpunkte falscher Eingaben (gegen Durchprobieren)
 RESERVED = {'auth', 'rechte', 'ich', 'anmelden', 'abmelden', 'geheimnis'}
+AUTH_AGE = 365 * 86400                        # Anmelde-Cookie gilt 1 Jahr und verlängert sich bei jeder Nutzung
+TOKEN_WEG = 400 * 86400                       # Anmeldungen, die so lange nicht benutzt wurden, räumt der Pi weg
 
 def jload(f, default):
     try:
@@ -118,27 +315,47 @@ def secret_ok(kind, v):
     return bool(re.fullmatch(r'\d{4,8}', v)) if kind == 'pin' else 4 <= len(v) <= 200
 
 def rechte_raw(): return jload(RECHTE_F, {}).get('p') or {}
+def eigen_ok_apps(): return {x['id'] for x in apps() if not x.get('proPerson')}   # gemeinsame Tools (Aufgaben) lassen sich nicht trennen
+def eigen_of(pid, raw=None):
+    """Tools, in denen diese Person mit eigenen, leeren Daten arbeitet (Daten-Key <key>__<pid>). Der Besitzer nie."""
+    if not pid or pid == owner_id(): return []
+    r = (raw if raw is not None else rechte_raw()).get(pid) or {}
+    ok = eigen_ok_apps()
+    return sorted({str(i) for i in (r.get('eigen') or []) if str(i) in ok})
 def rechte_of(pid, has_secret, raw=None):
     """Wirksame Rechte: Besitzer und Admins (nur mit PIN/Passwort) dürfen alles. Sonst je Tool none/view/edit;
-    ohne Eintrag: Familien-Tools bearbeiten, alles andere kein Zugriff. Aufgaben-Sicht: eigene|alle."""
-    r = (raw if raw is not None else rechte_raw()).get(pid) or {}
+    ohne Eintrag: Familien-Tools bearbeiten, alles andere kein Zugriff. Aufgaben-Sicht: eigene|alle. eigen: Tools mit eigenen Daten."""
+    raw = raw if raw is not None else rechte_raw()
+    r = raw.get(pid) or {}
     admin = pid == owner_id() or (bool(r.get('admin')) and has_secret)
     tools = {}
     for x in apps():
         lv = (r.get('tools') or {}).get(x['id'])
         tools[x['id']] = 'edit' if admin else (lv if lv in LEVELS else ('edit' if x.get('familie') else 'none'))
     sicht = 'alle' if admin else (r.get('sicht') if r.get('sicht') in ('eigene', 'alle') else 'eigene')
-    return {'admin': admin, 'tools': tools, 'sicht': sicht}
+    return {'admin': admin, 'tools': tools, 'sicht': sicht, 'eigen': eigen_of(pid, raw)}
 def admins():
     U = auth_load()['users']; raw = rechte_raw()
     if owner_id() not in U: return {p['id'] for p in personen()}
     return {p['id'] for p in personen() if rechte_of(p['id'], p['id'] in U, raw)['admin']}
-def app_of_key(k): return next((x for x in apps() if k in x.get('keys', [])), None)
+def base_key(k): return str(k).split('__')[0]                   # ernaehrung_v1__sam → ernaehrung_v1
+def app_of_key(k): b = base_key(k); return next((x for x in apps() if b in x.get('keys', [])), None)
 def app_by_id(i): return next((x for x in apps() if x['id'] == i), None)
 def lvl_ok(have, need): return LEVELS.index(have or 'none') >= LEVELS.index(need)
 
 def sees_own(t, p): return bool(p) and (t.get('von') == p or t.get('fuer') == p or t.get('erstVon') == p or p in ((t.get('wdh') or {}).get('rot') or []))
 def creator(t, p): return t.get('von') == p or t.get('erstVon') == p
+# ---- Private Aufgaben (Feld „privat“): sieht nur die Person, die sie für sich selbst eingetragen hat – auch kein Admin ----
+def priv_ok(t):
+    """privat wirkt nur, wenn die Aufgabe für die eintragende Person selbst ist und nicht mit anderen abwechselt."""
+    if not isinstance(t, dict) or not t.get('von'): return False
+    rot = (t.get('wdh') or {}).get('rot') or []
+    return (not t.get('fuer') or t.get('fuer') == t.get('von')) and all(x == t.get('von') for x in rot)
+def hidden(t, p):
+    return isinstance(t, dict) and bool(t.get('privat')) and not t.get('del') and priv_ok(t) and t.get('von') != p
+def hid_ids(d, p):
+    T = d.get('tasks') if isinstance(d, dict) and isinstance(d.get('tasks'), dict) else {}
+    return {i for i, t in T.items() if hidden(t, p)}
 def filt(d, p):
     """Sicht „eigene“: nur Aufgaben, die die Person eingetragen hat oder die für sie sind (+ deren Verlauf)."""
     if not isinstance(d, dict) or not isinstance(d.get('tasks'), dict): return d
@@ -148,12 +365,35 @@ def filt(d, p):
     if isinstance(d.get('log'), dict):
         out['log'] = {i: g for i, g in d['log'].items() if isinstance(g, dict) and (g.get('del') or (g.get('task') in vis and not vis[g['task']].get('del')))}
     return out
+def sicht_of(d, p, eigene):
+    """Was eine Person von den Aufgaben bekommt: ohne private Aufgaben anderer (samt Verlauf), bei Sicht „eigene“ nur ihre."""
+    if not isinstance(d, dict) or not isinstance(d.get('tasks'), dict): return d
+    if eigene: d = filt(d, p)
+    hid = hid_ids(d, p)
+    if not hid: return d
+    out = dict(d)
+    out['tasks'] = {i: t for i, t in d['tasks'].items() if i not in hid}
+    if isinstance(d.get('log'), dict):
+        out['log'] = {i: g for i, g in d['log'].items() if not (isinstance(g, dict) and g.get('task') in hid)}
+    return out
+def vis_ids(state, pid, eigene=True):
+    """Welche Aufgaben und Verlaufseinträge die Person sehen darf."""
+    f = sicht_of(state, pid, eigene)
+    return {k: set(f[k].keys()) for k in ('tasks', 'log') if isinstance(f.get(k), dict)}
+def drop_hidden(old, new, p):
+    """Admins und Sicht „alle“: Änderungen an privaten Aufgaben anderer (die das Gerät gar nicht kennen sollte) verwerfen."""
+    hid = hid_ids(old, p)
+    if not hid or not isinstance(new, dict): return new
+    out = dict(new)
+    if isinstance(new.get('tasks'), dict): out['tasks'] = {i: t for i, t in new['tasks'].items() if i not in hid}
+    if isinstance(new.get('log'), dict): out['log'] = {i: g for i, g in new['log'].items() if not (isinstance(g, dict) and g.get('task') in hid)}
+    return out
 FUER_OK = ('status', 'erledigtVon', 'erledigtAm', 'check', 'upd')
 def restrict(old, new, p, sicht, adm):
     """Was eine Person ohne Admin-Rechte in den Aufgaben ändern darf: neue Aufgaben eintragen (an einen Admin als Wunsch),
     eigene Einträge bearbeiten/löschen, sichtbare Aufgaben abhaken/Checkliste/Status, kommentieren, neue Listen.
     Alles andere wird still verworfen."""
-    sees = (lambda t: True) if sicht == 'alle' else (lambda t: sees_own(t, p))
+    sees = (lambda t: not hidden(t, p)) if sicht == 'alle' else (lambda t: sees_own(t, p) and not hidden(t, p))
     out = {'savedAt': new.get('savedAt') or 0}
     OT = old.get('tasks') if isinstance(old.get('tasks'), dict) else {}
     NT = new.get('tasks') if isinstance(new.get('tasks'), dict) else {}
@@ -196,16 +436,21 @@ def restrict(old, new, p, sicht, adm):
     return out
 
 # ---------- Komplettsicherung, Wiederherstellung und Zustand des Pi ----------
-SICH_F = os.path.join(DATA, 'sicherung.json')   # {ziel: Pfad|"" (= SD-Karte), auto: bool, uhrzeit: "HH:MM", letzte: {...}}
+SICH_F = os.path.join(DATA, 'sicherung.json')   # {ziel: Pfad|"" (= SD-Karte), auto: bool, uhrzeit: "HH:MM", letzte: {...}, download: ms}
 STAND_F = os.path.join(DATA, '_stand.json')     # {epoch}: nach einer Wiederherstellung verwerfen Geräte ihre lokale Kopie
 SD_DIR = os.path.join(DATA, 'sicherungen')
 STARTED = time.time()
 SAFE = re.compile(r'^[A-Za-z0-9_\-]{1,80}\.(json|ics)$')
 ZIPNAME = re.compile(r'^dashboard-[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{4,6}(-[a-z]+)?\.zip$')
 SLOCK = threading.Lock()
+DOWNLOAD_TAGE = 35                              # so lange darf der letzte Download einer Komplettsicherung her sein
 def epoch(): return int(jload(STAND_F, {}).get('epoch') or 0)
 def sich_cfg():
-    c = jload(SICH_F, {}); c.setdefault('ziel', ''); c.setdefault('auto', True); c.setdefault('uhrzeit', '03:30'); c.setdefault('letzte', None); return c
+    c = jload(SICH_F, {}); c.setdefault('ziel', ''); c.setdefault('auto', True); c.setdefault('uhrzeit', '03:30'); c.setdefault('letzte', None); c.setdefault('download', None); return c
+def download_merken():
+    """Der Besitzer soll die Sicherung regelmäßig auf den PC holen (Brand, Diebstahl) – der Pi merkt sich den letzten Download."""
+    with SLOCK:
+        c = sich_cfg(); c['download'] = int(time.time() * 1000); jsave(SICH_F, c)
 def usb_ziele():
     """Eingehängte Laufwerke unter /media oder /mnt (USB-Stick, Festplatte), auf die der Dienst schreiben darf."""
     out = []
@@ -303,6 +548,179 @@ def auto_sicherung():
             if c.get('auto', True) and (faellig or time.time() - last > 26 * 3600): sichern('auto')
         except Exception as e: print('Sicherung fehlgeschlagen:', e)
         time.sleep(60)
+# ---------- Programm aktualisieren (Update-Zip über /system) ----------
+# Ein Update ist ein Zip mit Ordner „dashboard/…“ (wie pi-update.zip). Vorher: Prüfung jeder Datei, Sicherung der Daten
+# und der Programmdateien, die ersetzt werden (programm-<Zeit>.zip, 5 behalten), bei neuem server.py ein Selbsttest in
+# einer Kopie. Danach startet der Server sich selbst neu. Zurück geht es über eine Programmsicherung.
+UPD_EXT = {'.py', '.html', '.js', '.css', '.json', '.png', '.jpg', '.svg', '.ico', '.woff2', '.gz', '.txt', '.md', '.sh', '.service', '.webmanifest'}
+PROGNAME = re.compile(r'^programm-[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{6}\.zip$')
+ULOCK = threading.Lock()
+def upd_pfad(rel):
+    parts = rel.split('/')
+    if not rel or '\\' in rel or rel.startswith('/') or any(p in ('', '.', '..') for p in parts): raise ValueError('ungültiger Pfad: ' + rel)
+    if parts[0] == 'data' or parts[0].startswith('.'): raise ValueError('„' + rel + '“ gehört nicht in ein Update (Daten bleiben unangetastet)')
+    if os.path.splitext(rel)[1].lower() not in UPD_EXT: raise ValueError('Dateityp nicht erlaubt: ' + rel)
+    f = os.path.normpath(os.path.join(BASE, rel))
+    if not f.startswith(BASE + os.sep): raise ValueError('ungültiger Pfad: ' + rel)
+    return f
+def upd_lesen(raw, prefix='dashboard/'):
+    """Prüft ein Update-Zip und gibt {relativer Pfad: Inhalt} zurück."""
+    try: z = zipfile.ZipFile(io.BytesIO(raw))
+    except Exception: raise ValueError('Das ist keine Zip-Datei')
+    infos = [i for i in z.infolist() if not i.filename.endswith('/')]
+    if len(infos) > 800: raise ValueError('zu viele Dateien im Zip')
+    if any(i.filename == 'manifest.json' for i in infos): raise ValueError('Das ist eine Daten-Sicherung, kein Programm-Update – zum Zurückspielen unten „Aus Datei zurückspielen“')
+    files, total = {}, 0
+    for info in infos:
+        n = info.filename
+        if not n.startswith(prefix): raise ValueError('Alle Dateien müssen im Ordner „dashboard/“ liegen: ' + n)
+        rel = n[len(prefix):]; upd_pfad(rel)
+        if (info.external_attr >> 16) & 0o170000 == 0o120000: raise ValueError('Verknüpfungen sind nicht erlaubt: ' + n)
+        if info.file_size > 30_000_000: raise ValueError('Datei zu groß: ' + n)
+        total += info.file_size
+        if total > 150_000_000: raise ValueError('Update zu groß')
+        b = z.read(info)
+        if rel.endswith('.json'):
+            try: json.loads(b)
+            except Exception: raise ValueError('kein gültiges JSON: ' + rel)
+        if rel.endswith('.py'):
+            try: compile(b, rel, 'exec')
+            except SyntaxError as e: raise ValueError(f'Fehler in {rel}, Zeile {e.lineno}: {e.msg}')
+        files[rel] = b
+    if not files: raise ValueError('Das Zip enthält keine Dateien')
+    return files
+def upd_plan(files):
+    out = []
+    for rel in sorted(files):
+        f = os.path.join(BASE, rel)
+        if not os.path.isfile(f): st = 'neu'
+        else:
+            with open(f, 'rb') as fh: st = 'gleich' if fh.read() == files[rel] else 'geändert'
+        out.append({'pfad': rel, 'status': st, 'groesse': len(files[rel])})
+    return out
+def selbsttest(files):
+    """Neues server.py in einer Kopie des Programms starten (ohne Daten) – nur wenn es sauber lädt, wird eingespielt."""
+    if 'server.py' not in files: return True, ''
+    tmp = tempfile.mkdtemp(prefix='pd-selbsttest-')
+    try:
+        d = os.path.join(tmp, 'dashboard')
+        shutil.copytree(BASE, d, ignore=shutil.ignore_patterns('data', '__pycache__', '*.tmp', '*.upd-neu'))
+        for rel, b in files.items():
+            f = os.path.join(d, rel); os.makedirs(os.path.dirname(f), exist_ok=True)
+            with open(f, 'wb') as fh: fh.write(b)
+        r = subprocess.run([sys.executable, os.path.join(d, 'server.py'), 'selbsttest'], capture_output=True, text=True, timeout=60, cwd=d)
+        ok = r.returncode == 0 and 'SELBSTTEST OK' in (r.stdout or '')
+        return ok, ((r.stdout or '') + (r.stderr or ''))[-1200:]
+    except Exception as e:
+        return False, str(e)[:400]
+    finally: shutil.rmtree(tmp, ignore_errors=True)
+def programme():
+    try: L = [n for n in os.listdir(SD_DIR) if PROGNAME.match(n)]
+    except Exception: return []
+    out = []
+    for n in sorted(L, reverse=True):
+        f = os.path.join(SD_DIR, n); info = {}
+        try:
+            with zipfile.ZipFile(f) as z: info = json.loads(z.read('manifest.json'))
+        except Exception: pass
+        out.append({'name': n, 'ts': int(os.path.getmtime(f) * 1000), 'groesse': os.path.getsize(f), 'grund': info.get('grund', ''),
+                    'dateien': len(info.get('dateien') or []) + len(info.get('neu') or [])})
+    return out
+def prog_sichern(rels, grund):
+    """Programmdateien, die gleich ersetzt oder neu angelegt werden, als Zip sichern (Rückweg)."""
+    os.makedirs(SD_DIR, exist_ok=True)
+    name = time.strftime('programm-%Y-%m-%d_%H%M%S') + '.zip'; f = os.path.join(SD_DIR, name)
+    while os.path.exists(f): time.sleep(1); name = time.strftime('programm-%Y-%m-%d_%H%M%S') + '.zip'; f = os.path.join(SD_DIR, name)
+    da = [r for r in sorted(rels) if os.path.isfile(os.path.join(BASE, r))]; neu = [r for r in sorted(rels) if r not in da]
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, 'w', zipfile.ZIP_DEFLATED) as z:
+        z.writestr('manifest.json', json.dumps({'app': 'personal-dashboard-programm', 'erstellt': int(time.time() * 1000), 'grund': grund, 'dateien': da, 'neu': neu}, ensure_ascii=False, indent=1))
+        for r in da: z.write(os.path.join(BASE, r), 'dashboard/' + r)
+    with open(f + '.tmp', 'wb') as fh: fh.write(buf.getvalue()); fh.flush(); os.fsync(fh.fileno())
+    os.replace(f + '.tmp', f)
+    for x in programme()[5:]:
+        try: os.remove(os.path.join(SD_DIR, x['name']))
+        except Exception: pass
+    return name
+def upd_schreiben(files, loeschen=()):
+    for rel, b in files.items():
+        f = upd_pfad(rel); os.makedirs(os.path.dirname(f), exist_ok=True); tmp = f + '.upd-neu'
+        with open(tmp, 'wb') as fh: fh.write(b); fh.flush(); os.fsync(fh.fileno())
+        os.chmod(tmp, 0o755 if rel.endswith('.sh') else 0o644); os.replace(tmp, f)
+    for rel in loeschen:
+        f = upd_pfad(rel)
+        if os.path.isfile(f): os.remove(f)
+def neu_starten(nach=1.0):
+    """Server ersetzt sich selbst durch einen frischen Prozess (lädt das neue server.py). Unter systemd ebenso gut."""
+    def go():
+        try: sys.stdout.flush(); sys.stderr.flush()
+        except Exception: pass
+        os.execv(sys.executable, [sys.executable, os.path.abspath(__file__)] + sys.argv[1:])
+    threading.Timer(nach, go).start()
+# ---- Import aus Apple Health / Garmin (iOS-Kurzbefehl im Heimnetz) ----
+# Der Pi geht dafür nicht ins Internet: das iPhone schickt die Zahl an /api/import_<Adresse> (geheime Adresse statt Anmeldung).
+GESUND_F = os.path.join(DATA, 'gesundheit.json')   # {token, letzte:{ts,datum,aktiv,kg}}
+GESUND_KEY = 'ernaehrung_v1'
+GFAILS = []
+def gesund_cfg(neu=False):
+    c = jload(GESUND_F, {})
+    if not isinstance(c, dict): c = {}
+    if neu or not re.fullmatch(r'[a-f0-9]{24}', str(c.get('token') or '')):
+        c['token'] = secrets.token_hex(12); jsave(GESUND_F, c, True)
+    return c
+def zahl_summe(v):
+    """Zahl, Text („612,4 kcal“), Liste oder mehrzeiliger Text einzelner Messungen → Summe (None = nichts Lesbares)."""
+    if isinstance(v, bool) or v is None: return None
+    if isinstance(v, (int, float)): return float(v)
+    if isinstance(v, (list, tuple)):
+        xs = [x for x in (zahl_summe(i) for i in v) if x is not None]
+        return sum(xs) if xs else None
+    if isinstance(v, dict): return zahl_summe(v.get('value', v.get('wert')))
+    tot = None
+    for line in str(v).replace(';', '\n').split('\n'):
+        m = re.search(r'-?\d[\d.,   ]*', line)
+        if not m: continue
+        t = re.sub(r'[   ]', '', m.group(0)).rstrip('.,')
+        if ',' in t and '.' in t: t = t.replace('.', '').replace(',', '.') if t.rfind(',') > t.rfind('.') else t.replace(',', '')
+        elif ',' in t: t = t.replace(',', '.')
+        elif re.fullmatch(r'-?[1-9]\d{0,2}(\.\d{3})+', t): t = t.replace('.', '')     # 1.234 = Tausenderpunkt
+        try: tot = (tot or 0) + float(t)
+        except ValueError: pass
+    return tot
+def gesund_import(x):
+    """{aktiv?, kg?, datum?} → Sport-Tageswert (Sammlung burn, id g<Datum>) und Gewicht (nur wenn an dem Tag noch keins steht)."""
+    d = str(x.get('datum') or '').strip().lower()
+    if d in ('', 'heute'): d = time.strftime('%Y-%m-%d')
+    elif d == 'gestern': d = time.strftime('%Y-%m-%d', time.localtime(time.time() - 86400))
+    m = re.match(r'^(\d{4}-\d{2}-\d{2})', d) or re.match(r'^(\d{2})\.(\d{2})\.(\d{4})', d)
+    if not m: return 400, {'error': 'datum bitte als JJJJ-MM-TT'}
+    d = m.group(1) if len(m.groups()) == 1 else f'{m.group(3)}-{m.group(2)}-{m.group(1)}'
+    try: time.strptime(d, '%Y-%m-%d')
+    except ValueError: return 400, {'error': 'datum ungueltig'}
+    akt = zahl_summe(x.get('aktiv', x.get('kcal'))); kg = zahl_summe(x.get('kg', x.get('gewicht')))
+    if akt is not None and not (0 <= akt <= 15000): return 400, {'error': 'aktiv ausserhalb 0-15000 kcal'}
+    if kg is not None and not (25 <= kg <= 350): kg = None
+    if akt is None and kg is None: return 400, {'error': 'keine Zahl gefunden (Feld aktiv oder kg)'}
+    now = int(time.time() * 1000); res = {'ok': True, 'datum': d}
+    def teil(old):
+        part = {}
+        if akt is not None:
+            cur = (old.get('burn') or {}).get('g' + d)
+            if not (isinstance(cur, dict) and not cur.get('del') and round(float(cur.get('kcal') or 0)) == round(akt)):
+                part['burn'] = {'g' + d: {'id': 'g' + d, 'datum': d, 'kcal': int(round(akt)), 'name': 'Garmin', 'tag': 1, 'upd': now}}
+            res['aktiv'] = int(round(akt))
+        if kg is not None:
+            cur = (old.get('weight') or {}).get('w' + d)
+            if not isinstance(cur, dict) or cur.get('del') or cur.get('quelle') == 'health':
+                if not (isinstance(cur, dict) and not cur.get('del') and float(cur.get('kg') or 0) == round(kg, 1)):
+                    part['weight'] = {'w' + d: {'id': 'w' + d, 'datum': d, 'kg': round(kg, 1), 'quelle': 'health', 'upd': now}}
+                res['kg'] = round(kg, 1)
+            else: res['kg_hinweis'] = 'an dem Tag steht schon ein eigenes Gewicht'
+        return part or None
+    liste_store(GESUND_KEY, teil)
+    c = gesund_cfg(); c['letzte'] = {'ts': now, **{a: b for a, b in res.items() if a != 'ok'}}; jsave(GESUND_F, c, True)
+    return 200, res
+
 def lies(p, default=''):
     try:
         with open(p, encoding='utf-8', errors='replace') as fh: return fh.read().strip().strip('\x00')
@@ -336,9 +754,15 @@ def zustand():
         ts = [os.path.getmtime(os.path.join(DATA, k + '.json')) for k in a.get('keys', []) if os.path.exists(os.path.join(DATA, k + '.json'))]
         tools.append({'id': a['id'], 'titel': a.get('kurz') or a['titel'], 'farbe': a.get('farbe'), 'geaendert': int(max(ts) * 1000) if ts else None})
     z['tools'] = tools
+    f, nz = uhr_status(); z['uhr'] = {'falsch': f, 'neueste': int(nz) or None}
     return z
-def hinweise(z, c):
+def hinweise(z, c, besitzer=False):
     h = []
+    falsch, nz = uhr_status()
+    if falsch:
+        h.append(('rot', 'Die Uhr des Pi geht nach (Pi: ' + time.strftime('%d.%m.%Y %H:%M') + ', neuester Eintrag: '
+                  + time.strftime('%d.%m.%Y %H:%M', time.localtime(nz / 1000)) + '). Bis sie stimmt, räumt der Pi keine gelöschten '
+                  'Einträge auf und archiviert nichts. Zeitabgleich prüfen: timedatectl'))
     if z.get('temp') is not None and z['temp'] >= 80: h.append(('rot', f"Pi sehr heiß ({z['temp']} °C) – Belüftung prüfen"))
     elif z.get('temp') is not None and z['temp'] >= 70: h.append(('gelb', f"Pi warm ({z['temp']} °C)"))
     s = z.get('strom') or {}
@@ -352,6 +776,12 @@ def hinweise(z, c):
     elif not L.get('ok'): h.append(('rot', 'Letzte Sicherung fehlgeschlagen: ' + (L.get('fehler') or '')))
     elif time.time() * 1000 - L.get('ts', 0) > 2 * 86400000: h.append(('gelb', 'Letzte Sicherung ist älter als 2 Tage'))
     if L.get('hinweis'): h.append(('gelb', L['hinweis']))
+    if besitzer:                                   # Erinnerung: Sicherung auf den PC holen und in die Cloud legen
+        dl = c.get('download')
+        if not dl: h.append(('gelb', 'Komplettsicherung noch nie heruntergeladen – unter System „Herunterladen“ und die ZIP-Datei in der Cloud ablegen'))
+        else:
+            tage = int((time.time() * 1000 - dl) // 86400000)
+            if tage > DOWNLOAD_TAGE: h.append(('gelb', f'Sicherung seit {tage} Tagen nicht heruntergeladen – ZIP-Datei herunterladen und in der Cloud ablegen'))
     if not c.get('ziel'): h.append(('info', 'Sicherungen liegen auf der SD-Karte – ein USB-Stick schützt auch bei Kartendefekt'))
     return [{'ton': t, 'text': x} for t, x in h]
 
@@ -368,7 +798,7 @@ def icon_tags(app_id, title, standalone=True):
             f'<link rel="icon" type="image/png" sizes="64x64" href="/icons/{ic}-64.png">'
             f'<link rel="manifest" href="/manifest-{app_id}.json">'
             + ('<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">'
-               '<meta name="apple-mobile-web-app-status-bar-style" content="default">' if standalone else '')   # Dashboard bleibt in Safari (sonst kein Zurück)
+               '<meta name="apple-mobile-web-app-status-bar-style" content="default">' if standalone else '')   # alle Seiten haben einen Weg zurück zum Dashboard
             + f'<meta name="apple-mobile-web-app-title" content="{title}">')
 
 class H(SimpleHTTPRequestHandler):
@@ -377,6 +807,9 @@ class H(SimpleHTTPRequestHandler):
     def send(self, code, body=b'', ctype='application/json', extra=()):
         self.send_response(code); self.send_header('Content-Type', ctype)
         for h, v in extra: self.send_header(h, v)
+        tok = getattr(self, '_tok', None)                # Anmeldung bei jeder genutzten Seite um 1 Jahr verlängern
+        if tok and ctype.startswith('text/html') and not any(h == 'Set-Cookie' and v.startswith('pd_auth=') for h, v in extra):
+            self.send_header('Set-Cookie', f'pd_auth={tok}; Path=/; Max-Age={AUTH_AGE}; HttpOnly; SameSite=Lax')
         self.send_header('Cache-Control', 'no-store'); self.send_header('Content-Length', str(len(body)))
         self.end_headers(); self.wfile.write(body)
 
@@ -386,23 +819,39 @@ class H(SimpleHTTPRequestHandler):
         except Exception: pass
         return {k: v.value for k, v in c.items()}
     def ctx(self):
-        """Wer ist das? {pid, admin, tools, sicht, open}. Ohne Besitzer-Passwort („offen“) darf jedes Gerät alles."""
+        """Wer ist das? {pid, admin, tools, sicht, open, eigen}. Ohne Besitzer-Passwort („offen“) darf jedes Gerät alles."""
         if hasattr(self, '_ctx'): return self._ctx
         a = auth_load(); U = a['users']; ck = self.cookies(); ids = {p['id'] for p in personen()}
         allapps = {x['id']: 'edit' for x in apps()}
         if owner_id() not in U:
-            p = ck.get('pd_person'); r = {'pid': p if p in ids else None, 'admin': True, 'open': True, 'tools': allapps, 'sicht': 'alle'}
+            p = ck.get('pd_person'); p = p if p in ids else None
+            r = {'pid': p, 'admin': True, 'open': True, 'tools': allapps, 'sicht': 'alle', 'eigen': eigen_of(p)}
         else:
             pid = None; t = ck.get('pd_auth')
             if t:
-                e = a['tokens'].get(tok_hash(t))
-                if e and e.get('pid') in ids and e['pid'] in U: pid = e['pid']
+                h = tok_hash(t); e = a['tokens'].get(h)
+                if e and e.get('pid') in ids and e['pid'] in U:
+                    pid = e['pid']; self._tok = t
+                    if time.time() - float(e.get('seen') or 0) > 86400:   # zuletzt benutzt (höchstens einmal am Tag gespeichert)
+                        with LOCK:
+                            a2 = auth_load(); e2 = a2['tokens'].get(h)
+                            if e2: e2['seen'] = int(time.time()); auth_save(a2)
             if not pid:
                 p = ck.get('pd_person')
                 if p in ids and p not in U: pid = p        # Personen ohne PIN dürfen sich einfach auswählen
-            if not pid: r = {'pid': None, 'admin': False, 'open': False, 'tools': {i: 'none' for i in allapps}, 'sicht': 'eigene'}
+            if not pid: r = {'pid': None, 'admin': False, 'open': False, 'tools': {i: 'none' for i in allapps}, 'sicht': 'eigene', 'eigen': []}
             else: r = {'pid': pid, 'open': False, **rechte_of(pid, pid in U)}
         self._ctx = r; return r
+    def skey(self, k):
+        """Daten-Key auf dem Pi: bei „eigenen Daten“ der Person <key>__<pid>, sonst der gemeinsame Key.
+        Die Tools merken davon nichts – sie speichern weiter unter ihrem Key, der Pi legt es woanders ab."""
+        x = app_of_key(k); c = self.ctx()
+        return k + '__' + c['pid'] if x and c.get('pid') and x['id'] in (c.get('eigen') or []) else k
+    def sumkey(self, x):
+        """Kachel-Kurzinfo: je Person bei Aufgaben (proPerson) und bei eigenen Daten, sonst gemeinsam."""
+        c = self.ctx()
+        if x.get('proPerson') or x['id'] in (c.get('eigen') or []): return ('sum_' + x['id'] + '__' + c['pid']) if c['pid'] else None
+        return 'sum_' + x['id']
     def role_js(self, page=None):
         c = self.ctx(); U = auth_load()['users']
         return json.dumps({**c, 'ownerId': owner_id(), 'lock': {p: u.get('kind', 'pw') for p, u in U.items()},
@@ -454,24 +903,33 @@ class H(SimpleHTTPRequestHandler):
             if k == 'ich': return self.send(200, self.role_js().encode())
             if k == 'rechte': return self.rechte_get()
             if k.startswith('system'): return self.system_get(k)
-            fam = False
+            if k.startswith('import_'): return self.send(405, b'{"error":"bitte per POST senden"}')
+            if k == 'gesundheit':                           # Adresse für den Kurzbefehl (nur wer Ernährung bearbeiten darf)
+                if not lvl_ok(c['tools'].get('essen'), 'edit'): return self.send(403, b'{"error":"kein Zugriff"}')
+                if 'essen' in (c.get('eigen') or []): return self.send(403, '{"error":"Der Health-Import schreibt in die gemeinsamen Ernährungsdaten – mit eigenen Daten nicht verfügbar"}'.encode('utf-8'))
+                g = gesund_cfg(); return self.send(200, json.dumps({'token': g['token'], 'letzte': g.get('letzte')}).encode())
+            fam = False; priv = False
             if k == 'personen': pass
             elif k.startswith('sum_'):
                 x = app_by_id(k[4:].split('__')[0])
                 if not x or not lvl_ok(c['tools'].get(x['id']), 'view'): return self.send(403, b'{"error":"kein Zugriff"}')
-                if x.get('proPerson'):
-                    if not c['pid']: return self.send(404)
-                    k = 'sum_' + x['id'] + '__' + c['pid']
+                k = self.sumkey(x)                             # nie die Kachel einer anderen Person
+                if not k: return self.send(404)
             else:
+                if '__' in k: return self.send(403, b'{"error":"kein Zugriff"}')   # fremde eigene Daten: auch nicht für Admins
                 x = app_of_key(k)
                 if x is None and not c['admin']: return self.send(403, b'{"error":"kein Zugriff"}')
                 if x is not None and not lvl_ok(c['tools'].get(x['id']), 'view'): return self.send(403, b'{"error":"kein Zugriff"}')
                 fam = x is not None and x.get('proPerson') and c['sicht'] != 'alle'
+                priv = bool(x is not None and x.get('proPerson'))
+            if k in liste_keys():                          # Modus „liste“: Delta (?d=1&seit=N) oder ganzer Stand (ohne Archiv)
+                return self.liste_get(self.skey(k), fam, c, priv)
+            if not k.startswith('sum_') and k != 'personen': k = self.skey(k)
             f = os.path.join(DATA, k + '.json')
             if not os.path.exists(f): return self.send(404)
             with open(f, 'rb') as fh: raw = fh.read()
-            if fam:
-                try: raw = json.dumps(filt(json.loads(raw), c['pid']), ensure_ascii=False, separators=(',', ':')).encode('utf-8')
+            if fam or priv:
+                try: raw = json.dumps(sicht_of(json.loads(raw), c['pid'], fam), ensure_ascii=False, separators=(',', ':')).encode('utf-8')
                 except Exception: return self.send(500)
             return self.send(200, raw)
         if p == '/bls.json':                        # Lebensmitteldatenbank (BLS 4.0) – vorkomprimiert, gecacht
@@ -499,12 +957,21 @@ class H(SimpleHTTPRequestHandler):
             vis = [x for x in apps() if lvl_ok(c['tools'].get(x['id']), 'view')]
             keys = sorted({k for x in vis for k in x.get('keys', [])})
             ro = sorted({k for x in vis if c['tools'].get(x['id']) == 'view' for k in x.get('keys', [])})
+            # sync.js: wechselt der Ablageort (eigene Daten an/aus, andere Person), lokale Kopie verwerfen. Aufgaben (gefiltert je
+            # Person, private Aufgaben) bekommen die Person als Marke – meldet sich am selben Gerät jemand anderes an, lädt es neu.
+            kmap = {k: (k + '@' + (c['pid'] or '') if (app_of_key(k) or {}).get('proPerson') else self.skey(k)) for k in keys}
             aid, title = (a['id'], a.get('kurz') or a['titel']) if a else ('uni', os.path.basename(f)[:-5])
             html = re.sub(r'<link[^>]+fonts\.(?:googleapis|gstatic)\.com[^>]*>\s*', '', html)   # Google Fonts raus …
             tag = (icon_tags(aid, title) + '<link rel="stylesheet" href="/fonts/fonts.css">'   # … lokale Schriften rein
-                   + '<script>window.__PI_KEYS=' + json.dumps(keys) + ';window.__PI_RO=' + json.dumps(ro) + ';window.__PI_LISTE=' + json.dumps(liste_keys()) + ';window.__PI_EPOCH=' + str(epoch()) + ';window.__PI_ROLE=' + self.role_js(a['id'] if a else None) + ';</script><script>' + read('sync.js') + '</script>')
+                   + '<script>window.__PI_KEYS=' + json.dumps(keys) + ';window.__PI_RO=' + json.dumps(ro) + ';window.__PI_LISTE=' + json.dumps(liste_keys()) + ';window.__PI_MAP=' + json.dumps(kmap) + ';window.__PI_EPOCH=' + str(epoch()) + ';window.__PI_ARCHIV=' + json.dumps({k: archiv_of(k) for k in keys if archiv_of(k)}) + ';window.__PI_ROLE=' + self.role_js(a['id'] if a else None) + ';</script><script>' + read('sync.js') + '</script>')
+            shell = os.path.isfile(os.path.join(WWW, 'shared', 'shell.css'))   # gemeinsame Schicht (Kopf, Farben, Theme) für alle Tools
+            if shell and os.path.isfile(os.path.join(WWW, 'shared', 'shell.js')): tag += '<script src="/shared/shell.js"></script>'
             mh = re.search(r'<head[^>]*>', html, re.I)
             html = html[:mh.end()] + tag + html[mh.end():] if mh else tag + html
+            if shell:                                    # hinter die eigenen Styles des Tools, damit die gemeinsamen Regeln gelten
+                css = '<link rel="stylesheet" href="/shared/shell.css">'
+                i = html.lower().find('</head>')
+                html = html[:i] + css + html[i:] if i >= 0 else css + html
             ad = a.get('addon') if a else None           # Zusatz-Skript eines Tools (z. B. Dashboard-Kurzinfo), am Ende von <body>
             if ad and re.match(r'^[a-z0-9_/-]+\.js$', ad) and os.path.isfile(os.path.join(WWW, ad)):
                 st = '<script src="/' + ad + '"></script>'
@@ -515,10 +982,10 @@ class H(SimpleHTTPRequestHandler):
 
     def index(self):
         c = self.ctx()
-        reg = [{**{k: a.get(k) for k in ('id', 'datei', 'titel', 'kurz', 'gruppe', 'farbe', 'kachel', 'familie', 'neu')}, 'icon': icon_id(a['id']), 'bg': bool(a.get('addon')), 'lvl': c['tools'].get(a['id'], 'edit' if c['admin'] else 'none')}
+        reg = [{**{k: a.get(k) for k in ('id', 'datei', 'titel', 'kurz', 'gruppe', 'farbe', 'kachel', 'familie', 'neu')}, 'icon': icon_id(a['id']), 'bg': bool(a.get('addon') or a.get('bg')), 'bgZeit': bool(a.get('bgZeit')), 'lvl': c['tools'].get(a['id'], 'edit' if c['admin'] else 'none'), 'eigen': a['id'] in (c.get('eigen') or [])}
                for a in installed() if lvl_ok(c['tools'].get(a['id'], 'edit' if c['admin'] else 'none'), 'view')]
         page = (read('dashboard.html').replace('{{APPS}}', json.dumps(reg, ensure_ascii=False).replace('</', '<\\/'))
-                .replace('{{ICON}}', icon_tags('dash', 'Dashboard', standalone=False)).replace('{{TITLE}}', TITLE).replace('{{ROLE}}', self.role_js()))
+                .replace('{{ICON}}', icon_tags('dash', 'Dashboard')).replace('{{TITLE}}', TITLE).replace('{{ROLE}}', self.role_js()))
         self.send(200, page.encode('utf-8'), 'text/html; charset=utf-8')
 
     def do_PUT(self):
@@ -533,27 +1000,46 @@ class H(SimpleHTTPRequestHandler):
         if k == 'abmelden': return self.abmelden()
         if k == 'geheimnis': return self.geheimnis(raw)
         if k == 'rechte': return self.rechte_put(raw)
+        if k.startswith('import_'):                     # iOS-Kurzbefehl: geheime Adresse statt Anmeldung
+            now = time.time(); GFAILS[:] = [t for t in GFAILS if now - t < 600]
+            if len(GFAILS) >= 20: return self.send(429, b'{"error":"zu viele Fehlversuche"}')
+            if n > 200_000 or not hmac.compare_digest(k[7:], gesund_cfg()['token']):
+                GFAILS.append(now); return self.send(403, b'{"error":"Adresse unbekannt"}')
+            x = self.jbody(raw)
+            if not x:                                   # Formular statt JSON
+                try: x = {a: b[0] for a, b in parse_qs(raw.decode('utf-8', 'replace')).items()}
+                except Exception: x = {}
+            code, res = gesund_import(x)
+            return self.send(code, json.dumps(res, ensure_ascii=False).encode('utf-8'))
+        if k == 'gesundheit':                           # neue Adresse erzeugen (alte gilt dann nicht mehr)
+            c0 = self.ctx()
+            if not lvl_ok(c0['tools'].get('essen'), 'edit') or 'essen' in (c0.get('eigen') or []): return self.send(403, b'{"error":"kein Zugriff"}')
+            g = gesund_cfg(neu=True); return self.send(200, json.dumps({'token': g['token'], 'letzte': g.get('letzte')}).encode())
         if k in ('auth', 'ich', 'sicherung', '_stand'): return self.send(400)
         e = parse_qs(urlparse(self.path).query).get('e')
         if e and not k.startswith('sum_') and e[0].isdigit() and int(e[0]) != epoch(): return self.send(409, b'{"error":"epoch"}')   # Gerät hat Stand von vor einer Wiederherstellung
-        c = self.ctx(); app = None; per_app = False
+        c = self.ctx(); app = None; per_app = False; priv = False
         if k == 'personen':
             if not c['admin']: return self.send(403, b'{"error":"nur Admins"}')
             return self.personen_put(raw)
         if k.startswith('ics_'):
             if not c['admin']: return self.send(403, b'{"error":"nur Admins"}')
+            if c.get('eigen') and not k.startswith('ics_aufgaben'):   # Kalender eines Tools mit eigenen Daten nicht über den gemeinsamen schreiben
+                return self.send(200, b'{"ok":true,"uebersprungen":true}')
         elif k.startswith('sum_'):
             app = app_by_id(k[4:].split('__')[0])
             if not app: return self.send(403)
-            if app.get('proPerson'):                   # Kachel je Person (z. B. Aufgaben)
+            if app.get('proPerson') or app['id'] in (c.get('eigen') or []):   # Kachel je Person (Aufgaben, eigene Daten)
                 if not c['pid'] or not lvl_ok(c['tools'].get(app['id']), 'view'): return self.send(403)
-                k = 'sum_' + app['id'] + '__' + c['pid']
             elif not lvl_ok(c['tools'].get(app['id']), 'edit'): return self.send(403, b'{"error":"nur ansehen"}')
+            k = self.sumkey(app)
         else:
+            if '__' in k: return self.send(403, b'{"error":"kein Zugriff"}')   # fremde eigene Daten: auch nicht für Admins
             app = app_of_key(k)
             if app is None and not c['admin']: return self.send(403, b'{"error":"kein Zugriff"}')
             if app is not None and not lvl_ok(c['tools'].get(app['id']), 'edit'): return self.send(403, b'{"error":"nur ansehen"}')
             per_app = app is not None and app.get('proPerson') and not c['admin']
+            priv = bool(app is not None and app.get('proPerson'))
         if k.startswith('ics_'):                    # Kalender-Abo: fertige .ics aus einem Tool
             if n > 5_000_000 or not raw.lstrip().startswith(b'BEGIN:VCALENDAR'): return self.send(400)
             f = os.path.join(DATA, k + '.ics'); tmp = f + '.tmp'
@@ -564,9 +1050,11 @@ class H(SimpleHTTPRequestHandler):
         try: new = json.loads(raw)
         except Exception: return self.send(400, b'{"error":"kein JSON"}')
         if not isinstance(new, dict): return self.send(400)
-        f = os.path.join(DATA, k + '.json')
         liste = k in liste_keys()
+        if not k.startswith('sum_') and k != 'personen': k = self.skey(k)   # eigene Daten: <key>__<pid>
+        f = os.path.join(DATA, k + '.json')
         fam = per_app
+        if liste: return self.liste_put(k, new, fam, c, priv)
         with LOCK:
             if fam:                                   # Familienmitglied: nur Erlaubtes übernehmen, nur eigene Sicht zurück
                 try:
@@ -574,7 +1062,7 @@ class H(SimpleHTTPRequestHandler):
                 except Exception: old = {}
                 per = c['pid']
                 new = merge(old, restrict(old, new, per, c['sicht'], admins()))
-                vis = json.dumps(new if c['sicht'] == 'alle' else filt(new, per), ensure_ascii=False, separators=(',', ':')).encode('utf-8')
+                vis = json.dumps(sicht_of(new, per, c['sicht'] != 'alle'), ensure_ascii=False, separators=(',', ':')).encode('utf-8')
                 if new == old: return self.send(200, vis)
                 if os.path.exists(f):
                     day = time.strftime('%Y-%m-%d'); bk = os.path.join(BACKUPS, f'{k}_{day}.json')
@@ -604,9 +1092,44 @@ class H(SimpleHTTPRequestHandler):
         self.send(200, raw if liste else b'{"ok":true}')
     do_POST = do_PUT   # für sendBeacon beim Schließen
 
+    def q(self, name, default=None):
+        v = parse_qs(urlparse(self.path).query).get(name)
+        return v[0] if v else default
+    def liste_get(self, k, fam, c, priv=False):
+        """fam: Sicht „eigene“. priv: Aufgaben-Stand – private Aufgaben anderer (samt Verlauf) bleiben weg."""
+        state, mx = state_load(k)
+        if state is None: return self.send(404)
+        meta = meta_load(k, mx); ar = None if self.q('alles') else archiv_of(k)
+        if self.q('d'):
+            try: seit = int(self.q('seit') or 0)
+            except Exception: seit = 0
+            vis = vis_ids(state, c['pid'], fam) if (fam or priv) else None
+            body = delta_of(state, meta, seit, ar, vis, {'tasks': hid_ids(state, c['pid'])} if priv else None)
+            return self.send(200, json.dumps(body, ensure_ascii=False, separators=(',', ':')).encode('utf-8'), extra=[('X-Seq', str(meta['seq']))])
+        out = archiv_filter(sicht_of(state, c['pid'], fam) if (fam or priv) else state, ar)
+        return self.send(200, json.dumps(out, ensure_ascii=False, separators=(',', ':')).encode('utf-8'), extra=[('X-Seq', str(meta['seq']))])
+    def liste_put(self, k, new, fam, c, priv=False):
+        """Modus „liste“: ganzer Stand (ältere Geräte) oder nur Geändertes (?d=1) – pro Eintrag zusammenführen."""
+        ar = archiv_of(k)
+        def teil(old):
+            if fam: return restrict(old, new, c['pid'], c['sicht'], admins())
+            if priv: return drop_hidden(old, new, c['pid'])
+            return new
+        state, meta = liste_store(k, teil)
+        eig = fam and c['sicht'] != 'alle'
+        if self.q('d'):
+            try: seit = int(self.q('seit') or 0)
+            except Exception: seit = 0
+            vis = vis_ids(state, c['pid'], eig) if (eig or priv) else None
+            body = delta_of(state, meta, seit, ar, vis, {'tasks': hid_ids(state, c['pid'])} if priv else None)
+            if not body.get('voll'): korrektur(body, new, state, vis)
+            return self.send(200, json.dumps(body, ensure_ascii=False, separators=(',', ':')).encode('utf-8'), extra=[('X-Seq', str(meta['seq']))])
+        vis = archiv_filter(sicht_of(state, c['pid'], eig) if (eig or priv) else state, ar)
+        return self.send(200, json.dumps(vis, ensure_ascii=False, separators=(',', ':')).encode('utf-8'), extra=[('X-Seq', str(meta['seq']))])
+
     def cookie_hdrs(self, pid, token=None):
         h = [('Set-Cookie', f'pd_person={pid or ""}; Path=/; Max-Age=315360000; SameSite=Lax')]
-        h.append(('Set-Cookie', f'pd_auth={token}; Path=/; Max-Age=315360000; HttpOnly; SameSite=Lax') if token
+        h.append(('Set-Cookie', f'pd_auth={token}; Path=/; Max-Age={AUTH_AGE}; HttpOnly; SameSite=Lax') if token
                  else ('Set-Cookie', 'pd_auth=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax'))
         return h
     def drop_token(self):
@@ -616,8 +1139,10 @@ class H(SimpleHTTPRequestHandler):
                 a = auth_load()
                 if a['tokens'].pop(tok_hash(t), None) is not None: auth_save(a)
     def new_token(self, a, pid):
-        t = secrets.token_urlsafe(32)
-        a['tokens'][tok_hash(t)] = {'pid': pid, 'ts': int(time.time()), 'ua': (self.headers.get('User-Agent') or '')[:120]}
+        t = secrets.token_urlsafe(32); now = int(time.time())
+        if uhr_ok():                                # lange nicht benutzte Anmeldungen wegräumen (ohne „seen“: alt, bleibt bis zur nächsten Nutzung)
+            a['tokens'] = {h: e for h, e in a['tokens'].items() if not (e.get('seen') and now - float(e['seen']) > TOKEN_WEG)}
+        a['tokens'][tok_hash(t)] = {'pid': pid, 'ts': now, 'seen': now, 'ua': (self.headers.get('User-Agent') or '')[:120]}
         return t
     def anmelden(self, raw):
         x = self.jbody(raw); pid = str(x.get('pid') or ''); pw = str(x.get('pw') or '')
@@ -676,11 +1201,12 @@ class H(SimpleHTTPRequestHandler):
     def rechte_put(self, raw):
         c = self.ctx()
         if not c['admin']: return self.send(403, b'{"error":"nur Admins"}')
-        x = self.jbody(raw).get('p') or {}; ids = {p['id'] for p in personen()}; ap = {a['id'] for a in apps()}; out = {}
+        x = self.jbody(raw).get('p') or {}; ids = {p['id'] for p in personen()}; ap = {a['id'] for a in apps()}; ape = eigen_ok_apps(); out = {}
         for pid, r in x.items():
             if pid not in ids or not isinstance(r, dict): continue
             out[pid] = {'admin': bool(r.get('admin')) or pid == owner_id(), 'sicht': 'alle' if r.get('sicht') == 'alle' else 'eigene',
-                        'tools': {k: v for k, v in (r.get('tools') or {}).items() if k in ap and v in LEVELS}}
+                        'tools': {k: v for k, v in (r.get('tools') or {}).items() if k in ap and v in LEVELS},
+                        'eigen': [] if pid == owner_id() else sorted({str(i) for i in (r.get('eigen') or []) if str(i) in ape})}
         with LOCK: jsave(RECHTE_F, {'savedAt': int(time.time() * 1000), 'p': out})
         return self.rechte_get()
     def personen_put(self, raw):
@@ -708,24 +1234,29 @@ def _sys_methods():
         c = self.ctx()
         if not c['admin']: return self.send(403, b'{"error":"nur Admins"}')
         q = parse_qs(urlparse(self.path).query)
+        bes = c['pid'] == owner_id() or c['open']
         if k == 'system':
             cfg = sich_cfg(); z = zustand(); d, ort, _ = ziel_ordner(cfg)
             liste = sicherungen(SD_DIR, 'sd') + (sicherungen(d, 'usb') if ort == 'usb' else [])
-            body = {'zustand': z, 'hinweise': hinweise(z, cfg), 'besitzer': c['pid'] == owner_id() or c['open'],
-                    'sicherung': {'ziel': cfg['ziel'], 'auto': cfg['auto'], 'uhrzeit': cfg['uhrzeit'], 'letzte': cfg['letzte'], 'ort': ort,
-                                  'ziele': usb_ziele(), 'liste': sorted(liste, key=lambda x: -x['ts'])[:40], 'dateien': len(daten_dateien())}}
+            body = {'zustand': z, 'hinweise': hinweise(z, cfg, bes), 'besitzer': bes,
+                    'sicherung': {'ziel': cfg['ziel'], 'auto': cfg['auto'], 'uhrzeit': cfg['uhrzeit'], 'letzte': cfg['letzte'], 'ort': ort, 'download': cfg.get('download'),
+                                  'downloadTage': DOWNLOAD_TAGE, 'ziele': usb_ziele(), 'liste': sorted(liste, key=lambda x: -x['ts'])[:40], 'dateien': len(daten_dateien())}}
+            body['programm'] = {'liste': programme(), 'server': int(os.path.getmtime(os.path.abspath(__file__)) * 1000), 'gestartet': int(STARTED * 1000)}
             return self.send(200, json.dumps(body, ensure_ascii=False).encode('utf-8'))
         if k == 'system_hinweise':
-            return self.send(200, json.dumps(hinweise(zustand(), sich_cfg()), ensure_ascii=False).encode('utf-8'))
+            return self.send(200, json.dumps(hinweise(zustand(), sich_cfg(), bes), ensure_ascii=False).encode('utf-8'))
         if k == 'system_download':                  # frische Komplettsicherung direkt herunterladen
             data, _ = zip_bauen('download'); name = time.strftime('dashboard-%Y-%m-%d_%H%M') + '-download.zip'
+            download_merken()
             return self.send(200, data, 'application/zip', extra=[('Content-Disposition', f'attachment; filename="{name}"')])
         if k == 'system_datei':
             name = (q.get('name') or [''])[0]; ort = (q.get('ort') or ['sd'])[0]
             d = SD_DIR if ort == 'sd' else ziel_ordner()[0]
             f = os.path.join(d, name)
             if not ZIPNAME.match(name) or not os.path.isfile(f): return self.send(404)
-            with open(f, 'rb') as fh: return self.send(200, fh.read(), 'application/zip', extra=[('Content-Disposition', f'attachment; filename="{name}"')])
+            with open(f, 'rb') as fh: data = fh.read()
+            download_merken()
+            return self.send(200, data, 'application/zip', extra=[('Content-Disposition', f'attachment; filename="{name}"')])
         return self.send(404)
     def system_post(self, k, n):
         c = self.ctx()
@@ -743,6 +1274,9 @@ def _sys_methods():
             if 'auto' in x: cfg['auto'] = bool(x['auto'])
             if 'uhrzeit' in x and re.fullmatch(r'([01]\d|2[0-3]):[0-5]\d', str(x['uhrzeit'])): cfg['uhrzeit'] = x['uhrzeit']
             jsave(SICH_F, cfg); return self.send(200, b'{"ok":true}')
+        if k in ('system_update', 'system_programm'):   # Programm aktualisieren / früheren Programmstand zurückholen – nur der Besitzer
+            if not (c['pid'] == owner_id() or c['open']): return self.send(403, b'{"error":"nur der Besitzer"}')
+            return self.update(k, raw)
         if k == 'system_zurueck':                   # nur der Besitzer: überschreibt alles inkl. Personen und PINs
             if not (c['pid'] == owner_id() or c['open']): return self.send(403, b'{"error":"nur der Besitzer"}')
             q = parse_qs(urlparse(self.path).query); name = (q.get('name') or [''])[0]
@@ -754,7 +1288,46 @@ def _sys_methods():
             except Exception as e: return self.send(400, json.dumps({'error': 'Ungültige Sicherung: ' + str(e)[:150]}, ensure_ascii=False).encode('utf-8'))
             return self.send(200, json.dumps(res, ensure_ascii=False).encode('utf-8'))
         return self.send(404)
-    H.system_get = system_get; H.system_post = system_post
+    def update(self, k, raw):
+        q = parse_qs(urlparse(self.path).query); pruefen = bool(q.get('pruefen'))
+        J = lambda code, o: self.send(code, json.dumps(o, ensure_ascii=False).encode('utf-8'))
+        loeschen = []
+        try:
+            if k == 'system_programm':                 # Rückweg: Programmsicherung einspielen, damals neue Dateien wieder entfernen
+                name = (q.get('name') or [''])[0]; f = os.path.join(SD_DIR, name)
+                if not PROGNAME.match(name) or not os.path.isfile(f): return J(404, {'error': 'Programmstand nicht gefunden'})
+                with open(f, 'rb') as fh: z = zipfile.ZipFile(io.BytesIO(fh.read()))
+                man = json.loads(z.read('manifest.json'))
+                if man.get('app') != 'personal-dashboard-programm': return J(400, {'error': 'keine Programmsicherung'})
+                buf = io.BytesIO()
+                with zipfile.ZipFile(buf, 'w') as y:
+                    for i in z.infolist():
+                        if i.filename != 'manifest.json': y.writestr(i, z.read(i))
+                files = upd_lesen(buf.getvalue()) if man.get('dateien') else {}
+                loeschen = [r for r in (man.get('neu') or []) if upd_pfad(r)]
+            else:
+                files = upd_lesen(raw)
+        except ValueError as e: return J(400, {'error': str(e)})
+        plan = upd_plan(files) + [{'pfad': r, 'status': 'entfernt', 'groesse': 0} for r in loeschen if os.path.isfile(os.path.join(BASE, r))]
+        neustart = any(p['pfad'] == 'server.py' and p['status'] != 'gleich' for p in plan)
+        if pruefen: return J(200, {'ok': True, 'dateien': plan, 'neustart': neustart})
+        if not ULOCK.acquire(blocking=False): return J(409, {'error': 'Es läuft schon ein Update'})
+        try:
+            ok, log = selbsttest(files) if neustart else (True, '')
+            if not ok: return J(400, {'error': 'Selbsttest des neuen Servers fehlgeschlagen – nichts geändert', 'log': log})
+            geaendert = {p['pfad']: files[p['pfad']] for p in plan if p['status'] in ('neu', 'geändert')}
+            weg = [p['pfad'] for p in plan if p['status'] == 'entfernt']
+            if not geaendert and not weg: return J(200, {'ok': True, 'geaendert': 0, 'neustart': False, 'hinweis': 'Alles schon auf diesem Stand'})
+            daten = sichern('update')
+            prog = prog_sichern(list(geaendert) + weg, 'vor Rückkehr zu einem früheren Stand' if k == 'system_programm' else 'vor Update')
+            upd_schreiben(geaendert, weg)
+            neu = 'server.py' in geaendert or 'server.py' in weg
+            if neu: neu_starten()
+            return J(200, {'ok': True, 'geaendert': len(geaendert) + len(weg), 'neustart': neu, 'programm': prog, 'daten': daten.get('name')})
+        except Exception as e:
+            return J(500, {'error': 'Fehler beim Einspielen: ' + str(e)[:300]})
+        finally: ULOCK.release()
+    H.system_get = system_get; H.system_post = system_post; H.update = update
 _sys_methods()
 
 def passwort_setzen():
@@ -772,6 +1345,25 @@ def passwort_setzen():
 
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == 'passwort': passwort_setzen(); sys.exit(0)
+    if len(sys.argv) > 1 and sys.argv[1] == 'selbsttest':      # vor einem Update: lädt alles Nötige, ohne zu starten
+        A = apps(); [read(n) for n in ('dashboard.html', 'sync.js', 'anmelden.html', 'verwaltung.html', 'system.html')]
+        m = {'seq': 0, 'top': {}, 'floor': 0}; o, ch = merge_s({'x': {'a': {'upd': 1}}}, {'savedAt': 1, 'x': {'b': {'upd': 2}}}, m)
+        assert ch and o['x']['b']['_s'] == 1 and m['seq'] == 1
+        o2, _ = merge_s(o, {'savedAt': 2, 'x': {}}, m); assert len(o2['x']) == 2        # leere Sammlung löscht nichts
+        assert zahl_summe('612,4 kcal') == 612.4 and zahl_summe('1.234,5') == 1234.5 and zahl_summe('12\n30,5') == 42.5 and zahl_summe([1, '2']) == 3 and zahl_summe('1.234') == 1234 and zahl_summe('0.523') == 0.523 and zahl_summe('x') is None
+        jetzt = time.time() * 1000; alt_grab = {'id': 'g', 'upd': jetzt - 90 * 86400000, 'del': True}   # Uhr-Sicherheitsnetz
+        assert max_ts({'savedAt': 5, 'x': {'a': {'upd': 9}}, 's': {'upd': 7, 'k': 1}}) == 9 and max_ts({'savedAt': 5e13}) == 0
+        ar = {'sammlungen': ['log', 'weight'], 'feld': 'datum', 'ab': '2026-01-01', 'abJe': {'weight': '2025-01-01'}}   # Archiv je Sammlung
+        assert alt(ar, {'datum': '2025-06-01'}, 'log') and not alt(ar, {'datum': '2025-06-01'}, 'weight') and alt(ar, {'datum': '2024-12-31'}, 'weight')
+        o3, _ = merge_s({'x': {'g': alt_grab}}, {'savedAt': jetzt, 'x': {'h': {'upd': jetzt}}}, {'seq': 0, 'top': {}, 'floor': 0}); assert 'g' not in o3['x']
+        o4, _ = merge_s({'x': {'g': alt_grab}}, {'savedAt': jetzt + 864e5, 'x': {'h': {'upd': jetzt + 864e5}}}, {'seq': 0, 'top': {}, 'floor': 0}); assert 'g' in o4['x']
+        tp = {'von': 'm', 'fuer': 'm', 'privat': True, 'upd': 1}                   # private Aufgaben
+        assert hidden(tp, 'o') and not hidden(tp, 'm') and not hidden({**tp, 'fuer': 'o'}, 'o') and not hidden({**tp, 'wdh': {'rot': ['m', 'o']}}, 'o') and not hidden({**tp, 'privat': False}, 'o')
+        S = {'tasks': {'a': tp, 'b': {'von': 'm', 'fuer': 'o', 'upd': 1}}, 'log': {'l1': {'task': 'a', 'upd': 1}, 'l2': {'task': 'b', 'upd': 1}}}
+        so = sicht_of(S, 'o', False); assert set(so['tasks']) == {'b'} and set(so['log']) == {'l2'} and set(sicht_of(S, 'm', False)['tasks']) == {'a', 'b'}
+        assert set(drop_hidden(S, {'tasks': {'a': {**tp, 'upd': 2}}, 'log': {'l3': {'task': 'a', 'upd': 2}}}, 'o')['tasks']) == set()
+        assert base_key('ernaehrung_v1__sam') == 'ernaehrung_v1'
+        print('SELBSTTEST OK', len(A), 'Tools'); sys.exit(0)
     print(f'{TITLE} läuft auf Port {PORT} – Daten in {DATA} – {len(apps())} Tools im Register')
     threading.Thread(target=auto_sicherung, daemon=True).start()
     ThreadingHTTPServer(('0.0.0.0', PORT), H).serve_forever()

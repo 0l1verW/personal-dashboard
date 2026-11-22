@@ -216,6 +216,19 @@ textarea.in{resize:vertical;min-height:70px}
 .foot{text-align:center;color:var(--faint);font-size:12px;margin-top:24px}
 @media (pointer:coarse){.in,.qa input{font-size:16px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* PC: breiter, „Anstehend“ zweispaltig – links Eingabe, Wünsche, Filter, Woche; rechts die Zeitleiste */
+@media(min-width:1024px){
+  .app{max-width:1080px}
+  .nav{width:fit-content}.nav button{flex:none;padding:0 18px}
+  .cols{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:28px;align-items:start}
+  .side .wa .btn{min-height:38px}
+  .side .week{gap:5px}.side .wd b{font-size:15px}
+  .flow>.sec:first-child,.flow>.card:first-child{margin-top:0}
+  .lists{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}}
+/* Runde 7: private Aufgaben */
+.tm .lk{color:var(--muted);font-weight:600}
+.pnote{font-size:12.5px;color:var(--muted);margin-left:54px;margin-top:-2px}
 </style>
 </head>
 <body>
@@ -296,6 +309,10 @@ const mayEdit=t=>canEdit()&&(isAdmin()||!t||t.von===me||t.erstVon===me);   // Fe
 const canTick=t=>canEdit()&&t.status!=='neu'&&t.status!=='abgelehnt';      // abhaken, Checkliste, Status
 const pName=id=>{ const p=person(id); return p?p.name:'–'; };
 const av=(id,cls)=>{ const p=person(id); return p?`<span class="av${cls?' '+cls:''}" style="background:${esc(p.farbe||'#7D8597')}" title="${esc(p.name)}" aria-hidden="true">${esc((p.name||'?').charAt(0).toUpperCase())}</span>`:''; };
+/* Privat: Aufgabe sieht nur die Person, die sie für sich selbst eingetragen hat – auch kein Admin. Geht nur, wenn sie für sie
+   selbst ist und nicht abwechselnd mit anderen. Der Pi filtert (server.py hidden()); hier nur Anzeige und Standardwert. */
+const privOk=t=>!!t&&!!t.von&&(!t.fuer||t.fuer===t.von)&&!(((t.wdh||{}).rot)||[]).some(p=>p!==t.von);
+const isPriv=t=>!!(t&&t.privat)&&privOk(t);
 function loadPersons(){ if(location.protocol==='file:') return;
   fetch('/api/personen').then(r=>r.ok?r.json():null).then(x=>{ if(x&&x.list&&x.list.length){ PL=x.list; try{ localStorage.setItem('pd_personen',JSON.stringify(PL)); }catch(_){} render(); } }).catch(()=>{}); }
 
@@ -401,18 +418,21 @@ function chips(r){ const c=[];
 const wishRule=fuer=>!isAdmin()&&fuer&&fuer!==me&&admins().includes(fuer);
 function newTask(r){ const fuer=r.fuer||(wen!=='me'&&wen!=='alle'&&wen!=='von'&&seesAll()?wen:me);
   if(r.neueListe){ const l=put('lists',{id:uid('l'),name:r.neueListe.charAt(0).toUpperCase()+r.neueListe.slice(1),farbe:LCOL[lists().length%LCOL.length]}); r.liste=l.id; }
-  return {id:uid('t'),titel:r.titel||'',notiz:r.notiz||'',von:me,fuer,due:r.due||null,zeit:r.zeit||null,art:r.art||'bis',prio:r.prio||0,liste:r.liste||(view==='listen'&&curList&&curList!=='-'?curList:null),aufwand:r.aufwand||null,
-    wdh:r.wdh||null,check:r.check||[],status:wishRule(fuer)?'neu':'offen',erst:Date.now(),erstVon:me}; }
+  const t={id:uid('t'),titel:r.titel||'',notiz:r.notiz||'',von:me,fuer,due:r.due||null,zeit:r.zeit||null,art:r.art||'bis',prio:r.prio||0,liste:r.liste||(view==='listen'&&curList&&curList!=='-'?curList:null),aufwand:r.aufwand||null,
+    wdh:r.wdh||null,check:r.check||[],status:wishRule(fuer)?'neu':'offen',erst:Date.now(),erstVon:me};
+  t.privat=privOk(t);   // für sich selbst eingetragen → standardmäßig privat (Entscheidung Grill-Runde, Abschnitt 5)
+  return t; }
 function addQuick(){ if(!canEdit()) return; const r=parse(qa); if(!r.titel){ toast('Bitte einen Titel eingeben'); return; }
   const t=put('tasks',newTask(r)); note(t.id,t.status==='neu'?'hat sich das gewünscht':'hat eingetragen',true); qa=''; save(); render();
-  toast(t.status==='neu'?`Wunsch an ${pName(t.fuer)} geschickt`:'Eingetragen'+(t.due?' · '+fDue(t.due):''),()=>{ rm('tasks',t.id); save(); render(); });
+  toast(t.status==='neu'?`Wunsch an ${pName(t.fuer)} geschickt`:'Eingetragen'+(isPriv(t)?' (privat)':'')+(t.due?' · '+fDue(t.due):''),()=>{ rm('tasks',t.id); save(); render(); });
   const q=$('qa'); if(q) q.focus(); }
 
 /* ---------- Bausteine ---------- */
 const IC={rep:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>',
   cl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>',
   msg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
-  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'};
+  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>'};
 /* Eine Zeile. o.date: Datum anzeigen (in Gruppen ohne Tagesbezug), o.status: Status-Pille */
 function row(t,o){ o=o||{}; const done=t.status==='erledigt'||t.status==='abgelehnt', ov=isOver(t), m=[], l=list(t.liste), cm=logOf(t.id).filter(g=>!g.sys).length, ck=t.check||[];
   if(t.status==='neu') m.push(`<span class="pill neu">Wunsch${t.fuer!==me?' an '+esc(pName(t.fuer)):''} – wartet</span>`);
@@ -424,6 +444,7 @@ function row(t,o){ o=o||{}; const done=t.status==='erledigt'||t.status==='abgele
   if(pr(t)&&!done) m.push(`<span class="pr${pr(t)}">${'!'.repeat(pr(t))} ${PRIO[pr(t)].toLowerCase()}</span>`);
   if(t.fuer&&t.fuer!==me&&t.status!=='neu') m.push(`<span>${av(t.fuer,'s')} ${esc(pName(t.fuer))}</span>`);
   if(t.von&&t.von!==me&&t.fuer===me) m.push(`<span>von ${esc(pName(t.von))}</span>`);
+  if(isPriv(t)) m.push(`<span class="lk" title="Privat – nur du siehst diese Aufgabe">${IC.lock}privat</span>`);
   if(l) m.push(`<span><i class="dot" style="background:${esc(l.farbe)}"></i>${esc(l.name)}</span>`);
   if(t.wdh) m.push(`<span title="${esc(wdhText(t.wdh))}">${IC.rep}${esc(wdhText(t.wdh))}</span>`);
   if(ck.length) m.push(`<span>${IC.cl}${ck.filter(c=>c.ok).length}/${ck.length}</span>`);
@@ -450,12 +471,13 @@ function render(){
   const d=new Date(); $('sub').textContent=WD[d.getDay()]+', '+d.getDate()+'. '+MON[d.getMonth()]+(ROLE&&ROLE.ro?' · nur ansehen':'');
   const p=person(me); $('whoBtn').innerHTML=p?`${av(me)}<span class="nm">${esc(p.name)}</span>`:'<span class="nm">Wer bist du?</span>';
   const nb=wishesForMe().length+newsForMe().length, b=$('inBadge'); b.hidden=!nb; b.textContent=nb;
+  $('main').classList.toggle('wide',view==='anstehend');
   ({anstehend:vAnstehend,listen:vListen,erledigt:vErledigt}[view]||vAnstehend)($('main'));
   stamp(); }
 
 function vAnstehend(el){ const td=today(), W=wishesForMe(), N=newsForMe();
   const L=tasks().filter(t=>(open(t)||(t.status==='neu'&&!(t.fuer===me)))&&inFilter(t)).sort(sortT);
-  let h=qaBox(innerWidth<560?'Neue Aufgabe …':'Neue Aufgabe … z. B. Müll rausbringen morgen #haushalt');
+  let h=qaBox(innerWidth<560||innerWidth>=1024?'Neue Aufgabe …':'Neue Aufgabe … z. B. Müll rausbringen morgen #haushalt');
   if(W.length) h+=`<section class="sec"><h2>Wünsche an dich<span class="n">${W.length}</span></h2>${W.sort((a,b)=>a.erst-b.erst).map(wishCard).join('')}</section>`;
   if(N.length) h+=`<div class="banner"><b>${N.length} ${N.length===1?'Aufgabe hat':'Aufgaben haben'} Neuigkeiten</b><button class="btn sm" data-news="1">${newsOpen?'Ausblenden':'Ansehen'}</button></div>${newsOpen?`<div class="tasks" style="margin-top:8px">${N.map(t=>row(t,{date:1})).join('')}</div>`:''}`;
   h+=`<div class="bar">${wenBar(true)}</div>`;
@@ -464,7 +486,8 @@ function vAnstehend(el){ const td=today(), W=wishesForMe(), N=newsForMe();
   h+=`<div class="week" role="group" aria-label="Die nächsten 7 Tage">${[0,1,2,3,4,5,6].map(i=>{ const k=kAdd(td,i), n=cnt[k]||0;
     return `<button class="wd${i===0?' td':''}${wd(k)%6===0?' we':''}" data-day="${k}" aria-label="${esc(fDay(k))}: ${n} offen"><span>${i===0?'Heute':WK[wd(k)]}</span><b>${kDate(k).getDate()}</b><span class="n${n?'':' z'}">${n||'·'}</span></button>`; }).join('')}</div>`;
   if(over.length) h+=`<div class="over">${over.length} überfällig</div>`;
-  // Zeitleiste
+  // Zeitleiste (am PC rechte Spalte)
+  const side=h; h='';
   const g=(f)=>L.filter(f);
   h+=sec('Überfällig',g(t=>t.due&&t.due<td),{cls:'bad',date:1,id:'d-over'});
   h+=sec('Heute',g(t=>t.due===td),{cls:'today',id:'d-'+td,small:fDay(td).split(',')[1]});
@@ -474,7 +497,7 @@ function vAnstehend(el){ const td=today(), W=wishesForMe(), N=newsForMe();
   h+=sec('Später',g(t=>t.due&&t.due>kAdd(td,13)),{date:1,max:8,all:laterAll,more:'later'});
   h+=sec('Ohne Datum',g(t=>!t.due),{});
   if(!L.length) h+=`<div class="card" style="margin-top:14px"><div class="empty">${wen==='me'?'Für dich ist nichts offen.':'Hier ist nichts offen.'}${canEdit()?' Oben eine neue Aufgabe eintragen.':''}</div></div>`;
-  el.innerHTML=h; }
+  el.innerHTML=`<div class="cols"><div class="side">${side}</div><div class="flow">${h}</div></div>`; }
 function wishCard(t){ const ck=t.check||[];
   return `<div class="wish"><div class="wh">${av(t.von)}<div style="min-width:0;flex:1"><div class="wt">${esc(t.titel)}</div><div class="ws">von ${esc(pName(t.von))} · ${esc(fTs(t.erst))}${t.due?' · '+(t.art==='am'?'am ':'bis ')+esc(fDue(t.due,t.zeit)):''}${pr(t)?' · '+PRIO[pr(t)].toLowerCase():''}${ck.length?' · '+ck.length+' Punkte':''}</div></div></div>
     ${t.notiz?`<div class="wn">${esc(t.notiz)}</div>`:''}
@@ -523,6 +546,7 @@ function drawSheet(){ const s=sheet, d=$('dlg'); if(!s) return;
   if(s.m==='task'){ const t=s.t, live_=s.id?D.tasks[s.id]:null, ed=s.isNew||mayEdit(live_), L=s.id?logOf(s.id):[], wk=wdhKey(t.wdh), dis=ed?'':' disabled';
     const td=today(), Q=[['heute',td],['morgen',kAdd(td,1)],['Wochenende',nextSat()],['nächste Woche',nextMon()]];
     const isWish=t.status==='neu', mayAcc=isWish&&s.id&&t.fuer===me&&canEdit();
+    const privSw=ed&&(s.isNew||t.von===me)&&privOk({...t,von:t.von||me});   // nur die Person selbst stellt eigene Aufgaben auf privat
     d.innerHTML=`<div class="dh"><h3 id="dlgT">${s.isNew?'Neue Aufgabe':isWish?'Wunsch':'Aufgabe'}</h3>${s.id&&t.status!=='offen'?`<span class="pill ${t.status}">${STAT[t.status]}</span>`:''}<button class="x" data-close="1" aria-label="Schließen">×</button></div>
     <div class="db">
       <input class="in ttl" id="tTit" value="${esc(t.titel)}" placeholder="Was ist zu tun?" aria-label="Titel"${dis}>
@@ -531,7 +555,8 @@ function drawSheet(){ const s=sheet, d=$('dlg'); if(!s) return;
       <div class="fs"><span class="lt">Wann</span><div class="fl">${Q.map(([l,k])=>`<button class="opt" data-dq="${k}" aria-pressed="${t.due===k}"${dis}>${l}</button>`).join('')}<button class="opt" data-dq="x" aria-pressed="${!t.due}"${dis}>ohne Datum</button></div>
         <div class="fl"><input class="in" type="date" id="tDue" value="${t.due||''}" aria-label="Datum"${dis}><input class="in" type="time" id="tZeit" value="${t.zeit||''}" aria-label="Uhrzeit (optional)"${dis} style="max-width:140px"></div>
         ${t.due?`<label class="sw"><input type="checkbox" id="tArt"${t.art==='am'?' checked':''}${dis}> Fester Termin (genau an diesem Tag, nicht „bis“)</label>`:''}</div>
-      <div class="fs"><span class="lt">Für</span><div class="fl">${PL.map(p=>`<button class="opt" data-fuer="${esc(p.id)}" aria-pressed="${t.fuer===p.id}"${dis}>${av(p.id)}${esc(p.id===me?'mich':p.name)}</button>`).join('')}</div></div>
+      <div class="fs"><span class="lt">Für</span><div class="fl">${PL.map(p=>`<button class="opt" data-fuer="${esc(p.id)}" aria-pressed="${t.fuer===p.id}"${dis}>${av(p.id)}${esc(p.id===me?'mich':p.name)}</button>`).join('')}</div>
+        ${privSw?`<label class="sw"><input type="checkbox" id="tPriv"${t.privat?' checked':''}> Privat</label><span class="pnote">Nur du siehst diese Aufgabe – auch Admins nicht.</span>`:''}</div>
       <div class="fs"><span class="lt">Liste</span><div class="fl"><button class="opt" data-lis="" aria-pressed="${!list(t.liste)}"${dis}>keine</button>${lists().map(l=>`<button class="opt" data-lis="${l.id}" aria-pressed="${t.liste===l.id}"${dis}><i class="dot" style="background:${esc(l.farbe)}"></i>${esc(l.name)}</button>`).join('')}${ed?'<button class="opt" data-lisnew="1">+ neu</button>':''}</div></div>
       <div class="fs"><span class="lt">Wichtigkeit</span><div class="fl">${PRIO.map((l,i)=>`<button class="opt pro pr${i}" data-prio="${i}" aria-pressed="${pr(t)===i}"${dis}>${i?'<b>'+'!'.repeat(i)+'</b> ':''}${l}</button>`).join('')}</div></div>
       <div class="fs"><span class="lt">Wiederholen</span><div class="fl"><select class="in" id="wTyp" aria-label="Wiederholen"${dis} style="max-width:240px">${WDH.map(([k,l])=>`<option value="${k}"${wk===k?' selected':''}>${l}</option>`).join('')}${wk==='eigen'?`<option value="eigen" selected>${esc(wdhText(t.wdh))}</option>`:''}</select></div>
@@ -558,7 +583,7 @@ function drawSheet(){ const s=sheet, d=$('dlg'); if(!s) return;
     d.innerHTML=`<div class="dh"><h3 id="dlgT">Einstellungen</h3><button class="x" data-close="1" aria-label="Schließen">×</button></div>
     <div class="db">
       <div class="fs"><span class="lt">Angemeldet</span><div class="fl">${av(me)} <b>${esc(pName(me))}</b>${ROLE&&ROLE.ro?' <span class="pill">nur ansehen</span>':''}<span style="flex:1"></span><button class="btn sm" data-who="1">Person wechseln</button></div>
-        ${ROLE?`<p style="font-size:13px;color:var(--muted)">${seesAll()?'Du siehst alle Aufgaben der Familie.':'Du siehst Aufgaben, die du eingetragen hast oder die für dich sind.'}${!A&&canEdit()?' Aufgaben, die du für '+admins().map(pName).join(' / ')+' einträgst, kommen dort als Wunsch an.':''}</p>`:''}</div>
+        ${ROLE?`<p style="font-size:13px;color:var(--muted)">${seesAll()?'Du siehst alle Aufgaben der Familie, außer den privaten der anderen.':'Du siehst Aufgaben, die du eingetragen hast oder die für dich sind.'}${!A&&canEdit()?' Aufgaben, die du für '+admins().map(pName).join(' / ')+' einträgst, kommen dort als Wunsch an.':''} Was du für dich selbst einträgst, ist privat (Schloss): das siehst nur du, auch Admins nicht.</p>`:''}</div>
       <div class="fs"><span class="lt">Listen</span>${A?lists().map(l=>`<div class="lrow"><input type="color" value="${esc(l.farbe)}" data-lcol="${l.id}" aria-label="Farbe von ${esc(l.name)}"><input class="in" value="${esc(l.name)}" data-lname="${l.id}" aria-label="Name der Liste"><button class="x" data-ldel="${l.id}" aria-label="${esc(l.name)} löschen">×</button></div>`).join('')
           :`<div class="fl">${lists().map(l=>`<span class="opt"><i class="dot" style="background:${esc(l.farbe)}"></i>${esc(l.name)}</span>`).join('')}</div>`}
         ${canEdit()?'<div class="fl"><input class="in" id="lNew" placeholder="Neue Liste …"><button class="btn sm" data-ladd="1">+</button></div>':''}</div>
@@ -576,15 +601,18 @@ function readForm(){ const s=sheet; if(!s||s.m!=='task') return; const t=s.t, v=
   t.titel=(v('tTit')||'').trim(); t.notiz=v('tNot')||''; t.due=v('tDue')||null; t.zeit=v('tZeit')||null;
   const a=$('tArt'); t.art=a&&a.checked?'am':'bis';
   if(t.wdh){ const b=$('wBas'); if(b) t.wdh.basis=b.checked?'erledigt':'termin'; }
+  const pv=$('tPriv'); if(pv) t.privat=pv.checked&&privOk(t); else if(!privOk(t)) t.privat=false;
   (t.check||[]).forEach((c,i)=>{ const e=document.querySelector(`[data-clt="${i}"]`); if(e) c.t=e.value; }); }
 function saveTask(){ readForm(); const s=sheet, t=s.t; if(!t.titel){ toast('Bitte einen Titel eingeben'); return; }
   if(t.wdh&&!t.due) t.due=firstDue(t.wdh); t.check=(t.check||[]).filter(c=>c.t.trim());
+  if(!privOk(t)) t.privat=false;
   if(s.isNew){ t.status=wishRule(t.fuer)?'neu':'offen'; put('tasks',t); note(t.id,t.status==='neu'?'hat sich das gewünscht':'hat eingetragen',true); }
   else { const o=D.tasks[s.id], ch=[]; [['titel','Titel'],['notiz','Notiz'],['due','Datum'],['zeit','Uhrzeit'],['prio','Wichtig'],['fuer','Für'],['liste','Liste']].forEach(([k,l])=>{ if(String(o[k]??'')!==String(t[k]??'')) ch.push(l); });
     if(JSON.stringify(o.wdh)!==JSON.stringify(t.wdh)) ch.push('Wiederholung'); if(JSON.stringify(o.check)!==JSON.stringify(t.check)) ch.push('Checkliste');
+    if(!!o.privat!==!!t.privat) ch.push('Privat');
     ['status','erledigtVon','erledigtAm'].forEach(k=>t[k]=o[k]);   // Status kann sich inzwischen (Sync) geändert haben
     put('tasks',t); if(ch.length) note(t.id,'hat '+ch.join(', ')+' geändert',true); }
-  save(); sheet.dirty=false; closeSheet(true); toast(s.isNew?(t.status==='neu'?`Wunsch an ${pName(t.fuer)} geschickt`:'Eingetragen'):'Gespeichert'); }
+  save(); sheet.dirty=false; closeSheet(true); toast(s.isNew?(t.status==='neu'?`Wunsch an ${pName(t.fuer)} geschickt`:'Eingetragen'+(isPriv(t)?' (privat)':'')):'Gespeichert'); }
 const liveTask=()=>sheet&&sheet.id?D.tasks[sheet.id]:null;
 function scrollToDay(k){ const el=$('d-'+k); if(el){ el.scrollIntoView({behavior:'smooth',block:'start'}); return; }
   if(canEdit()) openNew({titel:'',due:k}); else toast('An diesem Tag ist nichts offen'); }
@@ -617,10 +645,12 @@ document.addEventListener('click',e=>{
   if(s.m==='task'){ const t=s.t;
     if(ds.dq){ readForm(); t.due=ds.dq==='x'?null:ds.dq; if(ds.dq==='x'){ t.zeit=null; t.art='bis'; } s.dirty=true; return drawSheet(); }
     if(ds.prio!=null){ readForm(); t.prio=+ds.prio; s.dirty=true; return drawSheet(); }
-    if(ds.fuer){ readForm(); t.fuer=ds.fuer; if(t.wdh&&t.wdh.rot&&t.wdh.rot.length&&!t.wdh.rot.includes(t.fuer)) t.wdh.rot.unshift(t.fuer); s.dirty=true; return drawSheet(); }
+    if(ds.fuer){ readForm(); t.fuer=ds.fuer; if(t.wdh&&t.wdh.rot&&t.wdh.rot.length&&!t.wdh.rot.includes(t.fuer)) t.wdh.rot.unshift(t.fuer);
+      if(!privOk(t)) t.privat=false; else if(s.isNew) t.privat=true;   // für jemand anderen → nie privat; zurück an sich selbst → wieder privat
+      s.dirty=true; return drawSheet(); }
     if(ds.lis!=null){ readForm(); t.liste=ds.lis||null; s.dirty=true; return drawSheet(); }
     if(ds.lisnew){ const n=prompt('Name der neuen Liste:',''); if(n&&n.trim()){ readForm(); const l=put('lists',{id:uid('l'),name:n.trim(),farbe:LCOL[lists().length%LCOL.length]}); save(); t.liste=l.id; s.dirty=true; drawSheet(); } return; }
-    if(ds.rot){ readForm(); const a=t.wdh.rot=t.wdh.rot||[]; a.includes(ds.rot)?a.splice(a.indexOf(ds.rot),1):a.push(ds.rot); if(a.length&&!a.includes(t.fuer)) a.unshift(t.fuer); s.dirty=true; return drawSheet(); }
+    if(ds.rot){ readForm(); const a=t.wdh.rot=t.wdh.rot||[]; a.includes(ds.rot)?a.splice(a.indexOf(ds.rot),1):a.push(ds.rot); if(a.length&&!a.includes(t.fuer)) a.unshift(t.fuer); if(!privOk(t)) t.privat=false; s.dirty=true; return drawSheet(); }
     if(ds.cli!=null){ readForm(); const c=t.check[+ds.cli]; c.ok=!c.ok;
       const lt=liveTask(); if(lt&&lt.check&&lt.check[+ds.cli]&&lt.check[+ds.cli].t===c.t){ lt.check[+ds.cli].ok=c.ok; put('tasks',lt); save(); } else s.dirty=true; return drawSheet(); }
     if(ds.clx!=null){ readForm(); t.check.splice(+ds.clx,1); s.dirty=true; return drawSheet(); }
@@ -647,7 +677,7 @@ document.addEventListener('input',e=>{ const el=e.target;
 document.addEventListener('change',e=>{ const el=e.target;
   if(sheet&&sheet.m==='task'){
     if(el.id==='wTyp'){ readForm(); const t=sheet.t; if(el.value!=='eigen') t.wdh=el.value?wdhFrom(el.value,t):null; if(t.wdh&&!t.due) t.due=firstDue(t.wdh); sheet.dirty=true; return drawSheet(); }
-    if(el.id==='tDue'||el.id==='tArt'||el.id==='tPrio'||el.id==='wBas'){ readForm(); sheet.dirty=true; if(el.id==='tDue') drawSheet(); return; }
+    if(el.id==='tDue'||el.id==='tArt'||el.id==='tPrio'||el.id==='wBas'||el.id==='tPriv'){ readForm(); sheet.dirty=true; if(el.id==='tDue') drawSheet(); return; }
   }
   if(sheet&&sheet.m==='set'){
     if(el.dataset.lname){ const l=D.lists[el.dataset.lname], v=el.value.trim(); if(v){ l.name=v; put('lists',l); save(); } return; }
@@ -673,10 +703,21 @@ $('ov').addEventListener('click',e=>{ if(e.target.id==='ov') closeSheet(); });
 const dueTs=t=>{ const d=kDate(t.due); if(t.zeit){ const [h,m]=t.zeit.split(':'); d.setHours(+h,+m); } else d.setHours(23,59); return d.getTime(); };
 function pushSum(){ if(!window.__PI_SYNC||!me) return; const td=today(), O=tasks().filter(t=>open(t)&&t.fuer===me).sort(sortT);
   const s={v:1,savedAt:Date.now(),zaehler:{heute:O.filter(t=>t.due===td).length,ueberfaellig:O.filter(t=>t.due&&t.due<td).length,neu:wishesForMe().length+newsForMe().length},
-    zeilen:O.filter(t=>t.due||t.prio).slice(0,6).map(t=>{ const l=list(t.liste); return {t:t.titel,due:t.due?dueTs(t):undefined,sub:[t.von!==me?'von '+pName(t.von):'',l?l.name:'',pr(t)?PRIO[pr(t)].toLowerCase():''].filter(Boolean).join(' · ')||undefined,ton:t.due&&t.due<td||pr(t)>=3?'bad':pr(t)?'warn':''}; }),
-    termine:O.filter(t=>t.due&&t.due>=kAdd(td,-1)).slice(0,80).map(t=>({t:t.titel,datum:t.due,due:dueTs(t),ton:pr(t)>=3?'bad':pr(t)?'warn':''})),
+    zeilen:O.filter(t=>t.due||t.prio).slice(0,6).map(t=>{ const l=list(t.liste); return {id:t.id,ab:canTick(t)?1:undefined,t:t.titel,due:t.due?dueTs(t):undefined,sub:[t.von!==me?'von '+pName(t.von):'',l?l.name:'',pr(t)?PRIO[pr(t)].toLowerCase():''].filter(Boolean).join(' · ')||undefined,ton:t.due&&t.due<td||pr(t)>=3?'bad':pr(t)?'warn':''}; }),
+    termine:O.filter(t=>t.due&&t.due>=kAdd(td,-1)).slice(0,80).map(t=>({id:t.id,ab:canTick(t)?1:undefined,t:t.titel,datum:t.due,due:dueTs(t),ton:pr(t)>=3?'bad':pr(t)?'warn':''})),
     leer:'Für dich ist nichts offen'};
   fetch('/api/sum_aufgaben',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(s)}).catch(()=>{}); }
+/* Dashboard: Aufgabe auf der Kachel abhaken. Das Dashboard lädt diese Seite unsichtbar und ruft __dashAct auf –
+   so gelten dieselben Regeln wie hier (Wiederholung, Abwechseln, Verlauf, Rechte). */
+let dashUndo=null;
+window.__dashAct=function(kind,id){ if(!D) return {ok:false,error:'noch nicht geladen'};
+  if(kind==='undo'){ const u=dashUndo; dashUndo=null; if(!u) return {ok:false,error:'nichts rückgängig zu machen'}; u(); return {ok:true}; }
+  if(kind!=='done') return {ok:false,error:'unbekannt'};
+  const t=D.tasks[id]; if(!t||t.del) return {ok:false,error:'Aufgabe nicht gefunden'};
+  if(!open(t)||!canTick(t)) return {ok:false,error:'Diese Aufgabe kannst du nicht abhaken'};
+  let cap=null; const ot=toast; toast=(m,u)=>{ cap={m,u}; };
+  try{ complete(t); } finally { toast=ot; }
+  dashUndo=cap&&cap.u||null; return {ok:true,text:cap?cap.m:'Erledigt',undo:!!dashUndo}; };
 function icsText(name,L){ const e=v=>String(v||'').replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n');
   const fold=l=>{ const o=[]; while(l.length>70){ o.push(l.slice(0,70)); l=' '+l.slice(70); } o.push(l); return o.join('\r\n'); };
   const d8=k=>k.replace(/-/g,''), now=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');
@@ -689,8 +730,9 @@ function icsText(name,L){ const e=v=>String(v||'').replace(/\\/g,'\\\\').replace
     X.push('BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+e(t.titel),'TRIGGER:'+(t.zeit?'-PT30M':'PT9H'),'END:VALARM','END:VEVENT'); });
   X.push('END:VCALENDAR'); return X.map(fold).join('\r\n')+'\r\n'; }
 let lastIcs={};
+/* Kalender-Abos: private Aufgaben nur im eigenen Kalender, nie in „Alle Aufgaben“ (die Adressen sind im Heimnetz ohne Anmeldung abrufbar) */
 function pushIcs(){ if(!window.__PI_SYNC||!isAdmin()) return; const O=tasks().filter(t=>open(t)&&t.due).sort(sortT);
-  [['aufgaben','Aufgaben',O],...PL.map(p=>['aufgaben-'+p.id,'Aufgaben '+p.name,O.filter(t=>t.fuer===p.id)])].forEach(([f,n,L])=>{
+  [['aufgaben','Aufgaben',O.filter(t=>!isPriv(t))],...PL.map(p=>['aufgaben-'+p.id,'Aufgaben '+p.name,O.filter(t=>t.fuer===p.id&&(!isPriv(t)||p.id===me))])].forEach(([f,n,L])=>{
     const body=icsText(n,L), sig=body.replace(/DTSTAMP:\d+T\d+Z?/g,''); if(lastIcs[f]===sig) return; lastIcs[f]=sig;
     fetch('/api/ics_'+f,{method:'PUT',headers:{'Content-Type':'text/calendar'},body}).catch(()=>{ delete lastIcs[f]; }); }); }
 

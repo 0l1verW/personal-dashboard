@@ -46,6 +46,7 @@ h1{font-family:"Space Grotesk",Inter,sans-serif;font-size:26px;letter-spacing:-.
 .dot{width:10px;height:10px;border-radius:50%;flex:none}
 .rr.sub{background:var(--card2);padding-left:30px}
 .rr.sub .an{font-weight:500;color:var(--muted);font-size:13.5px}
+.rr.sub .seg.dt button[aria-pressed="true"].v0{background:var(--accent)}
 .sw{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-weight:600}
 .sw input{appearance:none;width:46px;height:28px;border-radius:99px;background:var(--card3);border:1px solid var(--border2);position:relative;cursor:pointer;transition:background .15s}
 .sw input::after{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .15s}
@@ -68,6 +69,7 @@ h1{font-family:"Space Grotesk",Inter,sans-serif;font-size:26px;letter-spacing:-.
 <main>
   <header><a class="back" href="/">← Dashboard</a><h1>Familie &amp; Rechte</h1></header>
   <p class="intro">Hier legst du fest, wer welches Tool sehen oder bearbeiten darf. Admins dürfen alles und diese Seite öffnen – dafür brauchen sie eine PIN oder ein Passwort. Ohne PIN kann jede Person auf jedem Gerät ausgewählt werden.</p>
+  <p class="intro"><b>Daten: Eigene (leer)</b> – das Tool startet für diese Person leer und speichert getrennt von deinen Daten. Ihr Dashboard zeigt dann ihre eigene Kachel. Ihre eigenen Daten sieht sonst niemand, auch kein Admin. Stellst du zurück auf „Gemeinsam“, bleiben ihre Daten auf dem Pi liegen und sind beim nächsten Umschalten wieder da. Aufgaben sind immer gemeinsam; was jemand nur für sich selbst einträgt, ist dort privat.</p>
   <div id="list"></div>
   <button class="btn" id="add" style="align-self:flex-start">+ Person</button>
 </main>
@@ -83,10 +85,10 @@ function slug(s){ return String(s||'').toLowerCase().replace(/ä/g,'ae').replace
 function req(m,u,b){ return fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined,credentials:'same-origin'}); }
 function load(){ return req('GET','/api/rechte').then(function(r){ if(r.status===403){ location.href='/anmelden?z=/verwaltung'; throw 0; } return r.json(); }).then(function(x){ R=x;
   pers=JSON.parse(JSON.stringify(x.personen)); rec={};
-  pers.forEach(function(p){ var e=x.rechte[p.id]; rec[p.id]={admin:e.adminFlag||p.id===x.ownerId,sicht:e.sicht,tools:Object.assign({},e.tools)}; });
+  pers.forEach(function(p){ var e=x.rechte[p.id]; rec[p.id]={admin:e.adminFlag||p.id===x.ownerId,sicht:e.sicht,tools:Object.assign({},e.tools),eigen:(e.eigen||[]).slice()}; });
   setDirty(false); draw(); }); }
 function setDirty(v){ dirty=v; $('bar').classList.toggle('show',v); }
-function seg(name,val,opts,dis){ return '<span class="seg" role="group">'+opts.map(function(o,i){ return '<button class="v'+i+'" data-seg="'+esc(name)+'" data-val="'+o[0]+'" aria-pressed="'+(val===o[0])+'"'+(dis?' disabled':'')+'>'+o[1]+'</button>'; }).join('')+'</span>'; }
+function seg(name,val,opts,dis,cls){ return '<span class="seg'+(cls?' '+cls:'')+'" role="group">'+opts.map(function(o,i){ return '<button class="v'+i+'" data-seg="'+esc(name)+'" data-val="'+o[0]+'" aria-pressed="'+(val===o[0])+'"'+(dis?' disabled':'')+'>'+o[1]+'</button>'; }).join('')+'</span>'; }
 function draw(){ var oid=R.ownerId;
   $('list').innerHTML=pers.map(function(p,i){ var r=rec[p.id], own=p.id===oid, lk=R.lock[p.id], isNew=!R.rechte[p.id], adm=own||(r.admin&&lk);
     var h='<section class="pc" aria-label="'+esc(p.name)+'"><div class="ph"><input type="color" value="'+esc(p.farbe||'#7D8597')+'" data-f="farbe" data-i="'+i+'" aria-label="Farbe">'
@@ -110,6 +112,7 @@ function draw(){ var oid=R.ownerId;
     h+='<div class="rt">'+R.apps.map(function(a){ var v=adm?'edit':(r.tools[a.id]||'none');
       var row='<div class="rr"><span class="an"><i class="dot" style="background:'+esc(a.farbe||'#7D8597')+'"></i>'+esc(a.titel)+'</span>'+seg(p.id+'|'+a.id,v,[['none','Kein'],['view','Sehen'],['edit','Bearbeiten']],adm)+'</div>';
       if(a.proPerson&&v!=='none') row+='<div class="rr sub"><span class="an">sieht</span>'+seg(p.id+'|sicht',adm?'alle':r.sicht,[['eigene','Nur eigene'],['alle','Alle']],adm)+'</div>';
+      if(!a.proPerson&&!own&&v!=='none') row+='<div class="rr sub"><span class="an">Daten</span>'+seg(p.id+'|eigen|'+a.id,r.eigen.indexOf(a.id)>=0?'eigen':'gem',[['gem','Gemeinsam'],['eigen','Eigene (leer)']],false,'dt')+'</div>';
       return row; }).join('')+'</div>';
     return h+'</section>'; }).join('');
   if(form&&form.kind==='pin'&&$('pph')){ var fp=form.pid, mine=fp===R.ich, lk0=R.lock[fp], pl=(R.plen||{})[fp];
@@ -123,6 +126,8 @@ function draw(){ var oid=R.ownerId;
 document.addEventListener('click',function(e){ var t=e.target.closest('button'); if(!t) return; var d=t.dataset;
   if(d.seg){ var k=d.seg.split('|');
     if(d.seg==='kind'){ form.kind=d.val; return draw(); }
+    if(k[1]==='eigen'){ var E=rec[k[0]].eigen, ix=E.indexOf(k[2]);
+      if(d.val==='eigen'&&ix<0) E.push(k[2]); else if(d.val==='gem'&&ix>=0) E.splice(ix,1); setDirty(true); return draw(); }
     if(k[1]==='sicht') rec[k[0]].sicht=d.val; else rec[k[0]].tools[k[1]]=d.val; setDirty(true); return draw(); }
   if(d.sec){ form={pid:d.sec,kind:R.lock[d.sec]||'pin'}; return draw(); }
   if(d.seccancel){ form=null; return draw(); }
@@ -136,7 +141,7 @@ document.addEventListener('click',function(e){ var t=e.target.closest('button');
     if(!confirm('Schutz für '+p.name+' entfernen? Dann kann jede Person auf jedem Gerät „'+p.name+'“ auswählen. Admin-Rechte ruhen ohne Schutz.')) return;
     return req('POST','/api/geheimnis',{pid:d.unsec,neu:''}).then(function(){ toast('Entfernt'); load(); }); }
   if(d.rm){ var q=pers[+d.rm]; if(!confirm(q.name+' entfernen? Zugang und Rechte werden gelöscht; Aufgaben behalten den Namen.')) return; pers.splice(+d.rm,1); delete rec[q.id]; setDirty(true); return draw(); }
-  if(t.id==='add'){ var id='p'+Date.now().toString(36); pers.push({id:id,name:'',kz:'',farbe:'#7D8597'}); rec[id]={admin:false,sicht:'eigene',tools:{}};
+  if(t.id==='add'){ var id='p'+Date.now().toString(36); pers.push({id:id,name:'',kz:'',farbe:'#7D8597'}); rec[id]={admin:false,sicht:'eigene',tools:{},eigen:[]};
     R.apps.forEach(function(a){ rec[id].tools[a.id]=a.familie?'edit':'none'; }); setDirty(true); draw(); var n=document.querySelectorAll('.nm'); n[n.length-1].focus(); return; }
   if(t.id==='undo'){ form=null; return load(); }
   if(t.id==='save'){ var ok=pers.filter(function(p){ return p.name.trim(); }), seen={};
