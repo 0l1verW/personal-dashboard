@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """Erzeugt dashboard/www/bls.json.gz aus dem Bundeslebensmittelschlüssel (BLS) 4.0.
 
-Der BLS wird vom Max Rubner-Institut kostenlos bereitgestellt (https://www.blsdb.de), liegt aber nicht
-im Repo. Excel-Datei dort herunterladen und dann:
+Der BLS wird vom Max Rubner-Institut unter CC BY 4.0 bereitgestellt (https://www.blsdb.de). Ein fertiger
+Auszug liegt bereits im Repo; dieses Skript braucht man nur für eine neuere Version. Excel-Datei herunterladen, dann:
 
     pip install openpyxl
     python3 quellcode/ernaehrung/mkbls.py BLS_4_0.xlsx dashboard/www/bls.json
 
-Es entstehen bls.json und bls.json.gz; der Pi liefert die .gz-Datei aus. Ohne sie funktioniert die
-Ernährung auch, nur ohne die rund 7.000 BLS-Lebensmittel und ohne Vitamine/Mineralstoffe.
+Es entstehen bls.json und bls.json.gz; der Pi liefert die .gz-Datei aus. Bei Änderungen an der Auswahl
+oder Rundung bitte dashboard/www/LICENSE-BLS.txt anpassen (CC BY 4.0 verlangt, Änderungen anzugeben).
 """
 import collections
 import gzip

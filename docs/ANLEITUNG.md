@@ -144,15 +144,17 @@ Den Port **nicht** im Router freigeben: Der Server hat kein HTTPS und ist nicht 
 
 ### Lebensmitteldatenbank (BLS 4.0)
 
-Die Ernährung kennt ohne Zusatz rund 90 Grundlebensmittel. Mit dem **Bundeslebensmittelschlüssel 4.0** des Max Rubner-Instituts kommen rund 7.000 Lebensmittel mit Vitaminen und Mineralstoffen dazu. Die Datenbank ist kostenlos, liegt aber nicht im Repo:
+Neben rund 90 Grundlebensmitteln kennt die Ernährung die rund 7.000 Lebensmittel des **Bundeslebensmittelschlüssels 4.0** (Max Rubner-Institut, Lizenz CC BY 4.0) mit Vitaminen und Mineralstoffen. Der Auszug liegt als `dashboard/www/bls.json.gz` bei und ist nach der Installation sofort da.
 
-1. Excel-Datei des BLS 4.0 von [blsdb.de](https://www.blsdb.de) herunterladen.
+Neuere BLS-Version selbst einspielen:
+
+1. Excel-Datei von [blsdb.de](https://www.blsdb.de) herunterladen.
 2. Auf dem PC:
    ```bash
    pip install openpyxl
    python3 quellcode/ernaehrung/mkbls.py BLS_4_0.xlsx dashboard/www/bls.json
    ```
-3. `dashboard/www/bls.json.gz` auf den Pi bringen, z. B. per `python3 scripts/make_update_zip.py www/bls.json.gz` und `/system`.
+3. Per `python3 scripts/make_update_zip.py www/bls.json.gz` und `/system` auf den Pi bringen.
 
 ### Kalender-Abo (Aufgaben)
 
@@ -184,4 +186,4 @@ Wer lieber auf der Kommandozeile arbeitet: Dienst auf beiden Pis stoppen und den
 | Passwort des Besitzers vergessen | `python3 server.py passwort` im Ordner `dashboard/` auf dem Pi. |
 | Ein Gerät zeigt alte Daten | Seite neu laden. Hilft das nicht: die Website-Daten der Seite im Browser löschen und neu anmelden; der Pi hat den Stand. Vorher prüfen, dass auf dem Gerät nichts Ungesendetes liegt (Etikett unten links). |
 | Update lässt sich nicht einspielen | Die Systemseite nennt den Grund (z. B. Dateien außerhalb von `dashboard/`, Selbsttest fehlgeschlagen). Mit `make_update_zip.py` gebaute ZIPs haben die richtige Form. |
-| Ernährung findet keine BLS-Lebensmittel | `dashboard/www/bls.json.gz` fehlt, siehe Abschnitt 9. |
+| Ernährung findet keine BLS-Lebensmittel | Die Seite muss vom Pi geöffnet sein (nicht als lokale Datei), und `dashboard/www/bls.json.gz` muss da sein, siehe Abschnitt 9. |

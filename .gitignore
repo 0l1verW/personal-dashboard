@@ -4,7 +4,6 @@ dashboard/data/
 
 # Erzeugte bzw. nicht weitergebbare Dateien
 dashboard/www/bls.json
-dashboard/www/bls.json.gz
 pi-update*.zip
 *.zip
 

@@ -1,0 +1,16 @@
+bls.json.gz – Auszug aus dem Bundeslebensmittelschlüssel
+
+Quelle:  Max Rubner-Institut (2025): Bundeslebensmittelschlüssel (BLS), Version 4.0 – Deutsche Nährstoffdatenbank.
+         https://www.blsdb.de
+Lizenz:  Creative Commons Namensnennung 4.0 International (CC BY 4.0)
+         https://creativecommons.org/licenses/by/4.0/deed.de
+Herausgeber: Max Rubner-Institut, Karlsruhe
+
+Änderungen gegenüber dem Original (erzeugt mit quellcode/ernaehrung/mkbls.py):
+- nur Code, Name und 28 der 138 Nährstoffe übernommen (Energie, Makronährstoffe, Ballaststoffe, Zucker, Salz,
+  Alkohol, gesättigte Fettsäuren, Omega-3, 12 Vitamine, 7 Mineralstoffe)
+- Werte gerundet (je nach Größe auf 0 bis 3 Nachkommastellen), Vitamin B6 in eine andere Einheit umgerechnet
+- Angaben unter Nachweis- bzw. Bestimmungsgrenze als 0, fehlende Werte als leer
+- als kompaktes JSON gespeichert und mit gzip komprimiert
+
+Das Max Rubner-Institut ist nicht an diesem Projekt beteiligt und unterstützt es nicht.

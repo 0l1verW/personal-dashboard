@@ -8,10 +8,11 @@ Der Code dieses Repos steht unter der GPL-3.0 (siehe [LICENSE](LICENSE)). Folgen
 | JetBrains Mono (Schrift) | `dashboard/www/fonts/jetbrains-mono-*.woff2` | SIL Open Font License 1.1, [`LICENSE-JetBrainsMono.txt`](dashboard/www/fonts/LICENSE-JetBrainsMono.txt) |
 | Space Grotesk (Schrift) | `dashboard/www/fonts/space-grotesk-*.woff2` | SIL Open Font License 1.1, [`LICENSE-SpaceGrotesk.txt`](dashboard/www/fonts/LICENSE-SpaceGrotesk.txt) |
 | ZXing (Barcode-Erkennung, `@zxing/library`) | `dashboard/www/vendor/zxing.min.js` | Apache License 2.0, [`LICENSE-zxing.txt`](dashboard/www/vendor/LICENSE-zxing.txt) |
+| Bundeslebensmittelschlüssel (BLS) 4.0, Auszug | `dashboard/www/bls.json.gz` | CC BY 4.0, [`LICENSE-BLS.txt`](dashboard/www/LICENSE-BLS.txt) |
 
-## Daten, die nicht im Repo liegen
+## Bundeslebensmittelschlüssel
 
-- **Bundeslebensmittelschlüssel (BLS) 4.0**, Max Rubner-Institut, Karlsruhe (2025). Kostenlos über [blsdb.de](https://www.blsdb.de); wird mit `quellcode/ernaehrung/mkbls.py` lokal in `bls.json.gz` umgewandelt. Für die Nutzung gelten die Bedingungen des Max Rubner-Instituts.
+Quelle: Max Rubner-Institut (2025): Bundeslebensmittelschlüssel (BLS), Version 4.0 – Deutsche Nährstoffdatenbank. [blsdb.de](https://www.blsdb.de), Lizenz [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.de). `bls.json.gz` ist ein bearbeiteter Auszug (28 von 138 Nährstoffen, gerundet); was genau geändert wurde, steht in [`LICENSE-BLS.txt`](dashboard/www/LICENSE-BLS.txt). Erzeugt mit `quellcode/ernaehrung/mkbls.py`. Das Max Rubner-Institut ist an diesem Projekt nicht beteiligt.
 
 ## Inhalte
 

@@ -12,7 +12,7 @@ Ein selbst gehostetes Dashboard für den Raspberry Pi im Heimnetz. Ein kleiner P
 | **Semesterplaner** | Kurse, Termine, Übungsblätter, Zulassung und Klausuren eines Semesters |
 | **Notencockpit** | Noten, ECTS und Schnitt im Studium (Beispiel-Studiengang: BSc Informatik, Uni Tübingen, PO 2021) |
 | **Aufgaben** | gemeinsame Aufgaben der Familie mit Wiederholungen, Wünschen, privaten Aufgaben und Kalender-Abo |
-| **Ernährung** | Essen, Wasser, Gewicht, Bedarf und Ziele; optional mit dem Bundeslebensmittelschlüssel |
+| **Ernährung** | Essen, Wasser, Gewicht, Bedarf und Ziele; mit rund 7.000 Lebensmitteln aus dem Bundeslebensmittelschlüssel |
 | **Haushaltsbuch** | Ausgaben per Schnellzeile, Budgets, Fixkosten, Auswertung |
 | **Training** | Krafttraining mit Vorlagen, Satz- und Pausen-Timer, Fortschritt |
 | **Einkaufsliste** | gemeinsame Liste nach Laden-Bereichen, „Oft gekauft“, CSV-Export |
@@ -69,7 +69,7 @@ Fehler und Ideen gern als Issue. Wie Pull Requests aussehen sollten: [CONTRIBUTI
 
 ## Lizenz
 
-Der Code steht unter der [GNU General Public License v3.0](LICENSE). Mitgelieferte Schriften und Bibliotheken haben eigene Lizenzen, siehe [THIRD_PARTY.md](THIRD_PARTY.md).
+Der Code steht unter der [GNU General Public License v3.0](LICENSE). Mitgelieferte Schriften, Bibliotheken und Daten (BLS 4.0, CC BY 4.0) haben eigene Lizenzen, siehe [THIRD_PARTY.md](THIRD_PARTY.md).
 
 ## Entstehung
 

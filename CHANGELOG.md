@@ -8,6 +8,7 @@ Alle nennenswerten Änderungen. Neueste oben. Das Projekt hat keine Versionsnumm
 - Anleitung (`docs/ANLEITUNG.md`), Entwickler-Doku (`docs/ENTWICKLUNG.md`), Lizenz (GPL-3.0), `CONTRIBUTING.md`, `SECURITY.md`, `THIRD_PARTY.md`.
 - `scripts/build_all.py` (alle Tools bauen bzw. mit `--check` prüfen) und `scripts/make_update_zip.py` (Update-ZIP für `/system`).
 - `quellcode/ernaehrung/mkbls.py`: erzeugt `bls.json.gz` aus dem BLS 4.0.
+- `dashboard/www/LICENSE-BLS.txt`: Quelle, Lizenz (CC BY 4.0) und Änderungen am BLS-Auszug.
 - GitHub: CI-Workflow, Vorlagen für Issues und Pull Requests, `.editorconfig`, `.gitattributes`.
 
 ### Geändert
@@ -15,7 +16,6 @@ Alle nennenswerten Änderungen. Neueste oben. Das Projekt hat keine Versionsnumm
 - Standard-Personen (falls `data/personen.json` fehlt) heißen jetzt Alex, Sam, Kim und Robin.
 
 ### Entfernt
-- `dashboard/www/bls.json.gz` (Auszug aus dem BLS 4.0) liegt nicht mehr im Repo; siehe Anleitung, Abschnitt „Lebensmitteldatenbank“.
 - Veraltete `dashboard/ANLEITUNG.md` (ersetzt durch `docs/ANLEITUNG.md`) und `dashboard/umzug.sh` (einmaliger Umzug von `pi-uni` nach `dashboard`, erledigt).
 
 **Hinweis für bestehende Installationen:** Wer die Personen nie in der Verwaltung gespeichert hat (es gibt keine `data/personen.json`), sollte das vor dem Update einmal tun. Sonst gelten danach die neuen Standard-Personen und vorhandene Anmeldungen passen nicht mehr.
