@@ -13,6 +13,7 @@ Alle nennenswerten Änderungen. Neueste oben. Das Projekt hat keine Versionsnumm
 - GitHub: CI-Workflow, Vorlagen für Issues und Pull Requests, `.editorconfig`, `.gitattributes`.
 
 ### Geändert
+- Skill `rewe-bestellung`: Ist ein Artikel nicht verfügbar, werden bis zu zwei passende Ersatzprodukte vorgeschlagen (Notiz-Vorgaben erfüllt, Grundpreis höchstens etwa 30 % teurer) oder „weglassen“ angeboten; Ersatz wird in der Übersicht markiert.
 - Startdaten des Semesterplaners sind jetzt zwei ausgedachte Beispielkurse; der eingebettete Stand im Notencockpit ist leer.
 - Standard-Personen (falls `data/personen.json` fehlt) heißen jetzt Alex, Sam, Kim und Robin.
 

@@ -1,11 +1,11 @@
 ---
 name: "rewe-bestellung"
-description: "Legt die Einkaufsliste (CSV-Export des Personal Dashboards oder eine Liste) bei REWE online in den Warenkorb und fragt nach, wenn ähnliche Artikel im Angebot sind."
+description: "Legt die Einkaufsliste (CSV-Export des Personal Dashboards oder eine Liste) bei REWE online in den Warenkorb, schlägt Ersatz für Nicht-Verfügbares vor und fragt bei ähnlichen Angeboten nach."
 ---
 
 # REWE-Bestellung aus der Einkaufsliste
 
-Ziel: die Einkaufsliste des Nutzers auf rewe.de in den Warenkorb legen – passend zu Anzahl, Menge und Notiz – und vor jeder Abweichung nachfragen. Besonders: Ist ein **ähnlicher Artikel im Angebot**, wird nicht still getauscht, sondern gefragt, ob das Angebot genommen werden soll.
+Ziel: die Einkaufsliste des Nutzers auf rewe.de in den Warenkorb legen – passend zu Anzahl, Menge und Notiz – und vor jeder Abweichung nachfragen. Besonders: Ist ein **ähnlicher Artikel im Angebot**, wird nicht still getauscht, sondern gefragt, ob das Angebot genommen werden soll. Ist ein Artikel **nicht verfügbar**, wird ein passendes **Ersatzprodukt vorgeschlagen** und gefragt.
 
 ## 1. Eingabe lesen
 
@@ -47,7 +47,7 @@ Zu Beginn kurz bestätigen: „N Artikel gelesen“ – nicht die ganze Liste wi
    - Loses Obst/Gemüse: Stückzahl übernehmen; wird nach Gewicht verkauft, sinnvoll schätzen und in der Übersicht vermerken.
 4. **Angebote prüfen** (siehe Abschnitt 4).
 5. **In den Warenkorb legen** – außer, es gibt eine offene Frage. Dann den Artikel vormerken und mit dem nächsten weitermachen.
-6. **Nicht gefunden oder ausverkauft:** einmal mit einem einfacheren Begriff suchen. Bleibt es dabei, nicht still ersetzen – als Frage vormerken, mit höchstens zwei Vorschlägen.
+6. **Nicht gefunden oder nicht verfügbar:** Ersatz suchen und als Frage vormerken (siehe Abschnitt 4a). Nicht still ersetzen.
 
 ## 4. Angebote: nachfragen statt tauschen
 
@@ -62,6 +62,32 @@ Angebote bei REWE erkennt man an „Angebot“/„Aktion“-Kennzeichen, durchge
 - **Mengenrabatt, der mehr Stück verlangt als gewünscht** (z. B. „2 für 3 €“ bei Anzahl 1): ebenfalls fragen, ob eins mehr genommen werden soll.
 - Gibt es mehrere passende Angebote, nur das günstigste nach Grundpreis anbieten.
 
+## 4a. Nicht verfügbar: Ersatz vorschlagen
+
+Nicht verfügbar heißt: „ausverkauft“, „derzeit nicht verfügbar“, „nicht lieferbar“, ausgegrauter oder fehlender „In den Warenkorb“-Knopf, oder die Suche findet das Wunschprodukt nicht (auch nicht mit einem einfacheren Begriff, z. B. ohne Marke oder Sorte, soweit die `notiz` das zulässt).
+
+**Ersatz suchen:** Bis zu zwei verfügbare Ersatzprodukte heraussuchen, in dieser Rangfolge:
+1. Gleiches Produkt in anderer Packungsgröße, mit der sich Anzahl bzw. Gesamtmenge genauso gut erreichen lässt.
+2. Gleiche Produktart einer anderen Marke bzw. Eigenmarke (REWE Beste Wahl, ja!, REWE Bio) – nur, wenn die `notiz` keine Marke vorschreibt.
+3. Nächstverwandte Sorte (Gouda jung ↔ Gouda mittelalt, Spaghetti ↔ Spaghettoni), nur wenn keine `notiz`-Vorgabe dagegen spricht.
+
+Jeder Vorschlag muss:
+- alle `notiz`-Vorgaben erfüllen (Bio, laktosefrei, vegan, Fettstufe …). Schreibt die `notiz` eine Marke vor, die nicht verfügbar ist: andere Größen/Sorten dieser Marke vorschlagen und als letzten Vorschlag die günstigste passende Alternative anderer Marke – ausdrücklich mit „andere Marke“ gekennzeichnet.
+- verfügbar sein (Knopf „In den Warenkorb“ aktiv).
+- nicht deutlich teurer nach Grundpreis sein (etwa +30 %); ist nichts Günstigeres da, den Aufpreis nennen.
+- Ist ein Ersatz gerade im Angebot, das dazuschreiben; bei sonst gleich guten Vorschlägen den günstigeren nach Grundpreis zuerst.
+
+Findet sich kein sinnvoller Ersatz (z. B. nur ganz andere Produkte), nicht raten: in der Frage nur „weglassen“ anbieten bzw. direkt auf die Liste „nicht bestellt“ setzen mit Grund „nicht verfügbar, kein passender Ersatz“.
+
+**Frage** (wird mit den Angebots-Fragen gesammelt), z. B. „Hafermilch Oatly Barista – nicht verfügbar. Ersatz?“ mit den Optionen
+- „Ersatz: Alpro Barista Hafer 1 l – 2,29 € (2,29 €/l)“
+- „Ersatz: REWE Bio Haferdrink Barista 1 l – 1,49 € (1,49 €/l) – andere Marke“
+- „Weglassen“
+
+Die Mengenangabe beim Ersatz an `anzahl`/`gesamtmenge` anpassen und in der Option nennen, wenn sie vom Original abweicht (z. B. „2 × 250 g statt 1 × 500 g“).
+
+Wird ein Artikel erst **im Warenkorb oder beim Lieferzeitfenster** als nicht verfügbar markiert, genauso vorgehen: Ersatz suchen, fragen, dann tauschen.
+
 **Fragen sammeln, nicht einzeln unterbrechen.** Erst alle eindeutigen Artikel einlegen, dann alle Fragen auf einmal stellen:
 
 - Mit dem Fragen-Werkzeug (AskUserQuestion, höchstens 4 Fragen pro Aufruf, bei Bedarf mehrere Runden). Je Artikel eine Frage, z. B. „Milch laktosefrei – Angebot nehmen?“ mit den Optionen
@@ -70,7 +96,7 @@ Angebote bei REWE erkennt man an „Angebot“/„Aktion“-Kennzeichen, durchge
 - Ohne Fragen-Werkzeug: eine kurze nummerierte Liste im Chat, Antwort z. B. „1A 2B 3A“.
 - Gilt ein Angebot nur bis zu einem Datum oder nur mit REWE-Bonus/App, das dazuschreiben.
 
-Danach die Antworten umsetzen und die vorgemerkten Artikel einlegen.
+Danach die Antworten umsetzen und die vorgemerkten Artikel einlegen. Gewählte Ersatzprodukte in der Übersicht unter „Hinweis“ als „Ersatz für …“ markieren; bei „Weglassen“ den Artikel auf die Liste „nicht bestellt“ setzen.
 
 ## 5. Warenkorb prüfen und abschließen
 
@@ -80,7 +106,9 @@ Danach die Antworten umsetzen und die vorgemerkten Artikel einlegen.
 | Nr | Artikel | Im Warenkorb | Anzahl | Preis | Angebot | Hinweis |
 |---|---|---|---|---|---|---|
 
-   Dazu Summe, ggf. Mindestbestellwert und Liefer-/Servicegebühr, wie REWE sie anzeigt, und eine Liste „nicht bestellt“ mit Grund.
+   Dazu Summe, ggf. Mindestbestellwert und Liefer-/Servicegebühr, wie REWE sie anzeigt, und eine Liste „nicht bestellt“ mit Grund (z. B. „nicht verfügbar, Ersatz abgelehnt“).
+
+   Ersatzprodukte gelten als bestellt – sie bleiben beim Abhaken in der Einkaufsliste angehakt.
 3. **Nicht selbst bestellen.** Kein Zahlungsweg wählen, keine Zahlungsdaten eingeben, nicht „Zahlungspflichtig bestellen“ klicken. Der Nutzer prüft und schickt die Bestellung ab. Nur wenn er es in diesem Gespräch ausdrücklich verlangt: Lieferzeitfenster und Gesamtsumme in einer Frage bestätigen lassen, dann den letzten Klick machen – Zahlungsdaten trotzdem nie eingeben oder ändern.
 4. Am Ende erinnern: In der Einkaufsliste „Export für Online-Bestellung“ öffnen, bei allem, was nicht bestellt wurde (Liste „nicht bestellt“ oder vom Nutzer aus dem Warenkorb entfernt), das Häkchen entfernen und dann „… als bestellt abhaken“ klicken. Die nicht bestellten Artikel namentlich nennen.
 

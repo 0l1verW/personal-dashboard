@@ -49,7 +49,7 @@ ESSEN1 [{"t":"Reis, gekocht","g":180,"kcal":230,"p":4.7,"kh":50.4,"f":0.5,"sfa":
 
 ## Einkaufsliste → REWE-Warenkorb
 
-**Ablauf:** In der Einkaufsliste *Export für Online-Bestellung* öffnen, Artikel auswählen, „CSV herunterladen“ oder „CSV kopieren“. Die Datei bzw. den Text an Claude geben („Bestell das bei REWE“). Claude öffnet rewe.de im Browser, legt alles in den Warenkorb und fragt gesammelt nach, wenn ein ähnlicher Artikel im Angebot ist oder etwas fehlt. **Anmelden, Bezahlen und Abschicken bleiben beim Nutzer**; der Skill gibt nie Zahlungsdaten ein. Danach im selben Export-Blatt die Häkchen bei nicht Bestelltem entfernen und den Rest „als bestellt abhaken“.
+**Ablauf:** In der Einkaufsliste *Export für Online-Bestellung* öffnen, Artikel auswählen, „CSV herunterladen“ oder „CSV kopieren“. Die Datei bzw. den Text an Claude geben („Bestell das bei REWE“). Claude öffnet rewe.de im Browser, legt alles in den Warenkorb und fragt gesammelt nach, wenn ein ähnlicher Artikel im Angebot ist. Ist etwas nicht verfügbar, schlägt Claude bis zu zwei passende Ersatzprodukte vor (Vorgaben aus der Notiz bleiben erfüllt) oder bietet „weglassen“ an; getauscht wird erst nach Rückfrage. **Anmelden, Bezahlen und Abschicken bleiben beim Nutzer**; der Skill gibt nie Zahlungsdaten ein. Danach im selben Export-Blatt die Häkchen bei nicht Bestelltem entfernen und den Rest „als bestellt abhaken“.
 
 Voraussetzung: Claude kann einen Browser steuern (z. B. Claude in Chrome oder der eingebaute Browser der Desktop-App).
 
