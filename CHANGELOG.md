@@ -14,6 +14,8 @@ Alle nennenswerten Änderungen. Neueste oben. Das Projekt hat keine Versionsnumm
 - GitHub: CI-Workflow, Vorlagen für Issues und Pull Requests, `.editorconfig`, `.gitattributes`.
 
 ### Geändert
+- Aufgaben: „Hinzufügen“ (und Enter) öffnet jetzt gleich das Detailblatt mit Titel und Kürzeln aus der Eingabe; eingetragen wird mit „Eintragen“. Der eigene „Details“-Knopf entfällt.
+- Einkaufsliste: Ein einzelner Artikel öffnet beim Eintragen gleich das Blatt mit Menge, Notiz und Bereich; mehrere Artikel mit Komma und „Oft gekauft“ tragen weiter sofort ein. Steht der Artikel schon auf der Liste, öffnet sein Blatt.
 - Skill `rewe-bestellung`: Ist ein Artikel nicht verfügbar, werden bis zu zwei passende Ersatzprodukte vorgeschlagen (Notiz-Vorgaben erfüllt, Grundpreis höchstens etwa 30 % teurer) oder „weglassen“ angeboten; Ersatz wird in der Übersicht markiert.
 - Startdaten des Semesterplaners sind jetzt zwei ausgedachte Beispielkurse; der eingebettete Stand im Notencockpit ist leer.
 - Standard-Personen (falls `data/personen.json` fehlt) heißen jetzt Alex, Sam, Kim und Robin.

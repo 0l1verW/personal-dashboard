@@ -11,7 +11,8 @@ function wdhFrom(k,t){ const old=t.wdh||{};
   return M[k]?{...M[k],basis:old.basis||'termin',rot:old.rot||[]}:null; }
 function openTask(id,ask){ const t=D.tasks[id]; if(!t||t.del) return; sheet={m:'task',id,t:JSON.parse(JSON.stringify(t)),dirty:false}; markSeen(id); drawSheet(); show(); render();
   if(ask) setTimeout(()=>{ const c=$('cmt'); if(c){ c.focus(); c.scrollIntoView({block:'center'}); } },60); }
-function openNew(r){ if(!canEdit()) return; const t=newTask(r||parse(qa)); sheet={m:'task',id:null,t,dirty:true,isNew:true}; drawSheet(); show(); setTimeout(()=>{ const i=$('tTit'); if(i&&!i.value) i.focus(); },60); }
+function openNew(r){ if(!canEdit()) return; const fromQa=!r; if(document.activeElement&&document.activeElement.id==='qa') document.activeElement.blur();   // Hinzufügen öffnet immer gleich die Details, Kürzel aus der Eingabe sind schon gesetzt
+  const t=newTask(r||parse(qa)); sheet={m:'task',id:null,t,dirty:false,isNew:true,fromQa}; drawSheet(); show(); setTimeout(()=>{ const i=$('tTit'); if(i&&!i.value) i.focus(); },60); }
 function show(){ $('ov').classList.add('show'); }
 function closeSheet(force){ if(!force&&sheet&&sheet.m==='task'&&sheet.dirty&&!confirm(sheet.isNew?'Die neue Aufgabe verwerfen?':'Änderungen verwerfen?')) return; if(sheet&&sheet.m==='who'&&!me) return;
   sheet=null; $('ov').classList.remove('show'); render(); }
@@ -79,7 +80,7 @@ function readForm(){ const s=sheet; if(!s||s.m!=='task') return; const t=s.t, v=
 function saveTask(){ readForm(); const s=sheet, t=s.t; if(!t.titel){ toast('Bitte einen Titel eingeben'); return; }
   if(t.wdh&&!t.due) t.due=firstDue(t.wdh); t.check=(t.check||[]).filter(c=>c.t.trim());
   if(!privOk(t)) t.privat=false;
-  if(s.isNew){ t.status=wishRule(t.fuer)?'neu':'offen'; put('tasks',t); note(t.id,t.status==='neu'?'hat sich das gewünscht':'hat eingetragen',true); }
+  if(s.isNew){ t.status=wishRule(t.fuer)?'neu':'offen'; put('tasks',t); if(s.fromQa) qa=''; note(t.id,t.status==='neu'?'hat sich das gewünscht':'hat eingetragen',true); }
   else { const o=D.tasks[s.id], ch=[]; [['titel','Titel'],['notiz','Notiz'],['due','Datum'],['zeit','Uhrzeit'],['prio','Wichtig'],['fuer','Für'],['liste','Liste']].forEach(([k,l])=>{ if(String(o[k]??'')!==String(t[k]??'')) ch.push(l); });
     if(JSON.stringify(o.wdh)!==JSON.stringify(t.wdh)) ch.push('Wiederholung'); if(JSON.stringify(o.check)!==JSON.stringify(t.check)) ch.push('Checkliste');
     if(!!o.privat!==!!t.privat) ch.push('Privat');
@@ -95,8 +96,7 @@ function goWho(){ if(window.__PI_SYNC){ location.href='/anmelden?z='+encodeURICo
 document.addEventListener('click',e=>{
   const b=e.target.closest('button,[data-v]'); if(!b||b.disabled) return; const ds=b.dataset;
   if(ds.v){ view=ds.v; curList=null; laterAll=false; if(sheet) closeSheet(true); try{ localStorage.setItem('aufg_view2',view); }catch(_){} render(); return scrollTo(0,0); }
-  if(ds.qadd) return addQuick();
-  if(ds.new){ openNew(); return; }
+  if(ds.new||ds.qadd){ openNew(); return; }
   if(ds.wen){ wen=ds.wen; try{ localStorage.setItem('aufg_wen',wen); }catch(_){} return render(); }
   if(ds.day) return scrollToDay(ds.day);
   if(ds.news){ newsOpen=!newsOpen; return render(); }
@@ -165,7 +165,8 @@ document.addEventListener('change',e=>{ const el=e.target;
 });
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&sheet) return closeSheet();
-  if(e.key==='Enter'&&e.target.id==='qa'){ e.preventDefault(); addQuick(); }
+  if(e.key==='Enter'&&e.target.id==='qa'){ e.preventDefault(); openNew(); }
+  if(e.key==='Enter'&&e.target.id==='tTit'&&sheet&&sheet.isNew){ e.preventDefault(); saveTask(); }
   if(e.key==='Enter'&&e.target.id==='clNew'){ e.preventDefault(); const b=document.querySelector('[data-cladd]'); if(b) b.click(); }
   if(e.key==='Enter'&&e.target.id==='lNew'){ e.preventDefault(); const b=document.querySelector('[data-ladd]'); if(b) b.click(); }
   if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)&&e.target.id==='cmt'){ e.preventDefault(); const b=document.querySelector('[data-cmt]'); if(b) b.click(); }

@@ -99,8 +99,8 @@ function qaPreview(){ const L=parseAll(qa);
 /* ---------- Ändern ---------- */
 function addItems(L){ if(!canEdit()||!L.length) return; const added=[], dup=[];
   L.forEach(r=>{ const ex=offen().find(i=>norm(i.name)===norm(r.name));
-    if(ex){ if(r.menge||r.notiz){ if(r.menge) ex.menge=r.menge; if(r.notiz) ex.notiz=r.notiz; put('items',ex); added.push(ex.id); } else dup.push(ex); return; }   // steht schon drauf
-    const ber=guessBer(r.name);
+    if(ex){ if(r.menge||r.notiz||(r.ber&&r.ber!==ex.ber)){ if(r.menge) ex.menge=r.menge; if(r.notiz) ex.notiz=r.notiz; if(r.ber&&BL[r.ber]) ex.ber=r.ber; put('items',ex); added.push(ex.id); } else dup.push(ex); return; }   // steht schon drauf
+    const ber=r.ber&&BL[r.ber]?r.ber:guessBer(r.name);
     const it=put('items',{id:uid('i'),name:r.name,menge:r.menge||'',notiz:r.notiz||'',ber,von:me||'',erst:Date.now(),status:'offen'});
     const aid=artId(r.name), a=D.arts[aid]&&!D.arts[aid].del?D.arts[aid]:{id:aid,n:0,last:0};
     put('arts',{...a,name:r.name,ber}); added.push(it.id); });
@@ -195,16 +195,17 @@ function render(){ if(!D) return; const O=offen(), W=imWagen(), G=gekaufte(), ed
 function openSheet(s){ sheet=s; drawSheet(); $('ov').classList.add('show'); }
 function closeSheet(){ sheet=null; $('ov').classList.remove('show'); render(); }
 function drawSheet(){ const s=sheet, d=$('dlg'); if(!s) return;
-  if(s.m==='edit'){ const it=D.items[s.id]; if(!it||it.del) return closeSheet(); const b=s.ber||it.ber;
-    d.innerHTML=`<div class="dh"><h3 id="dlgT">${esc(it.name)}</h3><button class="x" data-close="1" aria-label="Schließen">×</button></div>
+  if(s.m==='edit'){ const neu=!s.id, it=neu?s.neu:D.items[s.id]; if(!it||it.del) return closeSheet(); const b=s.ber||it.ber;
+    d.innerHTML=`<div class="dh"><h3 id="dlgT">${neu?'Neuer Artikel':esc(it.name)}</h3><button class="x" data-close="1" aria-label="Schließen">×</button></div>
     <div class="db">
       <div class="fs"><label class="lt" for="eN">Artikel</label><input class="in" id="eN" value="${esc(it.name)}"></div>
       <div class="two"><div class="fs"><label class="lt" for="eM">Menge</label><input class="in" id="eM" value="${esc(it.menge)}" placeholder="z. B. 2×"></div>
         <div class="fs"><label class="lt" for="eT">Notiz</label><input class="in" id="eT" value="${esc(it.notiz)}" placeholder="z. B. laktosefrei"></div></div>
       <div class="fs"><span class="lt">Bereich im Laden</span><div class="fl">${D.set.order.map(k=>`<button class="opt" data-ber="${k}" aria-pressed="${b===k}">${esc(BL[k])}</button>`).join('')}</div></div>
-      <p class="note">Eingetragen von ${esc(it.von===me?'dir':pName(it.von))} · ${esc(fT(it.erst||it.upd))}${it.status==='gekauft'?`<br>Gekauft von ${esc(it.gekauftVon===me?'dir':pName(it.gekauftVon))} · ${esc(fT(it.gekauftAm))}`:''}<br>Der Bereich gilt künftig auch, wenn „${esc(it.name)}“ wieder eingetragen wird.</p>
+      ${neu?`<p class="note">Der Bereich wird gemerkt und gilt künftig auch, wenn „${esc(it.name)}“ wieder eingetragen wird.</p>`:`<p class="note">${s.dup?'Steht schon auf der Liste. ':''}Eingetragen von ${esc(it.von===me?'dir':pName(it.von))} · ${esc(fT(it.erst||it.upd))}${it.status==='gekauft'?`<br>Gekauft von ${esc(it.gekauftVon===me?'dir':pName(it.gekauftVon))} · ${esc(fT(it.gekauftAm))}`:''}<br>Der Bereich gilt künftig auch, wenn „${esc(it.name)}“ wieder eingetragen wird.</p>`}
     </div>
-    <div class="df"><button class="btn dng" data-del="1">Löschen</button><span class="sp"></span>${it.status==='gekauft'?'<button class="btn" data-back="1">Wieder auf die Liste</button>':''}<button class="btn pri" data-save="1">Speichern</button></div>`; return; }
+    <div class="df">${neu?'':'<button class="btn dng" data-del="1">Löschen</button>'}<span class="sp"></span>${!neu&&it.status==='gekauft'?'<button class="btn" data-back="1">Wieder auf die Liste</button>':''}<button class="btn pri" data-save="1">${neu?'Eintragen':'Speichern'}</button></div>`;
+    if(neu||s.dup) setTimeout(()=>{ const m=$('eM'); if(m&&innerWidth>640&&!m.value){ m.focus(); } },60); return; }
   if(s.m==='exp'){ const A=expAlle(), W=expWahl(), t=expCsv(), leer=!W.length?' disabled':'';
     d.innerHTML=`<div class="dh"><h3 id="dlgT">Export für Online-Bestellung</h3><button class="x" data-close="1" aria-label="Schließen">×</button></div>
     <div class="db"><p class="note">Die ausgewählten Artikel als CSV – in Laden-Reihenfolge, mit Anzahl, Menge und Notiz. Datei oder Text an Claude geben und sagen: <b>„Bestell das bei REWE“</b>. Der Assistent legt alles in den Warenkorb, fragt bei ähnlichen Artikeln im Angebot nach und schickt die Bestellung nicht selbst ab.</p>
@@ -221,14 +222,21 @@ function drawSheet(){ const s=sheet, d=$('dlg'); if(!s) return;
       <div><button class="btn sm" data-ordreset="1">Standard-Reihenfolge</button></div>
       <p class="note">Abgehakte Artikel bleiben 24 Stunden unter „Im Wagen“ und lassen sich dort zurückholen. Nach 7 Tagen räumt die Liste sie selbst weg. Was oft gekauft wird, erscheint oben als Vorschlag.</p></div>`; return; }
 }
-function saveEdit(){ const it=D.items[sheet.id]; if(!it) return; const n=$('eN').value.trim(); if(!n){ toast('Bitte einen Namen eingeben'); return; }
+function saveEdit(){ const n=$('eN').value.trim(); if(!n){ toast('Bitte einen Namen eingeben'); return; }
+  if(!sheet.id){ const b=sheet.ber||sheet.neu.ber; sheet=null; $('ov').classList.remove('show'); qa='';
+    addItems([{name:n.charAt(0).toUpperCase()+n.slice(1),menge:$('eM').value.trim(),notiz:$('eT').value.trim(),ber:b}]); return; }
+  const it=D.items[sheet.id]; if(!it) return;
   const b=sheet.ber||it.ber; it.name=n.charAt(0).toUpperCase()+n.slice(1); it.menge=$('eM').value.trim(); it.notiz=$('eT').value.trim(); it.ber=b; put('items',it);
   const aid=artId(it.name), a=D.arts[aid]&&!D.arts[aid].del?D.arts[aid]:{id:aid,n:0,last:0}; put('arts',{...a,name:it.name,ber:b});   // Bereich merken
   save(); closeSheet(); toast('Gespeichert'); }
 
 /* ---------- Ereignisse ---------- */
 document.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b||b.disabled) return; const ds=b.dataset;
-  if(ds.add){ const L=parseAll(qa); if(!L.length){ toast('Bitte eintippen, was fehlt'); const q=$('qa'); if(q) q.focus(); return; } qa=''; addItems(L); const q=$('qa'); if(q&&innerWidth>640) q.focus(); return; }
+  if(ds.add){ const L=parseAll(qa); if(!L.length){ toast('Bitte eintippen, was fehlt'); const q=$('qa'); if(q) q.focus(); return; }
+    if(L.length===1){ const r=L[0], ex=offen().find(i=>norm(i.name)===norm(r.name)); if(document.activeElement) document.activeElement.blur();   // ein Artikel: gleich die Details zeigen
+      if(ex){ qa=''; openSheet({m:'edit',id:ex.id,dup:1}); if(r.menge) $('eM').value=r.menge; if(r.notiz) $('eT').value=r.notiz; return; }
+      return openSheet({m:'edit',id:null,neu:{name:r.name,menge:r.menge||'',notiz:r.notiz||'',ber:guessBer(r.name),von:me||''}}); }
+    qa=''; addItems(L); const q=$('qa'); if(q&&innerWidth>640) q.focus(); return; }
   if(ds.oft) return addItems([{name:ds.oft,menge:'',notiz:''}]);
   if(ds.tick) return tick(ds.tick);
   if(ds.edit) return openSheet({m:'edit',id:ds.edit});
@@ -247,7 +255,7 @@ document.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b
   if(sheet.m==='edit'){
     if(ds.ber){ const keep={n:$('eN').value,m:$('eM').value,t:$('eT').value}; sheet.ber=ds.ber; drawSheet(); $('eN').value=keep.n; $('eM').value=keep.m; $('eT').value=keep.t; return; }
     if(ds.save) return saveEdit();
-    if(ds.del){ const it=D.items[sheet.id]; rm('items',sheet.id); save(); closeSheet(); return toast(`„${it.name}“ gelöscht`); }
+    if(ds.del&&sheet.id){ const it=D.items[sheet.id]; rm('items',sheet.id); save(); closeSheet(); return toast(`„${it.name}“ gelöscht`); }
     if(ds.back){ const id=sheet.id; closeSheet(); return tick(id); }
   }
   if(sheet.m==='set'){ const O=D.set.order;

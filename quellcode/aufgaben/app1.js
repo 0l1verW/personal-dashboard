@@ -164,7 +164,3 @@ function newTask(r){ const fuer=r.fuer||(wen!=='me'&&wen!=='alle'&&wen!=='von'&&
     wdh:r.wdh||null,check:r.check||[],status:wishRule(fuer)?'neu':'offen',erst:Date.now(),erstVon:me};
   t.privat=privOk(t);   // für sich selbst eingetragen → standardmäßig privat (Entscheidung Grill-Runde, Abschnitt 5)
   return t; }
-function addQuick(){ if(!canEdit()) return; const r=parse(qa); if(!r.titel){ toast('Bitte einen Titel eingeben'); return; }
-  const t=put('tasks',newTask(r)); note(t.id,t.status==='neu'?'hat sich das gewünscht':'hat eingetragen',true); qa=''; save(); render();
-  toast(t.status==='neu'?`Wunsch an ${pName(t.fuer)} geschickt`:'Eingetragen'+(isPriv(t)?' (privat)':'')+(t.due?' · '+fDue(t.due):''),()=>{ rm('tasks',t.id); save(); render(); });
-  const q=$('qa'); if(q) q.focus(); }
