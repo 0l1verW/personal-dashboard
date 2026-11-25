@@ -106,10 +106,15 @@ function recipeFrom(items,name){ return {id:null,name:name||'',portionen:1,gesam
 
 /* ---------- Ereignisse ---------- */
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-v],[data-day],[data-add],[data-ent],[data-blk],[data-bcopy],[data-brec],[data-bdel],[data-dcopy],[data-water],[data-sugg],[data-rng],[data-apply],[data-keep],[data-ftab],[data-fnew],[data-fedit],[data-fdel],[data-fcopy],[data-redit],[data-rdel],[data-phase],[data-close],[data-stab],[data-quick],[data-quickgo],[data-back],[data-pick],[data-pg],[data-toplate],[data-direct],[data-prm],[data-prec],[data-commit],[data-fsave],[data-esave],[data-edel],[data-edup],[data-zrm],[data-rsave],[data-exp],[data-imp],[data-finfo],[data-scan],[data-bmove],[data-burn],[data-burnrm],[data-stil],[data-tp],[data-health],[data-hneu],[data-hcopy],[data-mikauf]');
+  const t=e.target.closest('[data-v],[data-day],[data-add],[data-ent],[data-blk],[data-bcopy],[data-brec],[data-bdel],[data-dcopy],[data-water],[data-sugg],[data-rng],[data-apply],[data-keep],[data-ftab],[data-fnew],[data-fedit],[data-fdel],[data-fcopy],[data-redit],[data-rdel],[data-phase],[data-close],[data-stab],[data-quick],[data-quickgo],[data-back],[data-pick],[data-pg],[data-toplate],[data-direct],[data-prm],[data-prec],[data-commit],[data-fsave],[data-esave],[data-edel],[data-edup],[data-zrm],[data-rsave],[data-exp],[data-imp],[data-finfo],[data-scan],[data-bmove],[data-burn],[data-burnrm],[data-stil],[data-tp],[data-health],[data-hneu],[data-hcopy],[data-mikauf],[data-tkrm],[data-tkadd],[data-tkstd]');
   if(!t) return; const ds=t.dataset;
   if(ds.v){ view=ds.v; openBlk=null; try{ localStorage.setItem('er_view',view); }catch(_){} render(); return scrollTo(0,0); }
   if(ds.mikauf){ mikAuf=!mikAuf; try{ localStorage.setItem('essen_mikro_auf',mikAuf?'1':'0'); }catch(_){} render(); const b=document.querySelector('[data-mikauf]'); if(b) b.focus({preventScroll:true}); return; }   // Vitamine & Mineralstoffe auf-/zuklappen (nur dieses Gerät)
+  if(ds.tkrm){ const v=+ds.tkrm, a=trinkKn().filter(x=>x!==v); if(!a.length){ toast('Mindestens ein Knopf bleibt'); return; } setS(s=>{ s.trinkKn=a; }); render(); return toast(`Knopf ${fMl(v)} entfernt`); }
+  if(ds.tkadd){ const i=$('tkIn'), v=Math.round(num(i.value)||0); if(!(v>0&&v<=5000)){ toast('Menge in ml eintragen (1–5000)'); i.focus(); return; }
+    const a=trinkKn(); if(a.includes(v)){ toast(`${fMl(v)} gibt es schon`); return; } if(a.length>=TRINK_MAX){ toast(`Höchstens ${TRINK_MAX} Knöpfe`); return; }
+    setS(s=>{ s.trinkKn=[...a,v].sort((x,y)=>x-y); }); render(); const n=$('tkIn'); if(n) n.focus({preventScroll:true}); return toast(`Knopf ${fMl(v)} hinzugefügt`); }
+  if(ds.tkstd){ setS(s=>{ s.trinkKn=TRINK_STD.slice(); }); render(); return toast('Trink-Knöpfe zurückgesetzt'); }
   if(ds.day!=null){ day=ds.day==='0'?today():kAdd(day,+ds.day); openBlk=null; return render(); }
   if(ds.add!=null) return openAdd(ds.add||undefined);
   if(ds.ent){ sheet={m:'edit',id:ds.ent}; drawSheet(); $('ov').classList.add('show'); return; }
@@ -211,6 +216,7 @@ let fqT; document.addEventListener('input',e=>{ const el=e.target;
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&sheet) return closeSheet();
   if(e.key==='Enter'&&(e.target.id==='bIn'||e.target.id==='bNm')){ e.preventDefault(); const b=document.querySelector('[data-burn]'); if(b) b.click(); }
+  if(e.key==='Enter'&&e.target.id==='tkIn'){ e.preventDefault(); const b=document.querySelector('[data-tkadd]'); if(b) b.click(); }
   if(e.key==='Enter'&&e.target.id==='wIn'){ e.preventDefault(); const b=document.querySelector('[data-water="x"]'); if(b) b.click(); }
   if(e.key==='Enter'&&e.target.id==='gIn'){ e.preventDefault(); const b=document.querySelector('[data-toplate]'); if(b) b.click(); }
   if(e.key==='Enter'&&e.target.id==='q'&&sheet){ e.preventDefault(); const R=search(sheet.q,sheet.tab); if(R.length===1||(/^\d{8,14}$/.test(sheet.q.trim())&&R.length)){ sheet.open=R[0].id; sheet.g=defG(R[0]); drawRes(); const g=$('gIn'); if(g){ g.focus(); g.select(); } } else if(!R.length&&/^\d{8,14}$/.test(sheet.q.trim())){ const b=document.querySelector('[data-fnew="ean"]'); if(b) b.click(); } }

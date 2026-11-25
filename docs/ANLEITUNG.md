@@ -156,6 +156,10 @@ Neuere BLS-Version selbst einspielen:
    ```
 3. Per `python3 scripts/make_update_zip.py www/bls.json.gz` und `/system` auf den Pi bringen.
 
+### Trink-Knöpfe (Ernährung)
+
+Unter *Tag* trägt ein Knopf die Menge direkt als Getränk ein. Welche Knöpfe es gibt, stellst du unter *Ziele → Tagesziele → Trink-Knöpfe* ein: Menge in ml eingeben und *+ Knopf* tippen, mit × entfernen, *Standard* stellt 250 ml, 500 ml, 750 ml und 1 l wieder her. Bis zu 6 Knöpfe; andere Mengen gehen weiter über das ml-Feld. Die Einstellung gilt auf allen Geräten.
+
 ### Kalender-Abo (Aufgaben)
 
 Aufgaben → Einstellungen → *Kalender-Abo*. Die Adresse (`…/aufgaben.ics` oder je Person) in iOS unter *Einstellungen → Apps → Kalender → Kalender-Accounts → Account hinzufügen → Andere → Kalenderabo hinzufügen* eintragen. Offene Aufgaben mit Datum erscheinen mit Erinnerung. Das funktioniert nur im Heimnetz bzw. über das VPN. Private Aufgaben erscheinen nur im eigenen Kalender.

@@ -40,7 +40,7 @@ const fDur=min=>{ min=Math.max(0,Math.round(min)); const h=Math.floor(min/60); r
 
 /* ---------- Zustand ---------- */
 const DEFSET=()=>({upd:0,ziele:{kcal:2500,p:140,kh:300,f:80,bal:30,wasser:2500,sfa:0},profil:{sex:'',alter:null,cm:null,akt:1.55},   // sfa: Obergrenze in g, 0 = automatisch 10 % der Kalorien
-  phase:{art:'halten',tempo:0.25,ab:today(),zielKg:null},phasen:[],fasten:{on:false,h:16},checkin:null,mikro:false,sport:1,makro:{stil:'ausgewogen',pkg:null}});   // sport: Anteil der Sport-Kalorien, der aufs Tagesziel kommt (1 | 0.5 | 0)
+  phase:{art:'halten',tempo:0.25,ab:today(),zielKg:null},phasen:[],fasten:{on:false,h:16},checkin:null,mikro:false,sport:1,makro:{stil:'ausgewogen',pkg:null},trinkKn:[250,500,750,1000]});   // trinkKn: Schnellknöpfe fürs Trinken in ml (unter Ziele änderbar)   // sport: Anteil der Sport-Kalorien, der aufs Tagesziel kommt (1 | 0.5 | 0)
 let fq='', D, view='heute', day=today(), sheet=null, openBlk=null, rng=7, foodTab='eigen', lastTheme=null;
 function normalize(x){ TD=null;
   x=x&&typeof x==='object'&&!Array.isArray(x)?x:{};
@@ -109,6 +109,10 @@ function sfaOf(L){ let v=0, fk=0, ft=0; L.forEach(e=>{ const n=e.n||{}, f=+n.f||
     if(s==null&&e.ref&&e.g>0){ const fd=food(e.ref); if(fd&&fd.je100&&fd.je100.sfa!=null) s=fd.je100.sfa*e.g/100; }
     ft+=f; if(s!=null){ v+=s; fk+=f; } }); return {v:r1(v),cov:ft>0?fk/ft:1,ft}; }
 const sfaMax=()=>+G().sfa>0?+G().sfa:Math.round(G().kcal*0.1/9);
+/* Trink-Knöpfe: aufsteigend, ohne Doppelte, 1–5000 ml, höchstens 6; leer → Standard */
+const TRINK_STD=[250,500,750,1000], TRINK_MAX=6;
+const trinkKn=()=>{ const a=[...new Set((Array.isArray(D.set.trinkKn)?D.set.trinkKn:[]).map(v=>Math.round(+v)).filter(v=>v>0&&v<=5000))].sort((x,y)=>x-y).slice(0,TRINK_MAX); return a.length?a:TRINK_STD.slice(); };
+const fMl=v=>v>=1000?fmt(v/1000,2)+' l':fmt(v)+' ml';
 const waterSum=k=>waterOn(k).reduce((t,w)=>t+(+w.ml||0),0)+drinkMl(k);
 function addEntries(items,k,zeit){ items.forEach(it=>put('log',{id:uid('e'),datum:k,zeit,ref:it.ref||null,name:it.name,g:r1(it.g),n:it.n,quelle:it.quelle||'',...(it.fl?{fl:1}:{})})); USE=null; save(); }
 function suggestions(k){ const ref=k===today()?hm2min(nowHM()):12*60, since=kAdd(k,-30), have=new Set(entriesOn(k).map(e=>e.ref)), c={};
