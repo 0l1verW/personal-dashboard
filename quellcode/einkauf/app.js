@@ -97,13 +97,20 @@ function qaPreview(){ const L=parseAll(qa);
   return L.map(r=>`<span class="pc">${esc(r.name)}${r.menge?' · '+esc(r.menge):''} <i>→ ${esc(BL[guessBer(r.name)])}</i></span>`).join(''); }
 
 /* ---------- Ändern ---------- */
+/* Pro Artikel gemerkt (D.arts): Bereich, Marke, „andere Marke ok“ und Notiz vom letzten Mal. Aus dem Blatt kommt alles ausdrücklich (r.blatt),
+   bei Schnelleingabe und „Oft gekauft“ wird Fehlendes aus dem Gemerkten ergänzt. */
+const artOf=name=>{ const a=D.arts[artId(name)]; return a&&!a.del?a:null; };
+function merke(it){ const aid=artId(it.name), a=artOf(it.name)||{id:aid,n:0,last:0};
+  put('arts',{...a,name:it.name,ber:it.ber,marke:it.marke||'',mok:!!it.mok,notiz:it.notiz||''}); }
 function addItems(L){ if(!canEdit()||!L.length) return; const added=[], dup=[];
   L.forEach(r=>{ const ex=offen().find(i=>norm(i.name)===norm(r.name));
-    if(ex){ if(r.menge||r.notiz||(r.ber&&r.ber!==ex.ber)){ if(r.menge) ex.menge=r.menge; if(r.notiz) ex.notiz=r.notiz; if(r.ber&&BL[r.ber]) ex.ber=r.ber; put('items',ex); added.push(ex.id); } else dup.push(ex); return; }   // steht schon drauf
-    const ber=r.ber&&BL[r.ber]?r.ber:guessBer(r.name);
-    const it=put('items',{id:uid('i'),name:r.name,menge:r.menge||'',notiz:r.notiz||'',ber,von:me||'',erst:Date.now(),status:'offen'});
-    const aid=artId(r.name), a=D.arts[aid]&&!D.arts[aid].del?D.arts[aid]:{id:aid,n:0,last:0};
-    put('arts',{...a,name:r.name,ber}); added.push(it.id); });
+    if(ex){ const ch=r.blatt?['menge','notiz','marke','mok','dr','ber'].some(k=>r[k]!==undefined&&String(r[k]||'')!==String(ex[k]||'')):(r.menge||r.notiz);
+      if(ch){ if(r.blatt){ ['menge','notiz','marke'].forEach(k=>ex[k]=r[k]||''); ex.mok=!!r.mok; ex.dr=!!r.dr; if(BL[r.ber]) ex.ber=r.ber; merke(ex); }
+        else { if(r.menge) ex.menge=r.menge; if(r.notiz) ex.notiz=r.notiz; }
+        put('items',ex); added.push(ex.id); } else dup.push(ex); return; }   // steht schon drauf
+    const a=artOf(r.name)||{}, ber=r.ber&&BL[r.ber]?r.ber:guessBer(r.name);
+    const it={id:uid('i'),name:r.name,menge:r.menge||'',notiz:r.blatt?r.notiz||'':r.notiz||a.notiz||'',marke:r.blatt?r.marke||'':a.marke||'',mok:r.blatt?!!r.mok:!!a.mok,dr:!!r.dr,ber,von:me||'',erst:Date.now(),status:'offen'};
+    put('items',it); if(r.blatt) merke(it); else put('arts',{...a,id:artId(r.name),n:+a.n||0,last:+a.last||0,name:r.name,ber}); added.push(it.id); });
   save(); lastAdd=added.concat(dup.map(i=>i.id)); render();
   if(dup.length&&!added.length) toast(dup.length===1?`„${dup[0].name}“ steht schon drauf`:`${dup.length} Artikel stehen schon drauf`);
   else toast(added.length===1?`„${D.items[added[0]].name}“ eingetragen`:`${added.length} Artikel eingetragen`,()=>{ added.forEach(id=>{ if(D.items[id]&&D.items[id].erst>Date.now()-6e4) rm('items',id); }); save(); render(); }); }
@@ -117,7 +124,8 @@ function artCount(it,d){ const aid=artId(it.name), a=D.arts[aid]&&!D.arts[aid].d
    Eine Zeile je offenem Artikel in Laden-Reihenfolge. Spalten:
    nr · artikel · anzahl (Packungen/Stück, mind. 1) · gesamtmenge + einheit (nur bei g/kg/ml/l: gewünschte Menge insgesamt)
    · menge_original (wie eingetippt) · notiz (Wünsche, die beim Produkt gelten: Bio, laktosefrei, Marke …)
-   · suchbegriff (artikel + notiz, für die Shop-Suche) · bereich · eingetragen_von. Komma-getrennt, UTF-8, Felder bei Bedarf in "…". */
+   · suchbegriff (marke + artikel + notiz, für die Shop-Suche) · bereich · eingetragen_von
+   · marke (gewünschte Marke, leer = egal) · andere_marke_ok (ja/nein, nur bei Marke). Komma-getrennt, UTF-8, Felder bei Bedarf in "…". */
 const MASS={g:'g',gr:'g',kg:'kg',ml:'ml',l:'l',liter:'l'};
 function mengeTeile(m){ m=String(m||'').trim(); if(!m) return {anzahl:1,wert:'',einheit:''};
   const x=/^(\d+(?:[.,]\d+)?)\s*(?:(x|×)|([a-zäöüß.]+))?$/i.exec(m); if(!x) return {anzahl:1,wert:'',einheit:''};
@@ -127,8 +135,8 @@ function mengeTeile(m){ m=String(m||'').trim(); if(!m) return {anzahl:1,wert:'',
 const csvF=v=>{ v=String(v??''); return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; };
 const ladenSort=L=>L.sort((a,b)=>ord(a.ber)-ord(b.ber)||(a.erst||0)-(b.erst||0));
 function csvExport(liste){ const O=ladenSort((liste||offen()).slice());
-  const L=[['nr','artikel','anzahl','gesamtmenge','einheit','menge_original','notiz','suchbegriff','bereich','eingetragen_von']];
-  O.forEach((i,k)=>{ const m=mengeTeile(i.menge); L.push([k+1,i.name,m.anzahl,m.wert,m.einheit,i.menge||'',i.notiz||'',(i.name+' '+(i.notiz||'')).trim(),BL[i.ber],pName(i.von)]); });
+  const L=[['nr','artikel','anzahl','gesamtmenge','einheit','menge_original','notiz','suchbegriff','bereich','eingetragen_von','marke','andere_marke_ok']];
+  O.forEach((i,k)=>{ const m=mengeTeile(i.menge); L.push([k+1,i.name,m.anzahl,m.wert,m.einheit,i.menge||'',i.notiz||'',[i.marke,i.name,i.notiz].filter(Boolean).join(' '),BL[i.ber],pName(i.von),i.marke||'',i.marke?(i.mok?'ja':'nein'):'']); });
   return L.map(r=>r.map(csvF).join(',')).join('\n')+'\n'; }
 const csvName=()=>{ const d=new Date(); return 'einkauf-rewe-'+d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+'.csv'; };
 /* Auswahl im Export-Blatt: beim Öffnen sind alle offenen Artikel gewählt. Abgewählte (z. B. im Shop-Warenkorb wieder entfernt)
@@ -165,6 +173,8 @@ function oft(){ const on=new Set(offen().map(i=>norm(i.name)));
 const fT=ts=>{ const d=new Date(ts), t=new Date(); const heute=d.toDateString()===t.toDateString(), gestern=new Date(t-864e5).toDateString()===d.toDateString();
   return (heute?'heute':gestern?'gestern':d.getDate()+'.'+(d.getMonth()+1)+'.')+' '+d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}); };
 function row(it){ const done=it.status==='gekauft', ed=canEdit(), m=[];
+  if(it.dr&&!done) m.push('<span class="dr">dringend</span>');
+  if(it.marke) m.push(`<span class="mk">${esc(it.marke)}${it.mok?' <i>o. ä.</i>':''}</span>`);
   if(it.notiz) m.push(`<span class="no">${esc(it.notiz)}</span>`);
   if(done) m.push(`<span>${av(it.gekauftVon,'s')}${it.bestellt?'bestellt':'gekauft'} von ${esc(it.gekauftVon===me?'dir':pName(it.gekauftVon))}</span>`);
   else if(it.von&&it.von!==me) m.push(`<span>${av(it.von,'s')}von ${esc(pName(it.von))}</span>`);
@@ -172,7 +182,8 @@ function row(it){ const done=it.status==='gekauft', ed=canEdit(), m=[];
     <button class="ck" data-tick="${it.id}" aria-pressed="${done}" aria-label="${done?'Zurück auf die Liste':'Gekauft'}: ${esc(it.name)}"${ed?'':' disabled'}><i>${CHK}</i></button>
     <button class="ib" data-edit="${it.id}"${ed?'':' disabled'}><span class="nm">${esc(it.name)}${it.menge?`<span class="mg">${esc(it.menge)}</span>`:''}</span>${m.length?`<span class="mt">${m.join('')}</span>`:''}</button></div>`; }
 function render(){ if(!D) return; const O=offen(), W=imWagen(), G=gekaufte(), ed=canEdit();
-  $('sub').textContent=O.length?`${O.length} ${O.length===1?'Artikel':'Artikel'} offen`+(W.length?` · ${W.length} im Wagen`:''):(W.length?`${W.length} im Wagen`:'alles erledigt')+(ROLE&&ROLE.ro?' · nur ansehen':'');
+  const nD=O.filter(i=>i.dr).length;
+  $('sub').textContent=O.length?`${O.length} Artikel offen`+(nD?` · ${nD} dringend`:'')+(W.length?` · ${W.length} im Wagen`:''):(W.length?`${W.length} im Wagen`:'alles erledigt')+(ROLE&&ROLE.ro?' · nur ansehen':'');
   $('meAv').innerHTML=me?av(me):'';
   let h='';
   if(ed) h+=`<div class="qwrap"><div class="qa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -181,7 +192,7 @@ function render(){ if(!D) return; const O=offen(), W=imWagen(), G=gekaufte(), ed
   const F=ed?oft():[];
   if(F.length) h+=`<div class="oft"><div class="lt">Oft gekauft</div><div class="chips" role="group" aria-label="Oft gekauft – antippen zum Eintragen">${F.map(n=>`<button class="chip" data-oft="${esc(n)}"><b>+</b> ${esc(n)}</button>`).join('')}</div></div>`;
   const by={}; O.forEach(i=>(by[i.ber]=by[i.ber]||[]).push(i));
-  Object.keys(by).sort((a,b)=>ord(a)-ord(b)).forEach(b=>{ const L=by[b].sort((x,y)=>(x.erst||0)-(y.erst||0));
+  Object.keys(by).sort((a,b)=>ord(a)-ord(b)).forEach(b=>{ const L=by[b].sort((x,y)=>(!!y.dr-!!x.dr)||(x.erst||0)-(y.erst||0));
     h+=`<section class="sec"><h2>${esc(BL[b])}<span class="n">${L.length}</span></h2><div class="list">${L.map(row).join('')}</div></section>`; });
   if(!O.length) h+=`<div class="card" style="margin-top:16px"><div class="empty">${W.length?'Alles im Wagen.':'Die Liste ist leer.'}${ed?' Oben eintippen, was fehlt – mehrere Artikel mit Komma.':''}</div></div>`;
   if(W.length) h+=`<section class="sec wagen"><h2>Im Wagen<span class="n">${W.length}</span></h2><div class="list">${W.map(row).join('')}</div></section>`;
@@ -195,22 +206,29 @@ function render(){ if(!D) return; const O=offen(), W=imWagen(), G=gekaufte(), ed
 function openSheet(s){ sheet=s; drawSheet(); $('ov').classList.add('show'); }
 function closeSheet(){ sheet=null; $('ov').classList.remove('show'); render(); }
 function drawSheet(){ const s=sheet, d=$('dlg'); if(!s) return;
-  if(s.m==='edit'){ const neu=!s.id, it=neu?s.neu:D.items[s.id]; if(!it||it.del) return closeSheet(); const b=s.ber||it.ber;
+  if(s.m==='edit'){ const neu=!s.id, it=neu?s.neu:D.items[s.id]; if(!it||it.del) return closeSheet();
+    const f=s.f||(s.f={name:it.name,menge:it.menge||'',notiz:it.notiz||'',marke:it.marke||'',mok:!!it.mok,dr:!!it.dr,ber:it.ber});
     d.innerHTML=`<div class="dh"><h3 id="dlgT">${neu?'Neuer Artikel':esc(it.name)}</h3><button class="x" data-close="1" aria-label="Schließen">×</button></div>
     <div class="db">
-      <div class="fs"><label class="lt" for="eN">Artikel</label><input class="in" id="eN" value="${esc(it.name)}"></div>
-      <div class="two"><div class="fs"><label class="lt" for="eM">Menge</label><input class="in" id="eM" value="${esc(it.menge)}" placeholder="z. B. 2×"></div>
-        <div class="fs"><label class="lt" for="eT">Notiz</label><input class="in" id="eT" value="${esc(it.notiz)}" placeholder="z. B. laktosefrei"></div></div>
-      <div class="fs"><span class="lt">Bereich im Laden</span><div class="fl">${D.set.order.map(k=>`<button class="opt" data-ber="${k}" aria-pressed="${b===k}">${esc(BL[k])}</button>`).join('')}</div></div>
-      ${neu?`<p class="note">Der Bereich wird gemerkt und gilt künftig auch, wenn „${esc(it.name)}“ wieder eingetragen wird.</p>`:`<p class="note">${s.dup?'Steht schon auf der Liste. ':''}Eingetragen von ${esc(it.von===me?'dir':pName(it.von))} · ${esc(fT(it.erst||it.upd))}${it.status==='gekauft'?`<br>Gekauft von ${esc(it.gekauftVon===me?'dir':pName(it.gekauftVon))} · ${esc(fT(it.gekauftAm))}`:''}<br>Der Bereich gilt künftig auch, wenn „${esc(it.name)}“ wieder eingetragen wird.</p>`}
+      ${s.dup?'<p class="note">Steht schon auf der Liste – hier ergänzen.</p>':''}
+      <div class="fs"><label class="lt" for="eN">Artikel</label><input class="in" id="eN" value="${esc(f.name)}" autocomplete="off"></div>
+      <div class="two mm"><div class="fs"><label class="lt" for="eM">Menge</label><div class="step"><button class="x" data-step="-1" aria-label="Menge verringern">−</button><input class="in" id="eM" value="${esc(f.menge)}" placeholder="1×" autocomplete="off"><button class="x" data-step="1" aria-label="Menge erhöhen">+</button></div></div>
+        <div class="fs"><label class="lt" for="eB">Marke</label><input class="in" id="eB" value="${esc(f.marke)}" placeholder="egal" autocomplete="off" list="markeL"><datalist id="markeL">${marken().map(m=>`<option value="${esc(m)}">`).join('')}</datalist></div></div>
+      <label class="sw"${f.marke?'':' hidden'} id="eOkL"><input type="checkbox" id="eOk"${f.mok?' checked':''}> Ähnliche andere Marke ist auch ok</label>
+      <div class="fs"><label class="lt" for="eT">Notiz</label><input class="in" id="eT" value="${esc(f.notiz)}" placeholder="z. B. laktosefrei, Bio, 3,5 %" autocomplete="off"></div>
+      <label class="sw"><input type="checkbox" id="eD"${f.dr?' checked':''}> Dringend – wird ganz oben angezeigt</label>
+      <div class="fs"><span class="lt">Bereich im Laden</span><div class="fl">${D.set.order.map(k=>`<button class="opt" data-ber="${k}" aria-pressed="${f.ber===k}">${esc(BL[k])}</button>`).join('')}</div></div>
+      ${s.mem?`<p class="note">${esc(s.mem)} vom letzten Mal übernommen – einfach ändern oder leeren.</p>`:''}
+      ${neu?`<p class="note">Marke, Notiz und Bereich werden für „${esc(f.name)}“ gemerkt und beim nächsten Mal vorgeschlagen.</p>`
+        :`<p class="note">Eingetragen von ${esc(it.von===me?'dir':pName(it.von))} · ${esc(fT(it.erst||it.upd))}${it.status==='gekauft'?`<br>Gekauft von ${esc(it.gekauftVon===me?'dir':pName(it.gekauftVon))} · ${esc(fT(it.gekauftAm))}`:''}<br>Marke, Notiz und Bereich gelten künftig auch, wenn „${esc(it.name)}“ wieder eingetragen wird.</p>`}
     </div>
     <div class="df">${neu?'':'<button class="btn dng" data-del="1">Löschen</button>'}<span class="sp"></span>${!neu&&it.status==='gekauft'?'<button class="btn" data-back="1">Wieder auf die Liste</button>':''}<button class="btn pri" data-save="1">${neu?'Eintragen':'Speichern'}</button></div>`;
-    if(neu||s.dup) setTimeout(()=>{ const m=$('eM'); if(m&&innerWidth>640&&!m.value){ m.focus(); } },60); return; }
+    if((neu||s.dup)&&!s.drawn) setTimeout(()=>{ const m=$('eM'); if(m&&innerWidth>640&&!m.value) m.focus(); },60); s.drawn=1; return; }
   if(s.m==='exp'){ const A=expAlle(), W=expWahl(), t=expCsv(), leer=!W.length?' disabled':'';
     d.innerHTML=`<div class="dh"><h3 id="dlgT">Export für Online-Bestellung</h3><button class="x" data-close="1" aria-label="Schließen">×</button></div>
     <div class="db"><p class="note">Die ausgewählten Artikel als CSV – in Laden-Reihenfolge, mit Anzahl, Menge und Notiz. Datei oder Text an Claude geben und sagen: <b>„Bestell das bei REWE“</b>. Der Assistent legt alles in den Warenkorb, fragt bei ähnlichen Artikeln im Angebot nach und schickt die Bestellung nicht selbst ab.</p>
       <div class="fs"><div class="lrow"><span class="lt" id="expL">Artikel · <span id="expN">${W.length} von ${A.length}</span></span><button class="btn sm" data-selall="1">${W.length===A.length?'Keine':'Alle'}</button></div>
-        ${A.length?`<div class="sl" role="group" aria-labelledby="expL">${A.map(i=>`<label><input type="checkbox" data-sel="${esc(i.id)}"${s.sel.has(i.id)?' checked':''}><span class="tx">${esc(i.name)}${i.menge?`<span class="mg">${esc(i.menge)}</span>`:''}${i.notiz?`<span class="no">${esc(i.notiz)}</span>`:''}</span></label>`).join('')}</div>`:'<p class="note">Keine offenen Artikel mehr.</p>'}</div>
+        ${A.length?`<div class="sl" role="group" aria-labelledby="expL">${A.map(i=>`<label><input type="checkbox" data-sel="${esc(i.id)}"${s.sel.has(i.id)?' checked':''}><span class="tx">${esc(i.name)}${i.menge?`<span class="mg">${esc(i.menge)}</span>`:''}${i.marke?`<span class="no">${esc(i.marke)}</span>`:''}${i.notiz?`<span class="no">${esc(i.notiz)}</span>`:''}</span></label>`).join('')}</div>`:'<p class="note">Keine offenen Artikel mehr.</p>'}</div>
       <div class="fl"><button class="btn pri" data-csvdl="1"${leer}>CSV herunterladen</button><button class="btn" data-csvcp="1"${leer}>CSV kopieren</button></div>
       <div class="fs"><label class="lt" for="csvTa">Inhalt</label><textarea class="in csv" id="csvTa" readonly rows="7" spellcheck="false">${esc(t)}</textarea></div>
       <p class="note">Nach der Bestellung: Häkchen bei allem entfernen, was nicht bestellt wurde (z. B. aus dem Warenkorb genommen), dann abhaken. Die abgehakten Artikel landen unter „Im Wagen“ und zählen für „Oft gekauft“, der Rest bleibt auf der Liste.</p></div>
@@ -222,20 +240,31 @@ function drawSheet(){ const s=sheet, d=$('dlg'); if(!s) return;
       <div><button class="btn sm" data-ordreset="1">Standard-Reihenfolge</button></div>
       <p class="note">Abgehakte Artikel bleiben 24 Stunden unter „Im Wagen“ und lassen sich dort zurückholen. Nach 7 Tagen räumt die Liste sie selbst weg. Was oft gekauft wird, erscheint oben als Vorschlag.</p></div>`; return; }
 }
-function saveEdit(){ const n=$('eN').value.trim(); if(!n){ toast('Bitte einen Namen eingeben'); return; }
-  if(!sheet.id){ const b=sheet.ber||sheet.neu.ber; sheet=null; $('ov').classList.remove('show'); qa='';
-    addItems([{name:n.charAt(0).toUpperCase()+n.slice(1),menge:$('eM').value.trim(),notiz:$('eT').value.trim(),ber:b}]); return; }
+function readF(){ const f=sheet.f, v=id=>{ const e=$(id); return e?e.value.trim():''; };
+  f.name=v('eN'); f.menge=v('eM'); f.notiz=v('eT'); f.marke=v('eB'); f.mok=!!($('eOk')&&$('eOk').checked); f.dr=!!($('eD')&&$('eD').checked); return f; }
+const marken=()=>[...new Set(live('arts').map(a=>a.marke).concat(live('items').map(i=>i.marke)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'de'));
+/* −/+ an der Menge: „2×“ → „3×“, „500 g“ → „600 g“, „1,5 l“ → „2 l“; leer zählt als 1× */
+function stepMenge(m,d){ m=String(m||'').trim(); const x=/^(\d+(?:[.,]\d+)?)\s*(.*)$/.exec(m); let n=x?parseFloat(x[1].replace(',','.')):m?null:1, u=x?x[2].trim():'×';
+  if(n==null) return m;   // freier Text: nicht anfassen
+  const st=/^(g|gr|ml)$/i.test(u)?(n+d*100>=100||d>0&&n>=100?100:50):/^(kg|l|liter)$/i.test(u)?0.5:1;
+  n=Math.round((n+d*st)*100)/100; if(n<=0) return '';
+  const t=String(n).replace('.',','); return !u||/^(x|×)$/i.test(u)?t+'×':t+' '+u; }
+function saveEdit(){ const f=readF(), n=f.name; if(!n){ toast('Bitte einen Namen eingeben'); return; }
+  const nm=n.charAt(0).toUpperCase()+n.slice(1);
+  if(!sheet.id){ sheet=null; $('ov').classList.remove('show'); qa='';
+    addItems([{name:nm,menge:f.menge,notiz:f.notiz,marke:f.marke,mok:f.marke?f.mok:false,dr:f.dr,ber:f.ber,blatt:1}]); return; }
   const it=D.items[sheet.id]; if(!it) return;
-  const b=sheet.ber||it.ber; it.name=n.charAt(0).toUpperCase()+n.slice(1); it.menge=$('eM').value.trim(); it.notiz=$('eT').value.trim(); it.ber=b; put('items',it);
-  const aid=artId(it.name), a=D.arts[aid]&&!D.arts[aid].del?D.arts[aid]:{id:aid,n:0,last:0}; put('arts',{...a,name:it.name,ber:b});   // Bereich merken
+  it.name=nm; it.menge=f.menge; it.notiz=f.notiz; it.marke=f.marke; it.mok=f.marke?f.mok:false; it.dr=f.dr; it.ber=f.ber; put('items',it);
+  merke(it);   // Bereich, Marke und Notiz merken
   save(); closeSheet(); toast('Gespeichert'); }
 
 /* ---------- Ereignisse ---------- */
 document.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b||b.disabled) return; const ds=b.dataset;
   if(ds.add){ const L=parseAll(qa); if(!L.length){ toast('Bitte eintippen, was fehlt'); const q=$('qa'); if(q) q.focus(); return; }
     if(L.length===1){ const r=L[0], ex=offen().find(i=>norm(i.name)===norm(r.name)); if(document.activeElement) document.activeElement.blur();   // ein Artikel: gleich die Details zeigen
-      if(ex){ qa=''; openSheet({m:'edit',id:ex.id,dup:1}); if(r.menge) $('eM').value=r.menge; if(r.notiz) $('eT').value=r.notiz; return; }
-      return openSheet({m:'edit',id:null,neu:{name:r.name,menge:r.menge||'',notiz:r.notiz||'',ber:guessBer(r.name),von:me||''}}); }
+      if(ex){ qa=''; const f={name:ex.name,menge:r.menge||ex.menge||'',notiz:r.notiz||ex.notiz||'',marke:ex.marke||'',mok:!!ex.mok,dr:!!ex.dr,ber:ex.ber}; return openSheet({m:'edit',id:ex.id,dup:1,f}); }
+      const a=artOf(r.name)||{}, mem=[!r.notiz&&a.notiz?'Notiz':'',a.marke?'Marke':''].filter(Boolean);
+      return openSheet({m:'edit',id:null,mem:mem.join(' und '),neu:{name:r.name,menge:r.menge||'',notiz:r.notiz||a.notiz||'',marke:a.marke||'',mok:!!a.mok,ber:guessBer(r.name),von:me||''}}); }
     qa=''; addItems(L); const q=$('qa'); if(q&&innerWidth>640) q.focus(); return; }
   if(ds.oft) return addItems([{name:ds.oft,menge:'',notiz:''}]);
   if(ds.tick) return tick(ds.tick);
@@ -253,7 +282,8 @@ document.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b
   if(ds.close) return closeSheet();
   if(!sheet) return;
   if(sheet.m==='edit'){
-    if(ds.ber){ const keep={n:$('eN').value,m:$('eM').value,t:$('eT').value}; sheet.ber=ds.ber; drawSheet(); $('eN').value=keep.n; $('eM').value=keep.m; $('eT').value=keep.t; return; }
+    if(ds.ber){ readF().ber=ds.ber; document.querySelectorAll('[data-ber]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.ber===ds.ber)); return; }
+    if(ds.step){ const m=$('eM'); m.value=stepMenge(m.value,+ds.step); return; }
     if(ds.save) return saveEdit();
     if(ds.del&&sheet.id){ const it=D.items[sheet.id]; rm('items',sheet.id); save(); closeSheet(); return toast(`„${it.name}“ gelöscht`); }
     if(ds.back){ const id=sheet.id; closeSheet(); return tick(id); }
@@ -264,20 +294,21 @@ document.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b
     if(ds.ordreset){ D.set.order=BER.map(x=>x[0]); D.set.upd=Date.now(); save(); drawSheet(); return toast('Standard-Reihenfolge'); }
   }
 });
-document.addEventListener('input',e=>{ if(e.target.id==='qa'){ qa=e.target.value; const p=$('pv'); if(p) p.innerHTML=qaPreview(); } });
+document.addEventListener('input',e=>{ if(e.target.id==='eB'){ const l=$('eOkL'); if(l) l.hidden=!e.target.value.trim(); return; }
+  if(e.target.id==='qa'){ qa=e.target.value; const p=$('pv'); if(p) p.innerHTML=qaPreview(); } });
 document.addEventListener('change',e=>{ const c=e.target; if(!c.dataset||c.dataset.sel==null||!sheet||sheet.m!=='exp') return;
   if(c.checked) sheet.sel.add(c.dataset.sel); else sheet.sel.delete(c.dataset.sel); expUpdate(); });
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&sheet) return closeSheet();
   if(e.key==='Enter'&&e.target.id==='qa'){ e.preventDefault(); const b=document.querySelector('[data-add]'); if(b) b.click(); }
-  if(e.key==='Enter'&&sheet&&sheet.m==='edit'&&/^e[NMT]$/.test(e.target.id)){ e.preventDefault(); saveEdit(); }
+  if(e.key==='Enter'&&sheet&&sheet.m==='edit'&&/^e[NMTB]$/.test(e.target.id)){ e.preventDefault(); saveEdit(); }
 });
 $('ov').addEventListener('click',e=>{ if(e.target.id==='ov') closeSheet(); });
 
 /* ---------- Dashboard-Kachel ---------- */
-function sumObj(){ const O=offen().sort((a,b)=>ord(a.ber)-ord(b.ber)||(a.erst||0)-(b.erst||0));
+function sumObj(){ const O=offen().sort((a,b)=>(!!b.dr-!!a.dr)||ord(a.ber)-ord(b.ber)||(a.erst||0)-(b.erst||0));
   return {v:1,savedAt:Date.now(),zahl:{wert:O.length,label:O.length===1?'Artikel auf der Liste':'Artikel auf der Liste'},
-    zeilen:O.slice(0,6).map(i=>({t:i.name+(i.menge?' · '+i.menge:''),sub:[BL[i.ber],i.notiz,i.von&&i.von!==me?'von '+pName(i.von):''].filter(Boolean).join(' · ')})),
+    zeilen:O.slice(0,6).map(i=>({t:i.name+(i.menge?' · '+i.menge:''),ton:i.dr?'bad':undefined,sub:[i.dr?'dringend':'',BL[i.ber],i.marke,i.notiz,i.von&&i.von!==me?'von '+pName(i.von):''].filter(Boolean).join(' · ')})),
     leer:'Die Einkaufsliste ist leer'}; }
 window.__dashSum=()=>{ try{ return D?sumObj():null; }catch(e){ return null; } };
 function pushSum(){ if(!window.__PI_SYNC||!D) return; fetch('/api/sum_einkauf',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(sumObj())}).catch(()=>{}); }

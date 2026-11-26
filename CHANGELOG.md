@@ -14,6 +14,8 @@ Alle nennenswerten Änderungen. Neueste oben. Das Projekt hat keine Versionsnumm
 - GitHub: CI-Workflow, Vorlagen für Issues und Pull Requests, `.editorconfig`, `.gitattributes`.
 
 ### Geändert
+- Einkaufsliste: Im Artikel-Blatt gibt es jetzt **Marke** (mit „Ähnliche andere Marke ist auch ok“), Knöpfe −/+ für die Menge und **Dringend** (steht ganz oben, auch auf der Kachel). Marke, Notiz und Bereich werden je Artikel gemerkt und beim nächsten Eintragen vorgeschlagen bzw. bei Schnelleingabe und „Oft gekauft“ übernommen.
+- Einkaufs-CSV: neue Spalten `marke` und `andere_marke_ok` (hinten angehängt), `suchbegriff` enthält die Marke; Skill `rewe-bestellung` beachtet sie. Den Skill neu hochladen.
 - Aufgaben: „Hinzufügen“ (und Enter) öffnet jetzt gleich das Detailblatt mit Titel und Kürzeln aus der Eingabe; eingetragen wird mit „Eintragen“. Der eigene „Details“-Knopf entfällt.
 - Einkaufsliste: Ein einzelner Artikel öffnet beim Eintragen gleich das Blatt mit Menge, Notiz und Bereich; mehrere Artikel mit Komma und „Oft gekauft“ tragen weiter sofort ein. Steht der Artikel schon auf der Liste, öffnet sein Blatt.
 - Skill `rewe-bestellung`: Ist ein Artikel nicht verfügbar, werden bis zu zwei passende Ersatzprodukte vorgeschlagen (Notiz-Vorgaben erfüllt, Grundpreis höchstens etwa 30 % teurer) oder „weglassen“ angeboten; Ersatz wird in der Übersicht markiert.

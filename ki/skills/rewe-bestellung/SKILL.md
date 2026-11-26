@@ -18,10 +18,12 @@ Normalfall ist die CSV aus der Einkaufsliste („Export für Online-Bestellung�
 | `anzahl` | Packungen bzw. Stück, mindestens 1 |
 | `gesamtmenge` + `einheit` | Nur bei g/kg/ml/l gefüllt: gewünschte Menge **insgesamt** (z. B. 500 g Hack) |
 | `menge_original` | Wie eingetippt (z. B. „3 Dosen“, „2×“) |
-| `notiz` | **Harte Vorgaben** für das Produkt: Bio, laktosefrei, vegan, Marke, Sorte, Fettstufe, Größe … |
-| `suchbegriff` | artikel + notiz, für die Shop-Suche gedacht |
+| `notiz` | **Harte Vorgaben** für das Produkt: Bio, laktosefrei, vegan, Sorte, Fettstufe, Größe … (ältere Listen: auch Marke) |
+| `suchbegriff` | marke + artikel + notiz, für die Shop-Suche gedacht |
 | `bereich` | Laden-Bereich (nur Info) |
 | `eingetragen_von` | Wer es auf die Liste gesetzt hat (nur Info) |
+| `marke` | Gewünschte Marke; leer = egal. Fehlt die Spalte (ältere CSV), steht eine Marke ggf. in `notiz` |
+| `andere_marke_ok` | Nur bei `marke`: `nein` = Marke ist **verbindlich** wie eine Notiz-Vorgabe; `ja` = diese Marke bevorzugen, eine ähnliche andere Marke ist aber in Ordnung |
 
 Kommt keine CSV, sondern eine normale Liste, genauso vorgehen: Anzahl/Menge/Notiz aus dem Text ablesen.
 
@@ -38,7 +40,8 @@ Zu Beginn kurz bestätigen: „N Artikel gelesen“ – nicht die ganze Liste wi
 
 1. **Suchen** mit `suchbegriff`; findet das nichts, mit `artikel`.
 2. **Wunschprodukt wählen** – das Produkt, das der Nutzer ohne Angebot nehmen würde:
-   - Alle Vorgaben aus `notiz` müssen erfüllt sein (laktosefrei heißt laktosefrei, eine genannte Marke heißt diese Marke).
+   - Alle Vorgaben aus `notiz` müssen erfüllt sein (laktosefrei heißt laktosefrei).
+   - Steht eine `marke`, ein Produkt dieser Marke nehmen. Bei `andere_marke_ok` = `nein` gilt sie wie eine Notiz-Vorgabe; bei `ja` ist sie die erste Wahl, aber Angebote und Ersatz anderer Marken sind erlaubt (trotzdem nachfragen, nicht still tauschen).
    - Zeigt REWE frühere Käufe („Meine Produkte“, „Schon mal gekauft“), dieses Produkt bevorzugen.
    - Sonst ein übliches Standardprodukt in üblicher Größe, nicht das teuerste und nicht das exotischste.
 3. **Menge umrechnen**
@@ -56,7 +59,7 @@ Angebote bei REWE erkennt man an „Angebot“/„Aktion“-Kennzeichen, durchge
 - **Ist das Wunschprodukt selbst im Angebot:** nehmen, in der Übersicht als Angebot markieren. Keine Frage nötig.
 - **Ist eine ähnliche Alternative im Angebot:** fragen. Ähnlich heißt alles zugleich:
   - gleiche Produktart und gleicher Zweck (Vollmilch ↔ Vollmilch einer anderen Marke, nicht Vollmilch ↔ Kakaomilch),
-  - alle `notiz`-Vorgaben erfüllt (eine Marken-Vorgabe schließt andere Marken aus – dann nicht fragen),
+  - alle `notiz`-Vorgaben erfüllt; eine verbindliche Marke (`andere_marke_ok` = `nein`, oder Marke in der `notiz`) schließt andere Marken aus – dann nicht fragen,
   - ähnliche Größe (etwa ±30 %) oder die gewünschte Gesamtmenge lässt sich damit genauso gut erreichen,
   - günstiger nach **Grundpreis** (€/kg, €/l, €/Stück), nicht nur nach Packungspreis.
 - **Mengenrabatt, der mehr Stück verlangt als gewünscht** (z. B. „2 für 3 €“ bei Anzahl 1): ebenfalls fragen, ob eins mehr genommen werden soll.
@@ -68,7 +71,7 @@ Nicht verfügbar heißt: „ausverkauft“, „derzeit nicht verfügbar“, „n
 
 **Ersatz suchen:** Bis zu zwei verfügbare Ersatzprodukte heraussuchen, in dieser Rangfolge:
 1. Gleiches Produkt in anderer Packungsgröße, mit der sich Anzahl bzw. Gesamtmenge genauso gut erreichen lässt.
-2. Gleiche Produktart einer anderen Marke bzw. Eigenmarke (REWE Beste Wahl, ja!, REWE Bio) – nur, wenn die `notiz` keine Marke vorschreibt.
+2. Gleiche Produktart einer anderen Marke bzw. Eigenmarke (REWE Beste Wahl, ja!, REWE Bio) – nur, wenn keine verbindliche Marke vorgegeben ist (siehe `marke`/`andere_marke_ok`).
 3. Nächstverwandte Sorte (Gouda jung ↔ Gouda mittelalt, Spaghetti ↔ Spaghettoni), nur wenn keine `notiz`-Vorgabe dagegen spricht.
 
 Jeder Vorschlag muss:
@@ -114,7 +117,7 @@ Danach die Antworten umsetzen und die vorgemerkten Artikel einlegen. Gewählte E
 
 ## Regeln
 
-- `notiz` ist verbindlich. Lieber fragen als eine Vorgabe verletzen.
+- `notiz` und eine verbindliche `marke` sind verbindlich. Lieber fragen als eine Vorgabe verletzen.
 - Nichts still ersetzen: Angebot, Ersatz für Ausverkauftes, andere Packungsgröße mit deutlich mehr Menge – alles kommt als Frage.
 - Ist ein Artikel nur unscharf („Käse“ ohne Sorte), ein übliches Produkt wählen und in der Übersicht markieren, statt zu fragen – Fragen sind für Angebote, Ersatz und echte Unklarheiten da.
 - Preise und Angebote nur so angeben, wie die Seite sie zeigt. Nichts erfinden.

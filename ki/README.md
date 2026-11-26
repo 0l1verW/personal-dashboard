@@ -62,10 +62,14 @@ Voraussetzung: Claude kann einen Browser steuern (z. B. Claude in Chrome oder de
 | `anzahl` | Packungen bzw. Stück (mindestens 1) |
 | `gesamtmenge`, `einheit` | nur bei g, kg, ml, l: gewünschte Menge insgesamt |
 | `menge_original` | Menge, wie eingetippt |
-| `notiz` | verbindliche Vorgaben (Bio, laktosefrei, Marke …) |
-| `suchbegriff` | Artikel und Notiz zusammen, für die Shop-Suche |
+| `notiz` | verbindliche Vorgaben (Bio, laktosefrei, Sorte …) |
+| `suchbegriff` | Marke, Artikel und Notiz zusammen, für die Shop-Suche |
 | `bereich` | Laden-Bereich |
 | `eingetragen_von` | wer den Artikel eingetragen hat |
+| `marke` | gewünschte Marke, leer = egal |
+| `andere_marke_ok` | nur bei Marke: `nein` = Marke verbindlich, `ja` = ähnliche andere Marke auch ok |
+
+Neue Spalten kommen immer hinten dazu; der Skill liest die Spalten über ihre Namen.
 
 Der Skill ist auf rewe.de zugeschnitten; für einen anderen Shop eine Kopie anlegen und Abschnitt 2 bis 5 anpassen. Die CSV bleibt gleich.
 

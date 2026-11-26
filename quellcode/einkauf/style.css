@@ -145,3 +145,13 @@ body:has(.ov.show) .toast{bottom:auto;top:max(16px,env(safe-area-inset-top))}
 .sl .no{display:block;font-weight:400;font-size:12.5px;font-style:italic;color:var(--muted)}
 .sl label:has(input:not(:checked)){background:var(--surface-2)}
 .sl label:has(input:not(:checked)) .tx{color:var(--faint);text-decoration:line-through}
+
+/* Blatt: Menge −/+, Schalter; Liste: Marke, dringend */
+.step{display:flex;gap:6px;align-items:center}.step .in{text-align:center;font-family:var(--mono)}.step .x{flex:none;width:44px;height:44px}
+.sw{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink);min-height:44px;cursor:pointer}
+.sw[hidden]{display:none}
+.sw input{width:20px;height:20px;accent-color:var(--accent-fill);flex:none}
+.mt .mk{font-weight:600;color:var(--ink)}.mt .mk i{font-style:normal;font-weight:500;color:var(--muted)}
+.mt .dr{font-weight:700;color:var(--bad-ink);text-transform:uppercase;font-size:11px;letter-spacing:.5px}
+@media (max-width:520px){.two.mm{grid-template-columns:1fr}}
+.step .in{max-width:180px}
